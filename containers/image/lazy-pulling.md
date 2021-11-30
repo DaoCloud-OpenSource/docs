@@ -6,8 +6,6 @@ Standard-Compatible Extension to Container Image Layers for Lazy Pulling. It is 
 
 ![img](https://miro.medium.com/max/1400/1*jAQCEWTi3jzZX2Rn0XEUAg.png)
 
-This extension is based on stargz (stands for *seekable tar.gz*) proposed by [Google CRFS](https://github.com/google/crfs) project (initially [discussed in Go community](https://github.com/golang/go/issues/30829)). eStargz extends stargz for chunk-level verification and runtime performance optimization.
-
 ### What is Lazy Pulling?
 
 Lazy pulling is a technique of pulling container images aiming at the faster cold start. This allows a container to startup without waiting for the entire image layer contents to be locally available. Instead, necessary files (or chunks for large files) in the layer are fetched *on-demand* during running the container.
