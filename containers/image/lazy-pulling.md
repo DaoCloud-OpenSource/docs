@@ -40,6 +40,5 @@ https://medium.com/nttlabs/buildkit-lazypull-66c37690963f
 2. https://github.com/containerd/stargz-snapshotter/blob/main/docs/estargz.md
 3. https://medium.com/nttlabs/startup-containers-in-lightning-speed-with-lazy-image-distribution-on-containerd-243d94522361
 4. https://devopstales.github.io/kubernetes/lazyimage/
-5. https://zhuanlan.zhihu.com/p/24764131
 
 
