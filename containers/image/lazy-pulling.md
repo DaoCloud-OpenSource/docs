@@ -26,14 +26,30 @@ Lazy pulling is a technique of pulling container images aiming at the faster col
 
 ### Demo
 
-https://github.com/containerd/stargz-snapshotter/blob/main/docs/overview.md
-
-
-```
+```bash
 $ kind create cluster --name stargz-demo --image ghcr.io/stargz-containers/estargz-kind-node:0.7.0
 $ docker exec -it xxx bash
+```
+
+1. 镜像格式优化 optimize
+
+```bash
+$ ctr-remote --debug i optimize --oci docker.io/jonyhy/esgz:ov1 docker.io/jonyhy/esgz:v1
+```
+
+2. 拉取效果
+
+```bash
 $ ctr-remote i rpull docker.io/jonyhy/esgz:v1
 $ journalctl -u stargz-snapshotter --no-pager --follow
+```
+
+3. 启动效果
+
+```bash
+$ ctr-remote run --rm -t --snapshotter=stargz docker.io/jonyhy/esgz:v1 test /bin/bash
+$ ls /.stargz-snapshotter/*
+$ cat /.stargz-snapshotter/*
 ```
 
 ### 产品结合需要满足
