@@ -26,13 +26,11 @@ Lazy pulling is a technique of pulling container images aiming at the faster col
 
 ### Demo
 
-https://medium.com/nttlabs/buildkit-lazypull-66c37690963f
-
 ### 产品结合需要满足
 
-1. containerd or docker version ?
-2. enable stargz by config
-3. convert image to stargz format
+1. CRI containerd, podman or cri-o
+2. fuse
+3. run stargz-snapshotter or stargz-store
 
 ### Reference
 
@@ -40,5 +38,6 @@ https://medium.com/nttlabs/buildkit-lazypull-66c37690963f
 2. https://github.com/containerd/stargz-snapshotter/blob/main/docs/estargz.md
 3. https://medium.com/nttlabs/startup-containers-in-lightning-speed-with-lazy-image-distribution-on-containerd-243d94522361
 4. https://devopstales.github.io/kubernetes/lazyimage/
-
+5. https://github.com/containerd/stargz-snapshotter/blob/main/Dockerfile
+6. https://medium.com/nttlabs/buildkit-lazypull-66c37690963f
 
