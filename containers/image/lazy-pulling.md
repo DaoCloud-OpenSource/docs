@@ -26,6 +26,13 @@ Lazy pulling is a technique of pulling container images aiming at the faster col
 
 ### Demo
 
+```
+$ kind create cluster --name stargz-demo --image ghcr.io/stargz-containers/estargz-kind-node:0.7.0
+$ docker exec -it xxx bash
+$ ctr-remote i rpull docker.io/jonyhy/esgz:v1
+$ journalctl -u stargz-snapshotter --no-pager --follow
+```
+
 ### 产品结合需要满足
 
 1. CRI containerd, podman or cri-o
