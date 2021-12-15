@@ -54,6 +54,8 @@ $ cat /.stargz-snapshotter/*
 
 ### 产品结合需要满足
 
+版本要求: https://github.com/containerd/stargz-snapshotter/issues/258
+
 1. CRI containerd, podman or cri-o
 2. fuse
 3. run stargz-snapshotter or stargz-store
