@@ -1,7 +1,5 @@
 # [1432-volume-health-monitor](https://github.com/kubernetes/enhancements/tree/master/keps/sig-storage/1432-volume-health-monitor)
 
-[TOC]
-
 添加对volume状态健康监测的monitor以便在问题发生时(无法正常读写volume)及时根据监控的报错进行问题定位和修复
 
 
