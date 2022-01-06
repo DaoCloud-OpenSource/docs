@@ -12,7 +12,7 @@
 - Kubelet
   - kubelet已经通过NodeGetVolumeStats获取volume状态信息，将对其进行扩展支持健康检测
   - kubelet将会把异常的日志信息记录到pod的事件上
-  - 若之后的core仓库有针对本地存储的csi实现，其i也应该实现监控相关的接口
+  - 若之后的core仓库有针对本地存储的csi实现，其也应该实现监控相关的接口
   - 对外暴露volume健康信息的监控指标
 
 ### feature gate
