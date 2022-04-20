@@ -319,6 +319,23 @@
 * kube scheduler 移除了不安全的 flags，`--address` 和 `--port`
 
 
-道客DaoCloud 作为 Kubernetes 社区的活跃玩家，在v1.24版本开发过程中，也参与了很多贡献，如`PodPriorityBasedGracefulNodeShutdown`，`PodOverhead`，`DefaultPodTopologySpread` 等功能的迭代，kube scheduler framework 框架的优化，kubelet, kubeadm 等多个 bug 修复等等。也正是因为 DaoCloud 在 Kubernetes 社区的坚持耕耘，在过去的几个月中，先后有2名同学成为了 sig/node 小组的 Reviewer，有一名同学成为了 kubernetes website 的 Approver。
+## DaoCloud 社区贡献
+道客DaoCloud 作为 Kubernetes 社区的活跃玩家，在v1.24版本开发过程中，参与了诸多贡献，如`PodPriorityBasedGracefulNodeShutdown`，`PodOverhead`，`DefaultPodTopologySpread` 等功能的迭代，kube-scheduler framework 框架的优化，kubelet, kubeadm 等多个 bug 修复等等, 共计参与了43个PR的贡献, 详见[贡献榜单](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&start_date=1641744000&end_date=1649692800&module=github.com/kubernetes/kubernetes)。
+
+### 社区贡献排名(2022.01.10 – 2022.04.12)
+![contribute](./contribute.png)
+
+也正是因为 DaoCloud 在 Kubernetes 社区的坚持耕耘，在过去的几个月中，先后有2名同学成为了 sig/node 小组的 Reviewer，有一名同学成为了 Kubernetes website 的 Approver。
 
 未来，DaoCloud 会继续在 Kubernetes 开源社区贡献自己的力量，也欢迎有志之士加入我们，一起驶向星辰大海！
+
+
+## 历史文章
+- [Kubernetes v1.23 正式发布，有哪些增强？](https://mp.weixin.qq.com/s/A5GBv5Yn6tQK_r6_FSyp9A)
+- [Kubernetes 1.22，颠覆你的想象：可启用 Swap，推出 PSP 替换方案，还有……](https://mp.weixin.qq.com/s/9nH2UagDm6TkGhEyoYPgpQ)
+- [Kubernetes 1.21 震撼发布 | PSP 将被废除，BareMetal 得到增强](https://mp.weixin.qq.com/s/amGjvytJatO-5a7Nz4BYPw)
+
+
+## 参考
+* https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.24.md
+* https://sysdig.com/blog/kubernetes-1-24-whats-new/
