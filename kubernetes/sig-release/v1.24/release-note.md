@@ -5,8 +5,8 @@
 
 
 ## 重磅改动
-* kubernetes 正式移除 Dockershim 支持
-* TODO: 请加上大家觉得重磅的改动！！！
+* kubernetes 正式移除对 Dockershim 的支持(如何实现集群平滑过渡，可以参考[CRI-Dockerd](https://github.com/DaoCloud-OpenSource/docs/blob/main/kubernetes/sig-release/v1.24/cri-docker.md))
+* [StatefulSets 支持批量滚动更新](#StatefulSets)
 
 
 ## 升级提醒
