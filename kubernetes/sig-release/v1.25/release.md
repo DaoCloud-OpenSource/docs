@@ -61,7 +61,7 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 -  E2E测试使用新版本 Ginkgo v2。
 
 
-### 3. Daocloud 主要参与功能 
+### 3. 道客主要参与功能 
 
 本次发布中，DaoCloud 重点贡献了 sig-node 和 sig-scheduling 相关内容，具体功能点如下：
 
