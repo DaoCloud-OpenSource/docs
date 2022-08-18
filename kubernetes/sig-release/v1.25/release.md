@@ -91,7 +91,7 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 
 ### 5. 注意事项
 
-本节主要介绍 v1.25中 API 变化，以及功能的移除以及废弃，废弃的功能通常会在1-2个版本之后移除。更多详情请查看[Kubernetes 1.25 的移除说明和主要变更](https://kubernetes.io/zh-cn/blog/2022/08/04/upcoming-changes-in-kubernetes-1-25/)
+本节主要介绍 v1.25 中 API 变化，以及功能的移除以及废弃，废弃的功能通常会在 1-2 个版本之后移除。更多详情请查看[Kubernetes 1.25 的移除说明和主要变更](https://kubernetes.io/zh-cn/blog/2022/08/04/upcoming-changes-in-kubernetes-1-25/)
 
 
 1. 之前废弃的 beta API 在本版本中都移除了。详情参考 https://kubernetes.io/docs/reference/using-api/deprecation-guide/#v1-25 。
