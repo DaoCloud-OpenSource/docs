@@ -107,7 +107,7 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 3. 其他需要注意的变化
 - 废弃了 GlusterFS 树内插件
 - 厘清了 kubelet 和 kube-proxy 对 IPTables 链的管理，
-- apiserver 废弃了  `--service-account-api-audiences` ，可以使用 `--api-audiences` 替代。
+- apiserver 废弃了  `--service-account-api-audiences`，可以使用 `--api-audiences` 替代。
 - kubeadm 中，功能门 UnversionedKubeletConfigMap GA，这意味着新版本中 kubeadm 只会读取 kube-system 命名空间下名为 kubelet-config的 configmap，在 UnversionedKubeletConfigMap 开启之前，kubeadm 使用的是 `kubelet-config-x.yy` x.yy 是当前 Kubernetes 版本。如果集群当中目前没有 kubelet-config 的 configmap，集群管理员需要在升级之前手动复制 `kubeelt-config-x.yy` configmap 的内容来创建 名为 kubelet-config 的 configmap。
 
 此外，以下是一些依赖版本的变化，其中 etcd 的版本需要注意，如果您在使用 v3.5.0-2， 请务必在生产环境尽快升级到 3.5.3 之后的版本。
