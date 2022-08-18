@@ -1,10 +1,10 @@
-太平洋时间 2022 年 8 月 23 日，Kubernetes 1.25 正式发布。此版本更新距离上版本发布时隔 4 个月，是 2022 年的第二个版本。受新冠疫情和国际形势变化影响以及发布团队的全球化性质，发布过程也经历了非常大的挑战。
+太平洋时间 2022 年 8 月 23 日，Kubernetes 1.25 正式发布。此版本距离上版本发布时隔 4 个月，是 2022 年的第二个版本。受新冠疫情和国际形势变化影响以及发布团队的全球化性质，发布过程也经历了非常大的挑战。
 
 新版本包含 40 个 enhancements「1.24 版本 46 个、1.23 版本 45 个」其中 13 个功能升级为稳定版，10 个已有功能进行优化，另有多达 15 个全新功能以及2个废弃的功能。
 
 Kubernetes 1.25 版本在多个方面实现重大突破，需要注意的是 PSP 在该版本中已经被移除，而替换该功能的 PodSecurity 目前已经稳定。升级的用户需要注意本版本中功能移除和废弃，详情可以参考本文第五小节「升级注意事项」。
 
-本版本包含了多个安全相关的功能，比如用户命名空间的支持、SELinux 挂载容器组的优化、CSI NodeExpansion 支持 Secrets 等。除此之外，为了提高集群管理员和应用管理员的体验，Job 增加了不重试选项，密钥管理服务 KMS 发布了 v2 版本，临时容器共 GA， kubelet 支持获取容器组的检查点，这两个公都可以更好地帮助用户进行事故排查和分析。相关的重要功能会在下一小节进行详细介绍。
+本版本包含了多个安全相关的功能，比如用户命名空间的支持、SELinux 挂载容器组的优化、CSI NodeExpansion 支持 Secrets 等。除此之外，为了提高集群管理员和应用管理员的体验，Job 增加了不重试选项，密钥管理服务 KMS 发布了 v2 版本，临时容器 GA， kubelet 支持获取容器组的检查点，这两个功能都可以更好地帮助用户进行事故排查和分析。相关的重要功能会在下一小节进行详细介绍。
 
 
 ### 1. 重要功能
@@ -18,7 +18,7 @@ Kubernetes 1.25 版本在多个方面实现重大突破，需要注意的是 PSP
 ![user-namespace](./user-namespace.png)
 图片来源 https://medium.com/@flavienb/installing-and-securing-docker-rootless-for-production-use-8e358d1c0956
 
-**[Alpha] kubelet 支持保存容器当前状态（Checkpoint**
+**[Alpha] kubelet 支持保存容器当前状态（Checkpoint)**
 
 kubelet 增加了功能门 CheckpointContainer。启动该特性之后，用户只需要向 kubelet 发送 `POST /checkpoint/{namespace}/{pod}/{container}`请求，就可以对指定的 Pod 容器生成快照，或者叫检查点（CheckPoint）压缩包。该功能基于容器运行时的 CheckpointContainer 方法，目前containerd v1.6 还不支持，功能正在开发中，详情可以参考 https://github.com/containerd/containerd/pull/6965。
 Checkpoint 检查点 和 Restore 恢复是一组功能，目前该设计还没实现容器还原的部分。目前用户需要在 Kuberentes 集群外对检查点的压缩包进行还原。基于该功能，用户可以还原出生产环境的容器完整状态，用户可以对生产环境的被访问情况和运行情况进行更好的分析和研究。
@@ -68,13 +68,12 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 
 ### 3. DaoCloud 主要参与功能 
 
-本次发布中， DaoCloud 重点贡献了 sig-node 和 sig-scheduling 相关内容，具体功能点如下：
+本次发布中， DaoCloud 重点贡献了 sig-node，sig-scheduling 和 kubeadm 相关内容，具体功能点如下：
 
 - [Beta] Quotas for Ephemeral Storage to Beta 修复了相关问题，并增加了 metrics 和日志。
 - Introduce NodeInclusionPolicies to specify nodeAffinity/nodeTaint strategy when calculating pod topology spread skew.
-- [Beta] Add configurable grace period to probes  (default false but already beat in v1.22; default to true in v1.25)  
+- [Beta] Add configurable grace period to probes  (default false but already Beta in v1.22; default to true in v1.25)  
 - Pod SecurityContext and PodSecurityPolicy supports slash as sysctl separator.  
-- Add `NodeInclusionPolicy` to `TopologySpreadConstraints` in PodSpec. 
 - 在 API 验证中，允许 key encipherment Usage 是可选的，该选项是针对 RSA 证书的。
 - Kubelet 不再支持从 cAdvisor 中收集加速 Metrics，功能门 DisableAcceleratorUsageMetrics GA。
 - kubeadm：`kubeadm init phase addon` 的 Flag `--print-manifest` 支持 kube-proxy 和 coredns 的 addon 阶段。
@@ -85,8 +84,7 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 - Kube-scheduler ComponentConfig v1beta2 is deprecated in v1.25. 
 
 
-此外， DaoCloud 还参与了十多个问题修复，在 v1.25 发布过程中总计贡献 TODO 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=118)（在该版本中有 11 位贡献者）
-也正是因为「DaoCloud 道客」在 Kubernetes 社区的持续贡献，殷纳成为了 sig/scheduling 小组的 Reviewer，而同期 sig-node reviewer 张世明的个人项目[fake-kubelet](https://github.com/wzshiming/fake-kubelet) 转入 Kubernetes 组织，也就是目前的 [KWOK](https://github.com/kubernetes-sigs/kwok/) （Kube-WithOut-Kubelet） 项目。该项目旨在模拟 kubelet 的同时减少的资源开销，从而服务于一些 Kubernetes 大规模集群的模拟测试。
+此外， DaoCloud 还参与了十多个问题修复，在 v1.25 发布过程中总计贡献 53 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=118)（该版本的两百多位贡献者中有来自 DaoCloud 的 11 位）。也正是因为「DaoCloud 道客」在 Kubernetes 社区的持续贡献，殷纳成为了 SIG Scheduling 小组的 Reviewer ，殷纳同时也是 Kueue 项目的核心贡献者， Kueue 是一个基于 Kubernetes 原生的作业队列和弹性配额管理器。此外，SIG Node Reviewer 张世明的个人项目[fake-kubelet](https://github.com/wzshiming/fake-kubelet) 转入 Kubernetes 组织，也就是目前的 [KWOK](https://github.com/kubernetes-sigs/kwok/) （Kube-WithOut-Kubelet） 项目。该项目旨在模拟 kubelet 行为的同时减少的资源开销，从而服务于一些 Kubernetes 相关的多集群以及大规模集群的模拟测试。
 
 
 ### 4. 版本标志
