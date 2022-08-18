@@ -54,7 +54,7 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 - DaemonSet 的 MaxSurge 字段 GA。
 - Pod 字段 spec.podOS GA，支持指定 Pod 的 OS。
 - 升级 CronJob 的时区支持到 Beta。
-- 本地存储使用量计算使用 fsquota 默认开启，存储卷磁盘占用情况的获取性能比 du 好很多。
+- 本地存储使用量计算使用 fsquota，默认开启，存储卷磁盘占用情况的获取性能比 du 好很多。
 - CSIMigration 功能 GA，同时 GA 的功能门还包括 CSIMigrationAWS/CSIMigrationGCE/CSIMigrationvSphere。 
 - 之前的 in-tree 存储插件基本都已经移除或者废弃，目前推荐使用外部 CSI 驱动。 以 GlusterFS 为例， [#111485](https://github.com/kubernetes/kubernetes/pull/111485)在 v1.25增加了废弃的告警，该功能会在未来版本中彻底移除了，这里推荐用户迁移使用 [gluster-csi-dirver](https://github.com/gluster/gluster-csi-driver/releases/tag/v0.0.9)。
 - [cli] v1.24 中 Kubectl 的 get，patch，edit 命令增加了一个新的 `-–subresource` 标志以支持获取和更新资源的 status 和 scale 字段。而 v1.25 完善了该功能的自动补全能力 auto-completion。
