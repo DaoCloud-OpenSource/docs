@@ -81,7 +81,7 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 
 
 此外， DaoCloud 还参与了十多个问题修复，在 v1.25 发布过程中总计贡献 TODO 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=118)（在该版本中有 11 位贡献者）
-也正是因为「DaoCloud 道客」在 Kubernetes 社区的持续贡献，殷纳成为了 sig/scheduling 小组的 Reviewer，而同期sig-node reviewer 张世明的个人项目[fake-kubelet](https://github.com/wzshiming/fake-kubelet) 转入 Kubernetes组织，也就是目前的 [KWOK](https://github.com/kubernetes-sigs/kwok/) Kube-WithOut-Kubelet 项目。该项目旨在模拟 kubelet 的同时减少的资源开销，从而服务于一些 Kubernetes 大规模集群的模拟测试。
+也正是因为「DaoCloud 道客」在 Kubernetes 社区的持续贡献，殷纳成为了 sig/scheduling 小组的 Reviewer，而同期 sig-node reviewer 张世明的个人项目[fake-kubelet](https://github.com/wzshiming/fake-kubelet) 转入 Kubernetes 组织，也就是目前的 [KWOK](https://github.com/kubernetes-sigs/kwok/) Kube-WithOut-Kubelet 项目。该项目旨在模拟 kubelet 的同时减少的资源开销，从而服务于一些 Kubernetes 大规模集群的模拟测试。
 
 
 ### 4. 版本标志
