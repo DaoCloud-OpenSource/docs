@@ -37,7 +37,7 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 - [GA] 本地临时存储容量隔离进入稳定版
 [本地临时存储容量隔离](https://github.com/kubernetes/enhancements/tree/master/keps/sig-storage/361-local-ephemeral-storage-isolation) 功能在 v1.25 中 GA。 该功能 alpha 版在 v1.8 版本中引入，之后 v1.10 版本中进入 Beta。该功能提供了一种新的容器组的容量隔离方式，可以将容器组的容量隔离到本地临时存储中，这样就可以避免容器组的容量被过度使用。当临时存储的使用容量超过了限制容量的时候，Pod 会被驱逐。
 
-此外，该功能的监控方法之前版本默认使用 du 来计算磁盘占用情况，在v1.25中，如果磁盘支持 fsquota，磁盘使用情况的计算将使用 fsquota 进行计算，性能上有很大的提升。
+此外，该功能的监控方法之前版本默认使用 du 来计算磁盘占用情况，在 v1.25 中，如果磁盘支持 fsquota，磁盘使用情况将使用 fsquota 进行计算，性能上会有很大的提升。
 
 ### 2. 其他需要了解的功能
 - 临时容器功能 GA。 
