@@ -29,7 +29,7 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 [#1287 KEP](https://github.com/kubernetes/enhancements/tree/master/keps/sig-node/1287-in-place-update-pod-resources) 主要目标是支持 Pod 的资源限制和资源请求可以动态修改的同时不需要重启 Pod 和容器。该功能的第一阶段的代码已经合并，目前在 CRI 层面支持了对 Pod 资源限制和资源预留进行修改，CRI API 目前即支持 Linux 也支持 Windows。在未来版本中，该功能会更好和 VPA 纵向弹性伸缩进行集成。 VPA 的使用场景会和 HPA 横向弹性伸缩有所不同，HPA 可以通过改变容器组数量来适应资源需求的变化和请求的压力变化。而 VPA 则是通过改变容器组的资源限制来适应资源需求的变化和请求的压力变化。VPA 的优势在于，这些操作无需重启容器，只需要更新容器组的资源限制即可，因此对于一些启动时间较慢，以及启动后提供服务需要进行预热的容器，VPA 将会提供更好的性能。
 
 - Job 支持失败重试和不重试策略
-之前的版本中，Job的重启策略被默认设置为了OnFailure，这会导致 Job 执行失败之后会尝试重试，重试次数为 backoff limit 默认为 6次。在某些情况下，这样的重试是有效的，但是也存在无效重试的情况，那么这6次重试就显得多余且浪费资源。在新版本中，用户可以根据 Job 的实际情况设置是否在出错后重试。 
+之前的版本中，Job的重启策略被默认设置为了 OnFailure，这会导致 Job 执行失败之后会尝试重试，重试次数backoff limit 默认值为 6 次。在某些情况下，这样的重试是有效的，但是也存在无效重试的情况，那么这 6 次重试就显得多余且浪费资源。在新版本中，用户可以根据 Job 的实际情况设置是否在出错后重试。 
 
 - 容器默认的镜像仓库从 k8s.gcr.io 迁移到了 registry.k8s.io
 目前两个镜像仓库都是可用的，未来会逐渐迁移到后者。国内用户可以尝试镜像的同步地址 k8s.m.daocloud.io （旧地址 k8s-gcr.m.daocloud.io）。使用 kubeadm 安装的用户可以使用 `kubeadm init --image-repository=k8s.m.daocloud.io` 安装。
