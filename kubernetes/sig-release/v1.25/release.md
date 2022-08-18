@@ -10,7 +10,7 @@ Kubernetes 1.25 版本在多个方面实现重大突破，需要注意的是 PSP
 ### 1. 重要功能
 
 - [Alpha] 容器组支持用户命名空间 User Namespace Support
-该功能在 pod.Spec 引入了新字段 hostUsers 允许用户开启或者关闭容器组的用户命名空间。目前该功能的开发才进展到第一个阶段，目前只有 pod 不使用存储卷，或者只使用以下类型的存储（configmap、secret、downwardAPI、emptyDir、projected）的情况下，才能够启用该功能。在未来的版本中，该功能将会完全开放，并且将会支持所有的存储类型。
+该功能在 pod.Spec 引入了新字段 hostUsers 允许用户开启或者关闭容器组的用户命名空间。目前该功能的开发才进展到第一个阶段，目前只有 Pod 不使用存储卷，或者只使用以下类型的存储（configmap、secret、downwardAPI、emptyDir、projected）的情况下，才能够启用该功能。在未来的版本中，该功能将会完全开放，并且将会支持所有的存储类型。
 该功能之所以重要，是因为用户命名空间能够更好的实现安全隔离；在之前的版本中，容器如果使用 root 用户启动进程，那么容器的命名空间和主机的命名空间在隔离上就存在一些漏洞，过去也有很多 CVE 是基于此而产生的。在之前的版本中，我们会推荐客户在容器中使用非 Root 用户启动进程，并且在容器中使用非 root 用户进行操作。
 例如， kubeadm 推出的 RootlessControlPlane 特性功能门，开启该功能门之后，系统组件包括 apiserver、kube 控制器、调度器都会使用非 root 进行启动。而未来当用户命名空间的支持成熟之后，系统就不需要要求客户使用非 root 用户启动进程来获得更安全的效果，因为用户命名空间本身就起到了更好的隔离作用。
 ![user-namespace](./user-namespace.png)
