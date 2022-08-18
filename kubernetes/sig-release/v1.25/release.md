@@ -1,6 +1,6 @@
 太平洋时间 2022 年 8 月 23 日，Kubernetes 1.25 正式发布。此版本更新距离上版本发布时隔 4 个月，是 2022 年的第二个版本。受新冠疫情和国际形势变化影响以及发布团队的全球化性质，发布过程也经历了非常大的挑战。
 
-新版本包含 40 个 enhancements「1.24 版本 46 个、1.24 版本 45 个」其中 13 个功能升级为稳定版，10 个已有功能进行优化，另有多达 15 个全新功能以及2个废弃的功能。
+新版本包含 40 个 enhancements「1.24 版本 46 个、1.23 版本 45 个」其中 13 个功能升级为稳定版，10 个已有功能进行优化，另有多达 15 个全新功能以及2个废弃的功能。
 
 Kubernetes 1.25 版本在多个方面实现重大突破，需要注意的是 PSP 在该版本中已经被移除，而替换该功能的 PodSecurity 目前已经稳定，升级的用户需要注意其他的功能移除和废弃，详情可以参考本文第四小节。
 
@@ -25,8 +25,8 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 ![cgroupv2](./cgroupv2.png)
 图片来源 https://www.youtube.com/watch?v=u8h0e84HxcE
 
-- [Alpha] VPA 纵向弹性伸缩功能的准备工作完成：支持 Pod 资源限制的热更新
-对于 VPA 来说，第一阶段的代码已经合并，目前在 CRI 层面支持了对 Pod 资源限制和资源预留进行修改。VPA 在未来版本中，将会完善自动的弹性规则和设置方法。 VPA 的使用场景会和 HPA 横向弹性伸缩有所不同，HPA 可以通过改变容器组数量来适应资源需求的变化和请求的压力变化。而 VPA 则是通过改变容器组的资源限制来适应资源需求的变化和请求的压力变化。VPA 的优势在于，这些操作无需重启容器，只需要更新容器组的资源限制即可，因此对于一些启动时间较慢，以及启动后提供服务需要进行预热的容器，VPA 将会提供更好的性能。
+- [Alpha] 支持 Pod 资源限制的热更新
+[#1287 KEP](https://github.com/kubernetes/enhancements/tree/master/keps/sig-node/1287-in-place-update-pod-resources) 主要目标是支持 Pod 的资源限制和资源请求可以动态修改的同时不需要重启 Pod 和容器。该功能的第一阶段的代码已经合并，目前在 CRI 层面支持了对 Pod 资源限制和资源预留进行修改，CRI API 目前即支持 Linux 也支持 Windows。在未来版本中，该功能会更好和 VPA 纵向弹性伸缩进行集成。 VPA 的使用场景会和 HPA 横向弹性伸缩有所不同，HPA 可以通过改变容器组数量来适应资源需求的变化和请求的压力变化。而 VPA 则是通过改变容器组的资源限制来适应资源需求的变化和请求的压力变化。VPA 的优势在于，这些操作无需重启容器，只需要更新容器组的资源限制即可，因此对于一些启动时间较慢，以及启动后提供服务需要进行预热的容器，VPA 将会提供更好的性能。
 
 - Job 支持失败重试和不重试策略
 之前的版本中，Job的重启策略被默认设置为了OnFailure，这会导致 Job 执行失败之后会尝试重试，重试次数为 backoff limit 默认为 6次。在某些情况下，这样的重试是有效的，但是也存在无效重试的情况，那么这6次重试就显得多余且浪费资源。在新版本中，用户可以根据 Job 的实际情况设置是否在出错后重试。 
@@ -42,10 +42,10 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 ### 2. 其他需要了解的功能
 - 临时容器功能 GA。 
 - Pod 新增了 PodHasNetwork 的 Condition，该状态表明 Pod 是否有网络。
-- 增加 DisruptionTarget 容器组 condtion 来表明 Pod 停止原因
+- 增加 DisruptionTarget 容器组 Condition 来表明 Pod 停止原因
 - 新的 CPU 管理策略 align-by-socket，更好的支持 NUMA。
 - kubelet 为 OpenTelemetry Tracing 提供了初步支持。
-- seccomp 和 AppArmor 支持升级到 Beta 并默认启用。
+- Seccomp 和 AppArmor 支持升级到 Beta 并默认启用。
 - 调度器 ComponentConfig GA。
 - IPTablesOwnershipCleanup alpha 支持: kubelet 不再创建 legacy IPTables 规则。
 - 网络策略 Network Policy 中的 EndPort 字段 GA。
@@ -61,9 +61,9 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 -  E2E测试使用新版本 Ginkgo v2。
 
 
-### 3. 道客主要参与功能 
+### 3. DaoCloud 主要参与功能 
 
-本次发布中，DaoCloud 重点贡献了 sig-node 和 sig-scheduling 相关内容，具体功能点如下：
+本次发布中， DaoCloud 重点贡献了 sig-node 和 sig-scheduling 相关内容，具体功能点如下：
 
 - [Beta] Quotas for Ephemeral Storage to Beta 修复了相关问题，并增加了 metrics 和日志。
 - Introduce NodeInclusionPolicies to specify nodeAffinity/nodeTaint strategy when calculating pod topology spread skew.
@@ -80,7 +80,7 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 - Kube-scheduler ComponentConfig v1beta2 is deprecated in v1.25. 
 
 
-此外，DaoCloud 还参与了十多个问题修复，在 v1.25 发布过程中总计贡献 TODO 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=118)（在该版本中有 11 位贡献者）
+此外， DaoCloud 还参与了十多个问题修复，在 v1.25 发布过程中总计贡献 TODO 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=118)（在该版本中有 11 位贡献者）
 也正是因为「DaoCloud 道客」在 Kubernetes 社区的持续贡献，殷纳成为了 sig/scheduling 小组的 Reviewer，而同期sig-node reviewer 张世明的个人项目[fake-kubelet](https://github.com/wzshiming/fake-kubelet) 转入 Kubernetes组织，也就是目前的 [KWOK](https://github.com/kubernetes-sigs/kwok/) Kube-WithOut-Kubelet 项目。该项目旨在模拟 kubelet 的同时减少的资源开销，从而服务于一些 Kubernetes 大规模集群的模拟测试。
 
 
