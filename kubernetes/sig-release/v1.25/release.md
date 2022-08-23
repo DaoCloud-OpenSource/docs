@@ -49,9 +49,10 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 
 ### 2. 其他需要了解的功能
 - kubelet 为 OpenTelemetry Tracing 提供了初步支持。
-- 临时容器功能 GA。 
+- 临时容器功能 GA。
 - Pod 新增了 PodHasNetwork 的 Condition，该状态表明 Pod 是否有网络。
 - 增加 DisruptionTarget 容器组 Condition 来表明 Pod 停止原因。
+- Pod 滚动更新时，由于调度器无法区分新老 Pod，导致拓扑调度策略不生效，现在可以通过开启 MatchLabelKeysInPodTopologySpread 功能门，完善该策略。
 - 新的 CPU 管理策略 align-by-socket，更好的支持 NUMA。
 - Seccomp 和 AppArmor 支持升级到 Beta 并默认启用。
 - 调度器 ComponentConfig GA。
