@@ -89,7 +89,8 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 
 ### 4. 版本标志
 
-![logo]()
+本次发布的主题是 Combiner。 Kubernetes 是很多独立运行的组件组成的，同时也是有无数个人参与贡献完成的。
+![logo](kubernetes-1.25.png)
 
 
 ### 5. 升级注意事项
