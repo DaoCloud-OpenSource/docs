@@ -20,7 +20,7 @@
 #### [PR#113336](https://github.com/kubernetes/kubernetes/pull/113336) `CSIMigrationvSphere` 功能已经 GA 并且该功能无法被关闭
     官方提示：如果你需要使用 Windows，XFS 或者 raw block 的话，不要升级到 Kubernetes v1.26。直到 vSphere CSI Driver 在 v2.7.x 后的版本中增加相关的支持。
 
-#### [PR#113710](https://github.com/kubernetes/kubernetes/pull/113710) kube-controller-manager 命令中 `--pod-eviction-timeout` flags 被废弃，并且和 `--enable-taint-manager` flags 一起在 1.27 被移除
+#### [PR#113710](https://github.com/kubernetes/kubernetes/pull/113710) kube-controller-manager 命令中 `--pod-eviction-timeout` flag 被废弃，并且和 `--enable-taint-manager` flag 一起在 1.27 被移除
 
 #### [PR#112120](https://github.com/kubernetes/kubernetes/pull/112120) Kube 组件中删除一些无效的 klog 相关的 flags
 
@@ -147,7 +147,7 @@ spec:
 #### [KEP-3545](https://github.com/kubernetes/enhancements/issues/3545) Improved multi-numa alignment in Topology Manager [PR#112914](https://github.com/kubernetes/kubernetes/pull/112914)
 该功能通过对 `TopologyManager` 的优化来更好的处理 NUMA(Non-Uniform Memory Access) 节点。
 
-在 kubelet config 和 kubectl 命令中增加一个新的可配置项 `topologyManagerPolicyOptions` 字段和 `--topology-manager-policy-options` flags 来设置 Topology Manager Policy 的额外配置
+在 kubelet config 和 kubectl 命令中增加一个新的可配置项 `topologyManagerPolicyOptions` 字段和 `--topology-manager-policy-options` flag 来设置 Topology Manager Policy 的额外配置
 
 并且**新增三个 Alpha Feature Gate** 来控制对 Topology Manager Policy 的配置
 * `TopologyManagerPolicyOptions`
@@ -265,7 +265,7 @@ spec:
 #### [PR#110268](https://github.com/kubernetes/kubernetes/pull/110268) 优化 kube-proxy 性能，它只发送在调用 iptables-restore 中更改的规则，而不是整个规则集
 **新增 Alpha Feature Gate —— `MinimizeIPTablesRestore`** 来控制是否开启该功能
 
-#### [PR#108250](https://github.com/kubernetes/kubernetes/pull/108250) kube-proxy 新增 flags `--iptables-localhost-nodeports` 来允许用户禁止通过 localhost 访问 NodePort 的 Services
+#### [PR#108250](https://github.com/kubernetes/kubernetes/pull/108250) kube-proxy 新增 flag `--iptables-localhost-nodeports` 来允许用户禁止通过 localhost 访问 NodePort 的 Services
 #### [PR#111806](https://github.com/kubernetes/kubernetes/pull/111806) 如果用户要求使用 ipvs，但是系统没有正确配置时，不再回退到 iptables 模式，而是返回错误
 #### [PR#113363](https://github.com/kubernetes/kubernetes/pull/113363) 如果 kube-proxy 检测到分配给 Node 的 `pod.Spec.PodCIDRs` 已经改变，那么它将重新启动
 #### [PR#112133](https://github.com/kubernetes/kubernetes/pull/112133) 移除已经废弃的 "userspace" 代理模式
@@ -430,7 +430,7 @@ pod/foo labeled (server dry run)
 #### [PR#112700](https://github.com/kubernetes/kubernetes/pull/112700) 修复 `kubectl covert` 选择了错误的 api 版本的问题
 #### [PR#109505](https://github.com/kubernetes/kubernetes/pull/109505) `kubectl annotate` 设置与原值相同值的 annotation 时，不再抛出错误
 #### [PR#110907](https://github.com/kubernetes/kubernetes/pull/110907) 执行 kubectl apply 时，如果指定了 `--namespace`，但是没有指定 `--prune-allowlist`，会删除非命名空间的资源，该 pr 只是增加打印一个警告，在 1.28 中 kubectl apply 在指定 namespace 时，不再删除无命名空间的资源 pv & namespace
-#### [PR#113116](https://github.com/kubernetes/kubernetes/pull/113116) `kubectl apply` 增加 `--prune-allowlist` flags, 配合 `--prune` flags 使用，替代已废弃的 `--prune-whitelist` flags
+#### [PR#113116](https://github.com/kubernetes/kubernetes/pull/113116) `kubectl apply` 增加 `--prune-allowlist` flag, 配合 `--prune` flag 使用，替代已废弃的 `--prune-whitelist` flag
 
 ### Other
 #### [PR#113146](https://github.com/kubernetes/kubernetes/pull/113146) `kubectl explain` 命令可以通过环境变量 `KUBECTL_EXPLAIN_OPENAPIV3` 来使用 OpenAPIv3
@@ -468,7 +468,7 @@ bash-5.1$ kubectl --c[tab][tab]
 #### [PR#113005](https://github.com/kubernetes/kubernetes/pull/113005) `kubeadm join phase control-plane-preapare certs` 支持使用 `--dry-run` 运行
 #### [PR#112945](https://github.com/kubernetes/kubernetes/pull/112945) 支持子阶段的 dry-run 模式，例如 `kubeadm reset phase cleanup-node --dry-run`
 #### [PR#111512](https://github.com/kubernetes/kubernetes/pull/111512) `kubeadm init` 命令中增加一个新 phase —— `show-join-command`, 用户可以通过 `kubeadm init --skip-phase=show-join-command` 来跳过打印 join 信息. 该阶段无法单独执行
-#### [PR#112172](https://github.com/kubernetes/kubernetes/pull/112172) `kubeadm reset` 命令增加 `--cleanup-tmp-dir` flags, 它会清理 /etc/kubernetes/tmp 中的内容，默认为 false
+#### [PR#112172](https://github.com/kubernetes/kubernetes/pull/112172) `kubeadm reset` 命令增加 `--cleanup-tmp-dir` flag, 它会清理 /etc/kubernetes/tmp 中的内容，默认为 false
 #### [PR#112732](https://github.com/kubernetes/kubernetes/pull/112732) kubeadm 增加对配置中镜像仓库格式的校验
 #### [PR#111783](https://github.com/kubernetes/kubernetes/pull/111783) kubeadm 读取的 kubeconfig 的 CertificateAuthorityData 为空时，会尝试从外部 CertificateAuthority 文件加载 CA 证书
 #### [PR#112508](https://github.com/kubernetes/kubernetes/pull/112508) 在 preflight check 时允许 RSA 和 ECDSA 格式的 key
@@ -478,7 +478,7 @@ bash-5.1$ kubectl --c[tab][tab]
 ### Other
 #### [PR#111277](https://github.com/kubernetes/kubernetes/pull/111277) 优化 kubeadm 在运行子命令时的错误提示信息
 #### [PR#112008](https://github.com/kubernetes/kubernetes/pull/112008) 由于 1.25 中不再将 *node-role.kubernetes.io/master* 污点设置在控制面节点中，kubeadm 不再为 CoreDNS Deployment 设置 `node-role.kubernetes.io/master` 容忍.
-#### [PR#112000](https://github.com/kubernetes/kubernetes/pull/112000) kubeadm init|join|upgrade 命令删除 `--container-runtime` flags，因为自从 dockershim 被移除后，该 flags 仅有一个可以设置的值 `--container-runtime=remote`
+#### [PR#112000](https://github.com/kubernetes/kubernetes/pull/112000) kubeadm init|join|upgrade 命令删除 `--container-runtime` flag，因为自从 dockershim 被移除后，该 flag 仅有一个可以设置的值 `--container-runtime=remote`
 
 ## Client-Go
 #### [PR#112200](https://github.com/kubernetes/kubernetes/pull/112200) client-go 的 SharedInformerFactory 增加 Shutdown 方法，来等待 Factory 内所有运行的 informer 都结束
