@@ -1,7 +1,7 @@
 12 月 8 号 Kubernetes 正式发布了 v1.26，作为 2022 年最后的一个版本，其诸多功能都在稳定性上得到显著提升，并且也增加了很多新的功能，我们将从以下多个角度来介绍 1.26 的更新。
 * `Kube APIServer`: 作为 Kubernetes 请求的入口，本次更新增加了 4 个 KEP 新功能，并且在响应压缩上做了一些优化，另外还有 2 个功能也从 Alpha 升级到了 Beta
 * `节点`: 我们将与 kubelet 关系最为密切的更新放在这里，主要包括 4 个新增的 KEP 功能，并且有 4 个功能在该版本 GA
-* `存储`: 存储方面主要是增加了跨命名空间的从快照中分配到卷，并且有 2 个存储相关功能进入了 Beta 阶段，3 个功能正式 GA
+* `存储`: 存储方面主要是增加了从其他命名空间(跨命名空间)的快照中分配卷的功能，并且有 2 个存储相关功能进入了 Beta 阶段，3 个功能正式 GA
 * `网络`: 主要是对 Kube Proxy 的更新，包括一个性能优化的 KEP，并且有 2 个功能进入 Beta，4 个功能正式 GA
 * `资源控制与调协`: 主要是针对在 kube-controller-manager 中相关资源 controller 的更新，同样也有 2 个新增的 KEP 功能，有 2 个功能由 Alpha 升级到 Beta，还有 1 个功能正式 GA
 * `Pod 调度`: 主要做了一些优化与 Bug Fix，另外还新增了一个重要 KEP 功能 - *PodSchedulingReadiness* 用于控制 Pod 何时可以被调度器调度，并且有 1 个功能由 Alpha 升级到 Beta
@@ -100,17 +100,6 @@ ISSUE: https://github.com/kubernetes/kubernetes/issues/112296
 
 #### [PR#112580](https://github.com/kubernetes/kubernetes/pull/112580) 在 kubectl 中增加 `--disable-compression` flag，设置为 *true* 时，要求不再对响应进行压缩
 
-### BUG FIX
-#### [PR#112772](https://github.com/kubernetes/kubernetes/pull/112772) 在检查 AA(Aggregated API）服务可用性时，同样不允许 AA(Aggregated API）Server 的重定向
-
-#### [PR#113369](https://github.com/kubernetes/kubernetes/pull/113369) 从 delete 请求返回的对象中的 resourceVersion 与 Watch 时 Delete 事件中包含的 resourceVersion 一致
-
-#### [PR#111866](https://github.com/kubernetes/kubernetes/pull/111866) 在更新自定义资源的状态时强制执行 x-kubernetes-list-type 验证
-
-#### [PR#112526](https://github.com/kubernetes/kubernetes/pull/112526) 修复将来自 AA(Aggregated API）APIServer的 “304 Not Modified” 响应视为内部错误的问题
-
-#### [PR#112979](https://github.com/kubernetes/kubernetes/pull/112979) 修复了使用 APIServer Tracing 时，如果指定的 Egress Selector 没有配置控制平面，APIServer 在启动时会出现 Panic 的问题
-
 ### 功能稳定性升级
 #### Alpha -> Beta
 | Feature Gate | KEP |
@@ -199,13 +188,9 @@ options ndots:5 attempts:3
 
 #### [PR#108832](https://github.com/kubernetes/kubernetes/pull/108832) 当容器设置了 *limit.cpu*，但是 *requests.cpu* 为 "0" 时，cgroups `cpuShares` 取最小值 2，而不是使用 *limit.cpu*
 
-#### [PR#112403](https://github.com/kubernetes/kubernetes/pull/112403) 对于 Kubernetes 上 raw block CSI 卷，对于已经挂载到节点上的卷的每个“映射”(即 raw block “挂载”)操作，kubelet 都错误地调用 CSI NodeStageVolume。此 PR 确保每个节点的每个卷只调用一次。
-
 #### [PR#112184](https://github.com/kubernetes/kubernetes/pull/112184) kubelet 只设置 `--cloud-provider` 或者 `--node-ip` 时，会确保清除节点中无效的 annotation - `alpha.kubernetes.io/provided-node-ip`
 
 #### [PR#113481](https://github.com/kubernetes/kubernetes/pull/113481) 修复 `kubectl logs --timestamps` 查看日志时，出现混乱的随机时间戳的问题
-
-#### [PR#112607](https://github.com/kubernetes/kubernetes/pull/112607) 清理卷挂载时，只需要考虑插件目录而不是整个 kubelet 根目录
 
 #### [PR#112518](https://github.com/kubernetes/kubernetes/pull/112518) 修复了启用 PodDisruptionConditions 特性门控时，Pod 在打了 NoExecute 污点的节点上继续运行的问题
 
@@ -290,7 +275,7 @@ spec:
 #### [KEP-3017](https://github.com/kubernetes/enhancements/issues/3017) PodHealthyPolicy for PodDisruptionBudget [PR#113375](https://github.com/kubernetes/kubernetes/pull/113375)
 在 `PodDisruptionBudget` 资源中新增 *spec.unhealthyPodEvictionPolicy* 字段来控制不健康的 Pod 何时应该被考虑驱逐。
 
-*spec.unhealthyPodEvictionPolicy* 字段当前可以设置的值有两个 —— `IfHealthyBudget` 和 `AlwaysAllow
+*spec.unhealthyPodEvictionPolicy* 字段当前可以设置的值有两个 —— `IfHealthyBudget` 和 `AlwaysAllow`
 ```yaml
 spec:
   minAvailable: 2
@@ -315,7 +300,6 @@ spec:
 ```
 **新增 Alpha Feature Gate —— `StatefulSetStartOrdinal`** 来控制是否开启该功能
 
-### BUG FIX
 #### [PR#112011](https://github.com/kubernetes/kubernetes/pull/112011) 如果多个 HPA 涉及到相同的 Pod，那么会停止工作，并设置 HPA 的 ScalingAction Condition 为 False，Reason 为 AmbiguousSelector，该 PR 还包括多个 HPA 指向同一 Deployment 的情况。
 
 ### 功能稳定性升级
@@ -352,7 +336,7 @@ $ kubectl get pod example-po
 
 **新增 Alpha Feature Gate —— `PodSchedulingReadiness`** 来控制是否开启该功能
 
-#### [PR#111726](https://github.com/kubernetes/kubernetes/pull/111726) 在 Scheduler 的调试 Dummper 中输出 Penning 状态的 Pod 信息
+#### [PR#111726](https://github.com/kubernetes/kubernetes/pull/111726) 在 Scheduler 的调试 Dummper 中输出 Pending 状态的 Pod 信息
 
 ### 优化与 BUG FIX
 #### [PR#111809](https://github.com/kubernetes/kubernetes/pull/111809) 在使用 Patch 更新 Pod 状态时，除了 net.ConnectionRefused 外，遇到 ServiceUnavailable 和 InternalError 错误时也会进行重试
@@ -361,14 +345,6 @@ $ kubectl get pod example-po
 
 InternalError 通常会由于 webhook 的临时故障而出现
 > E0811 23:32:30.886582  213747 scheduler.go:357] Error updating pod foo: Internal error occurred: failed calling webhook "xyz": Post "xyz": context deadline exceeded
-
-#### [PR#112357](https://github.com/kubernetes/kubernetes/pull/112357) 在 PodTopologySpread 插件添加与 TaintToleration 插件一致的污点过滤逻辑
-
-#### [PR#112507](https://github.com/kubernetes/kubernetes/pull/112507) 修复了 podTopologySpread 插件中的计算错误，以避免意外的调度结果。
-
-#### [PR#111999](https://github.com/kubernetes/kubernetes/pull/111999) Pod 由于预期的错误而导致调度失败时，将 reason 更新为 `SchedulerError` 而不是 `Unschedulable`
-
-#### [PR#112257](https://github.com/kubernetes/kubernetes/pull/112257) 增加 v1beta3 版本 Scheduler Config 的废弃日志
 
 ### 功能稳定性升级
 #### Alpha -> Beta
