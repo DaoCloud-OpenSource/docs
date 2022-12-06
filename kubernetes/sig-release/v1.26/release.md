@@ -1,10 +1,10 @@
-12 月 8 号 Kubernetes 正式发布了 v1.26，作为 2022 年最后的一个版本，其诸多功能都在稳定性上得到显著提升，并且也增加了很多新的功能，我们将从以下多个角度来介绍 1.26 的更新。
+12 月 8 号 Kubernetes 正式发布了 v1.26，作为 2022 年最后的一个版本，增加了很多新的功能，同时在稳定性上也得到显著提升，我们将从以下多个角度来介绍 1.26 的更新。
 * `Kube APIServer`: 作为 Kubernetes 请求的入口，本次更新增加了 4 个 KEP 新功能，并且在响应压缩上做了一些优化，另外还有 2 个功能也从 Alpha 升级到了 Beta
 * `节点`: 我们将与 kubelet 关系最为密切的更新放在这里，主要包括 4 个新增的 KEP 功能，并且有 4 个功能在该版本 GA
 * `存储`: 存储方面主要是增加了从其他命名空间(跨命名空间)的快照中分配卷的功能，并且有 2 个存储相关功能进入了 Beta 阶段，3 个功能正式 GA
 * `网络`: 主要是对 Kube Proxy 的更新，包括一个性能优化的 KEP，并且有 2 个功能进入 Beta，4 个功能正式 GA
 * `资源控制与调协`: 主要是针对在 kube-controller-manager 中相关资源 controller 的更新，同样也有 2 个新增的 KEP 功能，有 2 个功能由 Alpha 升级到 Beta，还有 1 个功能正式 GA
-* `Pod 调度`: 主要做了一些优化与 Bug Fix，另外还新增了一个重要 KEP 功能 - *PodSchedulingReadiness* 用于控制 Pod 何时可以被调度器调度，并且有 1 个功能由 Alpha 升级到 Beta
+* `调度器`: 主要新增了一个重要 KEP 功能 - *PodSchedulingReadiness* 用于控制 Pod 何时可以被调度器调度，并且有 1 个功能由 Alpha 升级到 Beta
 * `可观测性`: 在可观测性上主要是增加了一种新的暴露组件状态的机制 - Component Health SLIs，另外各组件中也增加了很多指标
 * `kubectl 命令`，`kubeadm` 以及 `client-go` 也有一些优化和 Bug Fix
 * 对于已经 GA 的功能，根据 Kubernetes 的版本迭代策略，我们在 1.26 中也移除了 11 个 Feature Gates，如果在组件命令中继续设置了这些 Feature Gates，那么组件就会无法正常启动
@@ -33,7 +33,7 @@
 #### [KEP-3488](https://github.com/kubernetes/enhancements/issues/3488) CEL for Admission Control
 相关 PR: [PR#113314](https://github.com/kubernetes/kubernetes/pull/113314)，[PR#113349](https://github.com/kubernetes/kubernetes/pull/113349)，[PR#112994](https://github.com/kubernetes/kubernetes/pull/112994)，[PR#112792](https://github.com/kubernetes/kubernetes/pull/112792)，[PR#112926](https://github.com/kubernetes/kubernetes/pull/112926)，[PR#112858](https://github.com/kubernetes/kubernetes/pull/112858)
 
-基于 Kubernetes v1.25 提供的 [KEP-2876 CRD验证表达式语言](https://github.com/kubernetes/enhancements/issues/2876)，该功能提供了一个新的准入控制器 —— ValidatingAdmissionPolicy，允许在不使用 Validation Webhook 时实现字段验证。
+基于 Kubernetes v1.25 提供的 [KEP-2876 CRD验证表达式语言](https://github.com/kubernetes/enhancements/issues/2876)，该功能在 *admissionregistration.k8s.io/v1alpha1* 下增加一个新的资源 —— `ValidatingAdmissionPolicy`，允许在不使用 Validation Webhook 时实现字段验证。
 ```yaml
 apiVersion: admissionregistration.k8s.io/v1alpha1
 kind: ValidatingAdmissionPolicy
