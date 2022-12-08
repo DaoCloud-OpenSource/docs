@@ -11,16 +11,17 @@
 
 在文章的最开始我们先介绍一些比较重要的 API 废弃和对升级有影响的更改
 ## API 废弃与更改
-#### [PR#112306](https://github.com/kubernetes/kubernetes/pull/112306) `flowcontrol.apiserver.k8s.io` 增加 v1beta3 版本，并将 v1beta2 设为最优版本，在 1.27 中将设置 v1beta3 为最优版本
-
-#### [PR#112643](https://github.com/kubernetes/kubernetes/pull/112643) DynamicKubeletConfig 在 1.23 中废弃，kubelet 中的逻辑已经在 1.24 中移除，本次更新将 Feature Gate `DynamicKubeletConfig` 和 APIServer 内的逻辑移除
-
 #### [PR#110618](https://github.com/kubernetes/kubernetes/pull/110618) Kubelet 不再支持 v1alpha2 版本的 CRI，接入的容器运行时必须实现 v1 版本的容器运行时接口
+  这意味着 Kubernetes v1.26 将不支持 containerd 1.5.x 及更早的版本；需要升级到 containerd 1.6.x 或更高版本后，才能将该节点的 kubelet 升级到 1.26。
+
+#### [PR#112306](https://github.com/kubernetes/kubernetes/pull/112306) `flowcontrol.apiserver.k8s.io` 增加 v1beta3 版本，并将 v1beta2 设为最优版本，在 1.27 中将设置 v1beta3 为最优版本
 
 #### [PR#113336](https://github.com/kubernetes/kubernetes/pull/113336) `CSIMigrationvSphere` 功能已经 GA 并且该功能无法被关闭
     官方提示：如果你需要使用 Windows，XFS 或者 raw block 的话，不要升级到 Kubernetes v1.26。直到 vSphere CSI Driver 在 v2.7.x 后的版本中增加相关的支持。
 
 #### [PR#113710](https://github.com/kubernetes/kubernetes/pull/113710) kube-controller-manager 命令中 `--pod-eviction-timeout` flag 被废弃，并且和 `--enable-taint-manager` flag 一起在 1.27 被移除
+
+#### [PR#112643](https://github.com/kubernetes/kubernetes/pull/112643) DynamicKubeletConfig 在 1.23 中废弃，kubelet 中的逻辑已经在 1.24 中移除，本次更新将 Feature Gate `DynamicKubeletConfig` 和 APIServer 内的逻辑移除
 
 #### [PR#112120](https://github.com/kubernetes/kubernetes/pull/112120) Kube 组件中删除一些无效的 klog 相关的 flags
 
