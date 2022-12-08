@@ -1,4 +1,6 @@
 12 月 8 号 Kubernetes 正式发布了主题为 `Electrifying` 的 v1.26。
+> Kubernetes v1.26 被命名为 “Electrifying”，中文直译就是 “电气化”，目的是提高人们对 Kubernetes 编排着消耗大量能源的巨大系统的认识。同时 “Electrifying” 也代表了发布团队使用的自动化在不断增加，并且 Kubernetes 社区也正在逐步电气化。
+
 ![logo](kubernetes-1.26.png)
 
 作为 2022 年最后的一个版本，增加了很多新的功能，并且在稳定性上也得到显著提升，我们将从以下多个角度来介绍 1.26 的更新。
