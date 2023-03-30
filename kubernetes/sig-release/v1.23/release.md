@@ -4,7 +4,7 @@
 
 Kubernetes 1.23 版本在多个方面实现重大突破，主要围绕以下主题进行：
 
-### 1. 重要功能
+## 1. 重要功能
 
 - [IPv4/IPv6 Dual-Stack Support](https://github.com/kubernetes/enhancements/issues/563)
 
@@ -90,7 +90,7 @@ Kubernetes 1.23 版本在多个方面实现重大突破，主要围绕以下主�
     periodSeconds: 10
   ```
 
-### 2. 其他需要了解的功能
+## 2. 其他需要了解的功能
 
 - [Kubectl events](https://github.com/kubernetes/enhancements/issues/1440)
 
@@ -127,7 +127,7 @@ Kubernetes 1.23 版本在多个方面实现重大突破，主要围绕以下主�
 
   此 KEP 在 PodSpec 中添加了 `OS` 字段，因此你可以定义 Pod 应在哪个操作系统上运行。
   
-### 3. Daocloud 主要参与功能 
+## 3. Daocloud 主要参与功能 
 
   本次发布中，DaoCloud 重点贡献了 sig-node 和 sig-scheduling 相关内容，具体功能点如下：
 
@@ -159,11 +159,11 @@ Kubernetes 1.23 版本在多个方面实现重大突破，主要围绕以下主�
 此外，DaoCloud 还参与了十多个问题修复，在1.23 发布过程中总计贡献 67 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&start_date=1628006400&end_date=1638806400&module=github.com/kubernetes/kubernetes&date=118)（在该版本中有 11 位贡献者）
 
 
-### 4. 版本标志
+## 4. 版本标志
 
 ![logo](https://github.com/kubernetes/website/blob/main/static/images/blog/2021-12-07-kubernetes-release-1.23/kubernetes-1.23.png)
 
-### 5. 社区贡献排名(2021.8.4 – 2021.12.7)
+## 5. 社区贡献排名(2021.8.4 – 2021.12.7)
 
 ![contribute](./contribute.png)
 
@@ -171,18 +171,18 @@ Kubernetes 1.23 版本在多个方面实现重大突破，主要围绕以下主�
 
 未来，DaoCloud 将继续与社区一同推广云原生技术，实现将最前沿的模式自由化的愿景。我们也将继续用实际行动体现自己的独特价值，为整个行业做出更多的贡献。
 
-### 6. 注意事项
+## 6. 注意事项
 
 - kube-proxy 标记 `userspace` 工作模式为弃用并将在v1.25删除相关代码
 - `VolumeSubpath` 的功能开关已经默认开启将在v1.25删除相关代码
 - controller-manager 已经删除了对 `--port` 和 `--address` 参数的支持并且将在v1.24删除相关代码
 
-### 7. 历史文档
+## 7. 历史文档
 
 - [Kubernetes 1.22，颠覆你的想象：可启用 Swap，推出 PSP 替换方案，还有……](https://mp.weixin.qq.com/s/9nH2UagDm6TkGhEyoYPgpQ)
 - [Kubernetes 1.21 震撼发布 | PSP 将被废除，BareMetal 得到增强](https://mp.weixin.qq.com/s/amGjvytJatO-5a7Nz4BYPw)
 
-### 8. 参考
+## 8. 参考
 
 1. https://docs.google.com/spreadsheets/d/1-u3kzOouB_DrQs2tCGIeCcuuqx3TyefqKF90FAD-2Q8/edit#gid=0 
 2. https://en.wikipedia.org/wiki/Privilege_escalation

@@ -7,7 +7,7 @@ Kubernetes 1.25 版本在多个方面实现重大突破，需要注意的是 PSP
 本版本包含了多个安全相关的功能，比如用户命名空间的支持、SELinux 挂载容器组的优化、CSI NodeExpansion 支持 Secrets 等。除此之外，为了提高集群管理员和应用管理员的体验，Job 增加了不重试选项，密钥管理服务 KMS 发布了 v2 版本，临时容器 GA， kubelet 支持获取容器组的检查点，这两个功能都可以更好地帮助用户进行事故排查和分析。相关的重要功能会在下一小节进行详细介绍。
 
 
-### 1. 重要功能
+## 1. 重要功能
 
 **[Alpha] 容器组支持用户命名空间 User Namespace Support**
 
@@ -47,7 +47,7 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 
 此外，该功能的监控方法之前版本默认使用 du 来计算磁盘占用情况， du 需要遍历文件夹，在大量小文件和目录的场景中 du 存在性能问题。在 v1.25 中，如果磁盘支持 fsquota，磁盘使用情况将优先使用 fsquota 进行计算，性能上会有很大的提升。
 
-### 2. 其他需要了解的功能
+## 2. 其他需要了解的功能
 - kubelet 为 OpenTelemetry Tracing 提供了初步支持。
 - 临时容器功能 GA。
 - Pod 新增了 PodHasNetwork 的 Condition，该状态表明 Pod 是否有网络。
@@ -67,7 +67,7 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 -  E2E 测试使用新版本 Ginkgo v2。
 
 
-### 3. DaoCloud 主要参与功能 
+## 3. DaoCloud 主要参与功能 
 
 本次发布中， DaoCloud 重点贡献了 sig-node，sig-scheduling 和 kubeadm 相关内容，具体功能点如下：
 
@@ -88,13 +88,13 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 此外， DaoCloud 还参与了十多个问题修复，在 v1.25 发布过程中总计贡献 53 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=118)（该版本的两百多位贡献者中有来自 DaoCloud 的 11 位）。也正是因为「DaoCloud 道客」在 Kubernetes 社区的持续贡献，殷纳成为了 SIG Scheduling 小组的 Reviewer ，殷纳同时也是 Kueue 项目的核心贡献者， Kueue 是一个基于 Kubernetes 原生的作业队列和弹性配额管理器。此外，SIG Node Reviewer 张世明的个人项目[fake-kubelet](https://github.com/wzshiming/fake-kubelet) 转入 Kubernetes 组织，也就是目前的 [KWOK](https://github.com/kubernetes-sigs/kwok/) （Kube-WithOut-Kubelet） 项目。该项目旨在以最低的成本模拟大量的 Kubelet，从而模拟大量集群，节点以及载荷，服务于各种控制面组件测试。后续将作为 kube-scheduler 的核心的压测组件，测试各种复杂以及大规模场景。
 
 
-### 4. 版本标志
+## 4. 版本标志
 
 本次发布的主题是 Combiner。 Kubernetes 是很多独立运行的组件组成的，同时也是有无数个人参与贡献完成的。
 ![logo](kubernetes-1.25.png)
 
 
-### 5. 升级注意事项
+## 5. 升级注意事项
 
 本节主要介绍 v1.25 中 API 变化，以及功能的移除以及废弃，废弃的功能通常会在 1-2 个版本之后移除。更多详情请查看[Kubernetes 1.25 的移除说明和主要变更](https://kubernetes.io/zh-cn/blog/2022/08/04/upcoming-changes-in-kubernetes-1-25/)
 
@@ -125,14 +125,14 @@ Linux 内核宣布 cgroups v2 API 稳定已经有两年时间，不少的 Linux 
 - cAdvisor v0.45.0（ kubelet API 会尽量不依赖 cadvisor，目前一些迁移工作还在进行中，目前 cadvisor 还是不可或缺的部分。 ）
 - cni 0.9.1
 
-### 6. 历史文档
+## 6. 历史文档
 
 - [Kubernetes 1.24 走向成熟的 Kubernetes](https://mp.weixin.qq.com/s/vqH8ueaZeEeZbx_axNVSjg)
 - [Kubernetes 1.23 正式发布，有哪些增强？](https://mp.weixin.qq.com/s/A5GBv5Yn6tQK_r6_FSyp9A)
 - [Kubernetes 1.22 颠覆你的想象：可启用 Swap，推出 PSP 替换方案，还有……](https://mp.weixin.qq.com/s/9nH2UagDm6TkGhEyoYPgpQ)
 - [Kubernetes 1.21 震撼发布 | PSP 将被废除，BareMetal 得到增强](https://mp.weixin.qq.com/s/amGjvytJatO-5a7Nz4BYPw)
 
-### 7. 参考
+## 7. 参考
 
 1. https://docs.google.com/spreadsheets/d/1Lnft8598eIQsqBp8W6X_LwaqBNZViYssQoFgGS8aJ3g/edit#gid=813297075
 2. https://kubernetes.io/blog/2022/08/04/upcoming-changes-in-kubernetes-1-25/

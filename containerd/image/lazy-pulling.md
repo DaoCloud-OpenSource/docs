@@ -1,4 +1,4 @@
-### What is eStargz?
+## What is eStargz?
 
 Standard-Compatible Extension to Container Image Layers for Lazy Pulling. It is a *backward-compatible extension* which means that images can be pushed to the extension-agnostic registry and can run on extension-agnostic runtimes.This extension is based on stargz (stands for *seekable tar.gz*) proposed by [Google CRFS](https://github.com/google/crfs) project (initially [discussed in Go community](https://github.com/golang/go/issues/30829)). eStargz extends stargz for chunk-level verification and runtime performance optimization.
 
@@ -6,11 +6,11 @@ Standard-Compatible Extension to Container Image Layers for Lazy Pulling. It is 
 
 ![img](https://miro.medium.com/max/1400/1*jAQCEWTi3jzZX2Rn0XEUAg.png)
 
-### What is Lazy Pulling?
+## What is Lazy Pulling?
 
 Lazy pulling is a technique of pulling container images aiming at the faster cold start. This allows a container to startup without waiting for the entire image layer contents to be locally available. Instead, necessary files (or chunks for large files) in the layer are fetched *on-demand* during running the container.
 
-### Why Lazy Pulling?
+## Why Lazy Pulling?
 
 - FAST ON START
 
@@ -20,11 +20,11 @@ Lazy pulling is a technique of pulling container images aiming at the faster col
 
 ![img](https://miro.medium.com/max/1400/1*bVC7qorx-sDDXdYu6IfxzQ.png)
 
-### How to use Lazy Pulling
+## How to use Lazy Pulling
 
 ![eStargz in container workflow](https://devopstales.github.io/img/include/lazypull3.png)
 
-### Demo
+## Demo
 
 ```bash
 $ kind create cluster --name stargz-demo --image ghcr.io/stargz-containers/estargz-kind-node:0.7.0
@@ -52,7 +52,7 @@ $ ls /.stargz-snapshotter/*
 $ cat /.stargz-snapshotter/*
 ```
 
-### 产品结合需要满足
+## 产品结合需要满足
 
 版本要求: https://github.com/containerd/stargz-snapshotter/issues/258
 
@@ -60,7 +60,7 @@ $ cat /.stargz-snapshotter/*
 2. fuse
 3. run stargz-snapshotter or stargz-store
 
-### Reference
+## Reference
 
 1. https://medium.com/nttlabs/buildkit-lazypull-66c37690963f
 2. https://github.com/containerd/stargz-snapshotter/blob/main/docs/estargz.md

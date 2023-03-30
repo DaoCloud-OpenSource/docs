@@ -17,7 +17,7 @@
 
 ## 功能特性
 
-### API
+## API
 * 默认开启 OpenAPI V3
 
     * Stage: Beta
@@ -42,7 +42,7 @@
 
     OpenAPI 支持识别 +enum，并自动生成文档。
 
-### Apps
+## Apps
 * IndexedJob 升级至稳定版本 ([KEP-2214](https://github.com/kubernetes/enhancements/issues/2214))
 
     * Stage: GA
@@ -91,7 +91,7 @@
 
     该特性为 Job 增加了暂停/恢复执行功能。
 
-### Auth
+## Auth
 * CSRDuration 升级至稳定版本
 
     * Stage: GA
@@ -108,7 +108,7 @@
 
     现在，Pod 的 ServiceAccount token 可以通过 TokenRequest API 获取，并以投射卷的方式保存下来。放弃了以往为 ServiceAccount 自动创建 Secret 来保存 token 信息这种不安全的方式。
 
-### Network
+## Network
 * NetworkPolicy 新增 NetworkPolicyStatus 字段 ([KEP-2943](https://github.com/kubernetes/enhancements/issues/2943))
 
     * Stage: Alpha
@@ -133,7 +133,7 @@
 
     当前 ClusterIP 可以通过动态和静态两种方式配置 IP 地址，但是配置静态 IP 存在 IP 地址冲突的风险，因为现在无法在分配静态 IP 地址之前获知该 IP 是否被动态分配了。该特性引入 `--service-cluster-ip-range` 标志将 IP 分为静态和动态 IP 地址集，静态 IP 地址集最少有16个 IP 地址，最多不超过 256个。当动态 IP 地址集消耗完了仍然会消耗静态 IP 地址集。通过该机制减少 IP 冲突问题。
 
-### Node
+## Node
 * KubeletCredentialProvider 升级至 Beta 版本([KEP-2133](https://github.com/kubernetes/enhancements/issues/2133))
 
     * Stage: Beta
@@ -182,7 +182,7 @@
 
     沙箱容器运行时会有一些不容忽视的资源消耗，比如 Kata 容器运行时会包括一个 kernel 内核，一个 kata 客户端，以及一些初始化程序，它们所消耗的资源已经无法忽视。Pod Overhead 提供了一种机制，可以为特定运行时设置它们所需要的资源，并在调度、资源限额、资源约束时将它们考虑在内，实现更精确的管控。
 
-### Scheduling
+## Scheduling
 * DefaultPodTopologySpread 升级至稳定版本 ([KEP-1258](https://github.com/kubernetes/enhancements/issues/1258))
 
     * Stage: GA
@@ -231,7 +231,7 @@
 
     PreferNominatedNode 优化了调度流程，被 Pod 提名的节点会优先被评估，如果评估不通过，则继续走标准的调度流程。
 
-### Storage
+## Storage
 * HonorPVReclaimPolicy 升级至 Beta 版本 ([KEP-2644](https://github.com/kubernetes/enhancements/issues/2644))
 
     * Stage: Beta
@@ -256,7 +256,7 @@
 
     该特性允许用户修改 PV 大小。
 
-### Cli
+## Cli
 * kubectl 增加对子资源的支持 ([KEP-2590](https://github.com/kubernetes/enhancements/issues/2590))
 
     * Stage: Alpha
@@ -265,7 +265,7 @@
 
     kubectl 的 get，patch，edit 命令增加了一个新的 `--subresource` 标志以支持获取和更新资源的 status 和 scale 字段
 
-### Instrumentation
+## Instrumentation
 * 引入带有上下文信息的日志库 ([KEP-3077](https://github.com/kubernetes/enhancements/issues/3077))
 
     * Stage: Alpha
@@ -274,7 +274,7 @@
 
     引入可以传递上下文信息的日志库，如输出格式，日志信息级别，额外携带的值，名字等。
 
-### Cloud Provider
+## Cloud Provider
 * Leader Migration 升级至稳定版本 ([KEP-2436](https://github.com/kubernetes/enhancements/issues/2436))
 
     * Stage: GA
@@ -283,7 +283,7 @@
 
     Kubernetes 正致力于将特定云厂商的代码移出 Kubernetes 主库，该功能实现了一种在 `kube-controller-manager` 和 `cloud-controller-manager` 之间安全迁移特定云厂商控制器的机制。
 
-### Cluster Lifecycle
+## Cluster Lifecycle
 * kubeadm `UnversionedKubeletConfigMap` 升级至 Beta 版本，并默认开启
 
     * Stage: Beta
@@ -292,7 +292,7 @@
 
     kubeadm 使用新的格式来命名保存 KubeletConfiguration 的 ConfigMap。
 
-### 其他
+## 其他
 * golang 升级到1.18
 * 调度框架 PreFilter 接口修改了返回值，不仅返回 Status，同时返回 PreFilterResult。
 
@@ -322,7 +322,7 @@
 ## DaoCloud 社区贡献
 「DaoCloud 道客」 作为 Kubernetes 社区的活跃玩家，在 v1.24 版本开发过程中，参与了诸多贡献，如`PodPriorityBasedGracefulNodeShutdown`，`PodOverhead`，`DefaultPodTopologySpread` 等功能的迭代，Kube-Scheduler Framework 框架的优化，kubelet, kubeadm 等组件多个 bug 修复等等, 共计参与了 43 个PR的贡献, 详见[贡献榜单](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&start_date=1641744000&end_date=1649692800&module=github.com/kubernetes/kubernetes)。
 
-### 社区贡献排名(2022.01.10 – 2022.04.12)
+## 社区贡献排名(2022.01.10 – 2022.04.12)
 ![contribute](./contribute.png)
 
 也正是因为 DaoCloud 在 Kubernetes 社区的坚持耕耘，在过去的几个月中，先后有2名同学成为了 sig/node 小组的 Reviewer，有一名同学成为了 Kubernetes website 的 Approver。

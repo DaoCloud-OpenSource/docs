@@ -35,31 +35,31 @@ CRI-Dockerd 项目地址 https://github.com/Mirantis/cri-dockerd
 
 ## DockerShim 移除 常见问题
 
-### 为什么要移除 Dockershim
+## 为什么要移除 Dockershim
 Kubernetes 的早期版本仅适用于特定的容器运行时：Docker 引擎。后来，Kubernetes 增加了对使用其他容器运行时的支持。创建 CRI 标准是为了实现编排器（如 Kubernetes）和许多不同的容器运行时之间的互操作性。 Docker Engine 没有实现该接口 (CRI)，因此 Kubernetes 项目创建了兼容代码来帮助过渡，并使 dockershim 代码成为 Kubernetes 本身的一部分。
 
 dockershim 代码一直是一个临时解决方案（因此得名：shim）。您可以在 [Dockershim Removal Kubernetes Enhancement Proposal](https://github.com/kubernetes/enhancements/tree/master/keps/sig-node/2221-remove-dockershim) 中阅读有关社区讨论和规划的更多信息。事实上，维护 dockershim 已经成为 Kubernetes 维护者的沉重负担。
 
 此外，在这些较新的 CRI 运行时中实现了与 dockershim 基本不兼容的功能，例如 cgroups v2 和用户命名空间。取消对 dockershim 的支持将允许这些领域的进一步发展。
 
-### 我还能在 Kubernetes 1.23 中使用 Docker Engine 吗？
+## 我还能在 Kubernetes 1.23 中使用 Docker Engine 吗？
 是的，如果使用 Docker Engine 作为运行时，1.20 在 kubelet 启动时打印的一个警告日志。您在 1.23 之前的所有版本中都会看到此警告。 dockershim 将在 Kubernetes 1.24 移除。
 
-### 我仍然可以使用 Docker Engine 作为我的容器运行时吗？
+## 我仍然可以使用 Docker Engine 作为我的容器运行时吗？
 如果您在自己的 PC 上使用 Docker 来开发或测试容器：没有任何变化。无论您为 Kubernetes 集群使用什么容器运行时，您仍然可以在本地使用 Docker。容器使这种操作性成为可能。
 
 如果是 Kubernetes 中还是要继续使用 Docker 可以尝试该适配器 [cri-dockerd](https://github.com/Mirantis/cri-dockerd) 和我们为您提供的维护脚本 [setup-cri-dockerd](https://github.com/klts-io/setup-cri-dockerd)。 
 
-### 我现有的容器镜像是否仍然有效？
+## 我现有的容器镜像是否仍然有效？
 是的，从 docker build 生成的图像将适用于​​所有 CRI 实现。您现有的所有镜像仍将完全相同不需要做任何改动。
 
-### 私人镜像是否仍然有效？
+## 私人镜像是否仍然有效？
 是的。所有 CRI 运行时都支持在 Kubernetes 中使用的相同的 pull secrets 配置，无论是通过 PodSpec 还是 ServiceAccount。
 
-### Docker 和容器是一回事吗？
+## Docker 和容器是一回事吗？
 Docker 普及了 Linux 容器模式，并在开发底层技术方面发挥了重要作用，但是 Linux 中的容器已经存在了很长时间。容器生态系统已经发展到比 Docker 广泛得多。 OCI 和 CRI 等标准帮助许多工具在我们的生态系统中发展壮大，其中一些替代了 Docker 的某些方面，而另一些则增强了现有功能。
 
-### 今天有没有人在生产中使用其他运行时的例子？
+## 今天有没有人在生产中使用其他运行时的例子？
 所有 Kubernetes 项目生成的工件（Kubernetes 二进制文件）在每个版本中都经过验证。
 
 此外，kind 项目使用 containerd 已经有一段时间了，并且已经看到其用例的稳定性有所提高。每天都会多次使用 Kind 和 containerd 来验证对 Kubernetes 代码库的任何更改。其他相关项目也遵循类似的模式，展示了其他容器运行时的稳定性和可用性。

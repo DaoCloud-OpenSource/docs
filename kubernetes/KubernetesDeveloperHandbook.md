@@ -19,7 +19,7 @@
     * [Kubernetes 基础知识 & 培训材料](https://dwiki.daocloud.io/pages/viewpage.action?pageId=13869829)
 
     * [Kubernetes 开发指南](https://dwiki.daocloud.io/pages/viewpage.action?pageId=63773874)
-### Note: 本手册持续维护中！
+## Note: 本手册持续维护中！
 </br>
 
 ## <a id="chapter2">二. 了解 Kubernetes 开源社区</a>
