@@ -2,12 +2,9 @@
 
 太平洋时间 2023 年 4 月 11 日，Kubernetes 1.27 正式发布。此版本距离上版本发布时隔 4 个月，是 2023 年的第一个版本。
 
-新版本包含 x 个 enhancements「1.25 版本  个、1.26 版本  个」其中  个功能升级为稳定版， 个已有功能进行优化，另有多达  个全新功能以及  个废弃的功能。
+新版本中 release 团队跟踪了 60 个 enhancements，比之前版本都要多。其中 13 个功能升级为稳定版，29 个已有功能进行优化升级为 Beta，另有 18 个Alpha 级别的功能，大多数为全新功能。此外，还有超过 8 个功能在 GA 后被移除。
 
-Kubernetes 1.27 版本在多个方面实现重大突破，需要注意的是 详情可以参考本文第五小节「升级注意事项」。
-
-本版本包含了多个 的功能，比如
-相关的重要功能会在下一小节进行详细介绍。
+本版本包含了很多重要功能和用户体验优化，重要功能会在下一小节进行详细介绍。
 
 ## 1. 重要功能
 
@@ -26,92 +23,124 @@ Kubernetes Pod 资源的原地调整大小功能，该功能不需要重建容�
 - 在容器状态中添加了 resources 字段，用于报告应用于正在运行的容器的实际资源。
 - 在 Pod 状态中添加了 resize 字段，用于描述请求调整 Pod 大小的状态。该字段可以是 Proposed（已提出），InProgress（进行中），Deferred（已延迟）或 Infeasible（不可行）。
 
-### StatefulSet PVC 自动删除
+### StatefulSet PVC 自动删除功能特性 Beta
 
-StatefulSetAutoDeletePVC 功能在 v1.23 引入，将在 1.27 中升级为 Beta，默认开启。用户可以配置可以在 whenDeleted 或 whenScaled 阶段触发 Retain 或者 Delete 行为，其中 Retain 是默认行为，只有配置了 Delete 策略的 StatefulSet 再被删除时才会触发对应的 PVC 的删除。
+StatefulSetAutoDeletePVC 功能在 v1.23 引入，将在 1.27 中升级为 Beta，默认开启。该功能默认开启并不表示所有的 StatefulSet 的 PVC 都会自动删除。
+用户可以配置可以在 whenDeleted 或 whenScaled 阶段触发 Retain 或者 Delete 行为，其中 Retain 是默认行为，只有配置了 Delete 策略的 StatefulSet 再被删除时才会触发对应的 PVC 的删除。
 
-### OTEL: APIServer Tracing 以及 Kubelet OpenTelemetry tracing graduates to beta
+### APIServer 和 Kubelet 的 Tracing 功能 Beta
 
-APIServerTracing 升级为 Beta，默认开启。目前仅 Trace 了组件 apiserver 和 etcd，未来会添加 client-go。
-apiserver 中的跟踪仍然默认禁用，需要配置文件才能启用，这里需要制定 tracing 的接收端。
-的 trace 支持，之后其他组件会陆续添加 Tracing 能力。
+APIServerTracing 升级为 Beta，默认开启，目前仅 Trace 了组件 apiserver 和 etcd，未来会添加 client-go 支持。之后其他组件会陆续添加 Tracing 能力。
+apiserver 中的 tracing 仍然默认禁用，需要指定配置文件才会启用，这里需要制定 tracing 的接收端。
+
+![tracing](tracing.png)
+
 Kubelet 和 container runtime 通过 CRI 调用的 tracing 也已经默认开启。
 <https://github.com/kubernetes/enhancements/issues/2831>
 
-### [Alpha] Kubelet Evented PLEG to Beta(but still disabled by default)
+### [Beta] Kubelet 事件驱动 PLEG 升级为 Beta(但是默认关闭)
 
-在节点 Pod 较多的情况下，通过容器运行时的 Event 驱动 Pod 状态更新，能够有效的提升效率。
-Graduate CRI Events driven Pod LifeCycle Event Generator (Evented PLEG) to Beta
+在节点 Pod 较多的情况下，通过容器运行时的 Event 驱动 Pod 状态更新，能够有效的提升效率。在 1.27中，该功能已经达到了 Beta 条件，基础的 E2E 测试任务已经添加。
+之所以默认关闭该功能，是因为社区认为该功能还需要补充以下验证：压力测试、恢复测试和带退避逻辑的重试。
 
-### [Alpha] dynamic resource allocation
+1. 压力测试需要在单个 pod 中创建大量容器以生成 CRI 事件，并观察 latency 值是否超过 1 秒。
+2. 恢复测试则是为了验证 Kubelet 在重新启动后能否正确地更新容器状态。
+3. 而带退避逻辑的重试则是为了解决 CRI Runtime 宕机时 Kubelet 可能无法连接的问题。
 
-该功能是一种实现，而 storage 相关 iops 限制又有了自己的另一种实现。
+### 调度
 
-## 调度
+#### 新功能
 
-并不是 Pending 状态 的 Pod 都已准备好被调度，有些 Pod 会因为缺少必要资源的状态而无法成功调度，而这也会对调度器中带来额外的工作。
+Mutable Pod scheduling directives when gated: 这是一个始于 Beta 版本对新功能，它和“修改悬停Job的调度指令“有一些类似，但是是为 Pod 设计的。 当我们启用该功能，如果一个 Pod 被”调度门控“拒绝，Pod 的 NodeAffinity 和 NodeSelector 可以被修改。第三方的控制器可以利用这些特性来影响调度指令。它是 Pod 调度就绪功能的一个衍生品。
 
-- Respect PodTopologySpread after rolling upgrades 优化
+#### Beta -> GA
 
-- 调度框架 Filter 阶段利用 Skip 状态，减少重新调度过程中的无效重复计算。
+Mutable scheduling directives for suspended Jobs: 该功能在 v1.22 以 Beta 状态引入，目前已经 GA。该功能允许修改 Pod 调度指令，如 Job 的 Pod 模版中的 NodeAffinity，NodeSelector，Toleration，schedulingGates，annotation，label。一旦开启该功能，上层的队列控制器可以在启动 Job 之前修改调度指令，达到特殊的调度目的。
 
-## 存储
+#### Alpha -> Beta
 
-存储方面有几个功能的更新比较重要。
+Pod Scheduling Readiness: 该功能引入一个新字段至 Pod 对象，即 .spec.schedulingGates，该字段可以控制 Pod 是否允许被调度。第三方控制器可以利用该门控来满足自己的调度需求。目前 SchedulingGate 插件已经默认开启。
+Respect PodTopologySpread after rolling upgrades: 它只关注 label 的键，不关注 label 的值，这样可以简化 Pod 拓扑调度的配置，同时为解决 Pod 滚动更新时调度不均衡提供了一个新的解决方案。
+
+#### 其他
+
+- [调度] ReadWriteOncePod feature gate 升级至 Beta 级别。
+- [调度] 调度器新增 Metric “plugin_evaluation_total”。该指标显示特定插件影响调度结果的次数。
+- [调度] PodSchedulingReadiness 升级至 Beta 级别。
+- [调度] 调度框架 Filter 阶段利用 Skip 状态：当 Pod 调度时会进行预选流程，即我们常说的 Filter 阶段，之前所有开启的插件都会走到该流程。现在，在 PreFilter 阶段会再进行一波新的删选，如果 Pod 与该插件所关注的功能无关，将返回 Skip 状态，跳过 Filter 阶段，达到提升性能的目的。
+
+### 存储
+
+存储方面有以下几个功能的更新比较重要，而组快照能力更是一个重大突破。
 
 1. NewVolumeManagerReconstruction 功能升级为 Beta版本。这是 VolumeManager 的重构，允许 kubelet 在启动期间填充关于现有卷如何挂载的附加信息。总体而言，这使得卷清理更加稳健。
 2. SELinuxMountReadWriteOncePod 功能升级为 Beta 版本。该功能通过将卷正确挂载到 SELinux 标签，而不是逐个递归更改每个文件的方式加快了容器启动速度。
 3. "ReadWriteOncePod" PV 访问模式功能升级为 Beta 版本。此功能引入了一个新的 ReadWriteOncePod 访问模式，用于 PersistentVolumes，限制对单个节点上的单个 pod 的访问。
+4. CSINodeExpandSecret 功能升级为 Beta 级别。
+
+#### Volume Group 快照
+
+能够在 Pod 的所有卷上同一时间快照，将成为容灾备份和故障恢复场景的重大技术突破。现在，您不必担心应用程序因备份的卷存在几秒钟差异而无法正确运行。
+此外，在安全研究方面，存储卷的组快照功能也将是一个重大变革。排查问题时，您现在可以您的快照和 Pod 的状态是可对照的。
 
 ### 上下文日志
 
 上下文日志可以帮助用户理解日志的上下文信息，更好的让日志帮助用户排错和理解，提升日志的可观测性。
 目前 kube-controller-manager 的已经完成了一部分，kube-scheduler 大部分工作将在 1.28 完成。
 
-### TODO 其他： 移动到下面，或者单独放在上面。
+### kube-proxy 的 iptables 模式在大规模集群的性能优化
 
-Candidates:(waiting for major thems update from sig-release team)
+功能 MinimizeIPTablesRestore 在 1.26 引入，在 1.27 升级为 Beta 并默认启用，目的是改善大型集群中 kube-proxy 的 iptables 模式的性能。
 
-1. openapi v3
-2. multiple sevice CIDR
-3. container resource based pod autoscaling: Graduate the container resource metrics feature on HPA to beta.
-4. CRD validation expression language
-5. CEL-based admission webhook match conditions
-6. KMS v2: The API server now re-uses data encryption keys while the kms v2 plugin's key ID is stable. Update KMSv2 to beta. CacheSize field in EncryptionConfiguration is not supported for KMSv2 provider.
-7. subresource support to kubectl
-8. PDB and PodHealthyPolicy: The PodDisruptionBudget spec.unhealthyPodEvictionPolicy field has graduated to beta and is enabled by default.
-9. Elastic Indexed Job
-10. Aggregated Discovery
-11. ValidatingAdmissionPolicy update
-12. A new feature has been enabled to improve the performance of the iptables mode of kube-proxy in large clusters.
-If you experience problems with Services not syncing to iptables correctly, you can disable the feature by passing --feature-gates=MinimizeIPTablesRestore=false to kube-proxy (and file a bug if this fixes it). (This might also be detected by seeing the value of kube-proxy's sync_proxy_rules_iptables_partial_restore_failures_total metric rising.)
-13. volume group snapshot
+如果您遇到 Service 信息未正确同步到 iptables 的问题，您可以通过把 kube-proxy 启动参数设置为 `--feature-gates=MinimizeIPTablesRestore=false` 来禁用该功能（并向社区提交问题）。你可以能通过查看 kube-proxy 的 metrics 信息中的 sync_proxy_rules_iptables_partial_restore_failures_total 指标来监控到规则同步失败的次数。
 
+### CRD validation expression language
+
+CustomResourceValidationExpressions 在 v1.25 中就已经升级为 Beta。验证规则使用通用表达式语言（CEL）来验证定制资源的值。
+验证规则使用 x-kubernetes-validations 扩展包含在 CustomResourceDefinition 模式定义中。
+在 v1.27 中，ValidationRule 新增了字段 messageExpression，可以更好的展示提示信息。在之前版本中，只支持固定的失败信息。
+
+```yaml
+x-kubernetes-validations:
+- rule: "self.x <= self.maxLimit"
+  messageExpression: '"x exceeded max limit of " + string(self.maxLimit)'
+```
 
 ## 2. 其他需要了解的功能
 
-- [node] User Namespaces for statefulset pods: 用户命名空间功能仍然是 alpha，相比 v1.26 支持 StatefulSet。
-- [node] GRPC probes 功能 GA。
+- [apps] PodDisruptionBudget 之前不支持指定不健康 Pod 的处理方法，不健康 Pod 是指 Pod Running 但是状态不是 Ready。 我们添加了一个新字段 unhealthyPodEvictionPolicy，允许用户指定这些不健康的pod应该发生什么。该字段在 v1.27 中升级为 Beta。
+- [apps] "StatefulSetStartOrdinal" 功能升级为 Beta，默认允许在 StatefulSet 中配置起始序号。
 - [apps] Cronjob 支持 Timezone 功能 GA。
-- [auth] Added a new alpha API: ClusterTrustBundle (certificates.k8s.io/v1alpha1).
-- [auth] The AdmissionWebhookMatchConditions featuregate is now in Alpha.
-- [node & instrumentation] Adds feature gate NodeLogQuery which provides cluster administrators with a streaming view of logs using kubectl without them having to implement a client side reader or logging into the node. 对 windows 的支持也在逐步完善。
-- [node] Bump default API QPS limits for Kubelet.
-- [apps] Enable the "StatefulSetStartOrdinal" feature gate in beta.
-- [node] Graduate Kubelet Topology Manager to GA.
-- [api-machinery] Promoted SelfSubjectReview to Beta
-- [storage] SELinuxMountReadWriteOncePod graduated to Beta.
-- [storage] Graduates the CSINodeExpandSecret feature to Beta.
-- [scheduling] New "plugin_evaluation_total" is added to the scheduler.
-- [node] Graduated seccomp profile defaulting to GA.
-- [scheduling] PodSchedulingReadiness is graduated to beta.
-- [apps] The DownwardAPIHugePages kubelet feature graduated to stable / GA. 
-- [scheduling] Graduate the ReadWriteOncePod feature gate to beta
-- /metrics/slis is made available for control plane components allowing you to scrape health check metrics.
-- [network] New feature gate, ServiceNodePortStaticSubrange, to enable the new strategy in the NodePort Service port allocators, so the node port range is subdivided and dynamic allocated NodePort port for Services are allocated preferentially from the upper range.
-- [network] Added warnings about workload resources (Pods, ReplicaSets, Deployments, Jobs, CronJobs, or ReplicationControllers) whose names are not valid DNS labels.
-- Kubernetes components that perform leader election now only support using Leases for this.
-- Graduated the LegacyServiceAccountTokenTracking feature gate to Beta.
+- [apps] Enable the "StatefulSetStartOrdinal" feature gate in Beta.
+- [apps] DownwardAPIHugePages kubelet 功能已稳定 GA。
+- [apps] Indexed JOb 的 API 验证已放宽，允许通过同时更改 parallelism 和 completions 来扩展或者缩小 Indexed Job，但是需要保持 parallelism == completions 同步修改。
+- [API] 基于 Kubernetes v1.25 提供的 KEP-2876 CRD验证表达式语言，该功能增加一个新的资源 —— `ValidatingAdmissionPolicy`，允许在不使用 Validation Webhook 时实现字段验证。在 1.27 中，
+- [API] Kubernetes 为聚合发现提供了 Beta 支持，通过 `/api` 和 `/apis` 发布集群支持的所有资源，而不是每个 Group 分别提供。
+- [API] OpenAPIV3 功能 GA, 允许 API 服务器发布 OpenAPI V3。社区建议使用 OpenAPI v3，v3 有诸多优势，其中包括 CustomResourceDefinition OpenAPI v3 验证模式的无损表示，而 OpenAPI v2 在 CRD validation 中做了有损转换。
+- [API] 将 SelfSubjectReview 提升为 Beta 级别。
+- [auth] KMSv2 升级为 Beta，该功能在 1.27 中做了许多优化，比如：在插件 key ID 不变的情况下，重用 DEK 数据加密密钥，而当 Server 启动时，DEK 会重新随机生成。
+- [auth] 添加了一个新的 Alpha API：ClusterTrustBundle（certificates.k8s.io/v1Alpha1）。
+- [auth] AdmissionWebhookMatchConditions 功能门已进入 Alpha： 在v1Beta和v1 API中，为`ValidatingWebhookConfiguration`和`MutatingWebhookConfiguration`添加了 `MatchConditions` 字段。
+- [auth] 将 LegacyServiceAccountTokenTracking 功能门升级为Beta，用于跟踪基于 Sercet 的 SA token 的使用情况。
+- [CLI] kubectl 的 `--subresource` 支持升级为 Beta，目前 subresource 只支持 status 和 scale。
+- [网络] 当外部 cloud provider 支持提供双战 IP 时，在 kubelet 中启用 `CloudNodeIPs` 功能，您就可以指定双栈的 `--node-ip`。该功能目前是 Alpha，需要手动开启。
+ValidatingAdmissionPolicy 添加了 matchConditions 字段，用来支持基于 CEL 的自定义匹配条件。该功能目前仍然是 Alpha 。
+- [网络] 允许动态扩展可用于服务 Service 的 IP 数量。新增了 MultiCIDRServiceAllocator 功能，目前是 Alpha 级别。
+- [网络] 新功能门限 ServiceNodePortStaticSubrange，以启用新的策略在 NodePort 服务端口分配器中，因此节点端口范围被细分，并且首选从上部分配动态分配的 NodePort 端口为服务。
+- [网络] 添加了有关工作负载资源（Pod、ReplicaSets、Deployments、Jobs、CronJobs或ReplicationControllers）名称无效DNS标签的警告。
+- [弹性] HPAContainerMetrics 升级为 Beta，该功能允许 HorizontalPodAutoscaler 基于目标 Pods 中各容器 ContainerResource 类型的 metrics 来执行扩缩操作。
+- [节点] 动态资源分配功能，使用功能门 DynamicResourceAllocation。新增的 API 比 Kubernetes 现有的设备插件 Device Plugin 功能更加灵活。因为它允许 Pod 请求（声明）指定类型的资源，这些资源可以在节点级别、集群级别或任何其他用户自定义实现的模型中使用。
+- [节点] 用户命名空间支持范围扩大，该功能仍然是 Alpha，但相比 v1.26 支持 StatefulSet。
+- [节点] GRPC 探针功能 GA。
+- [节点] Bump default API QPS limits for Kubelet.
+- [节点] Graduate Kubelet Topology Manager to GA.
+- [节点] 提高 Kubelet 的默认 API QPS 限制，其中 kubeAPIQPS 和 kubeAPIBurst 都调大了 10 倍。
+- [节点] Kubelet 的拓扑管理器 Topology Manager 功能 GA。
+- [节点] seccomp profile 默认值升级至 GA 级别。
+- [日志] 添加了 NodeLogQuery 功能门，为集群管理员提供了使用 kubectl 流式查看日志的功能，无需实现客户端读取器或登录节点。对 Windows 的支持也在逐步完善。
+- [日志] kube-proxy、kube-scheduler 和 kubelet 有 HTTP API，可以在运行时更改日志 Level。该功能也适用于 JSON 格式日志输出。
+- [metrics] /metrics/slis 现在可用于控制平面组件，可以用来获取当前组件的健康检查指标。
+- [Lease] Kubernetes 组件选举现在仅支持使用 Lease。
 
 ## 3. DaoCloud 参与功能
 
@@ -147,12 +176,12 @@ Kubernetes 项目为了托管其容器镜像，使用社区拥有的一个名为
 
 ### 其他需要注意的变化
 
-- CSIStorageCapacity 的 storage.k8s.io/v1beta1 API 版本在 v1.24 中已被弃用，将在 v1.27 中被移除。
+- CSIStorageCapacity 的 storage.k8s.io/v1Beta1 API 版本在 v1.24 中已被弃用，将在 v1.27 中被移除。
 - 移除 NetworkPolicyEndPort、LocalStorageCapacityIsolation、StatefulSetMinReadySeconds、IdentifyPodOS、DaemonSetUpdateSurge、EphemeralContainers、CSIInlineVolume、CSIMigration、ControllerManagerLeaderMigration 特性门控，这些特性大部分都是在 v1.25 之前的版本正式 GA。
 - kube-apiserver 移除了 --master-service-namespace 命令行参数
 - kube-controller-manager 命令行参数 --enable-taint-manager 和 --pod-eviction-timeout 被移除。
 - kubelet 移除了命令行参数 --container-runtime，该参数目前只有一个可选值 "remote" 并在之前版本中废弃。
-- 弃用了 Alpha 状态的 seccomp 注解 seccomp.security.alpha.kubernetes.io/pod 和 container.seccomp.security.alpha.kubernetes.io。
+- 弃用了 Alpha 状态的 seccomp 注解 seccomp.security.Alpha.kubernetes.io/pod 和 container.seccomp.security.Alpha.kubernetes.io。
 - SecurityContextDeny 特性门控已经废弃，将在未来版本移除。
 - Linux/arm will not ship in Kubernetes 1.27 as we are running into issues with building artifacts using golang 1.20.2
 
@@ -167,7 +196,7 @@ Kubernetes 项目为了托管其容器镜像，使用社区拥有的一个名为
 
 ## 7. 参考
 
-1. <https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.27.md>
-2. <https://kubernetes.io/zh-cn/blog/2023/03/17/upcoming-changes-in-kubernetes-v1-27/>
-3. https://github.com/kubernetes-sigs/kwok/
-4. 
+1. 官方 Changelog <https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.27.md>
+2. Blog <https://kubernetes.io/zh-cn/blog/2023/03/17/upcoming-changes-in-kubernetes-v1-27/>
+3. Kwok 官网 https://github.com/kubernetes-sigs/kwok/
+4. v1.27 Release 团队看板 <https://github.com/orgs/kubernetes/projects/117/views/1>

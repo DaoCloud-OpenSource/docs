@@ -37,7 +37,7 @@
 ### [KEP-3488](https://github.com/kubernetes/enhancements/issues/3488) CEL for Admission Control
 相关 PR: [PR#113314](https://github.com/kubernetes/kubernetes/pull/113314)，[PR#113349](https://github.com/kubernetes/kubernetes/pull/113349)，[PR#112994](https://github.com/kubernetes/kubernetes/pull/112994)，[PR#112792](https://github.com/kubernetes/kubernetes/pull/112792)，[PR#112926](https://github.com/kubernetes/kubernetes/pull/112926)，[PR#112858](https://github.com/kubernetes/kubernetes/pull/112858)
 
-基于 Kubernetes v1.25 提供的 [KEP-2876 CRD验证表达式语言](https://github.com/kubernetes/enhancements/issues/2876)，该功能在 *admissionregistration.k8s.io/v1alpha1* 下增加一个新的资源 —— `ValidatingAdmissionPolicy`，允许在不使用 Validation Webhook 时实现字段验证。
+基于 Kubernetes v1.2 提供的 [KEP-2876 CRD验证表达式语言](https://github.com/kubernetes/enhancements/issues/2876)，该功能在 *admissionregistration.k8s.io/v1alpha1* 下增加一个新的资源 —— `ValidatingAdmissionPolicy`，允许在不使用 Validation Webhook 时实现字段验证。
 ```yaml
 apiVersion: admissionregistration.k8s.io/v1alpha1
 kind: ValidatingAdmissionPolicy
