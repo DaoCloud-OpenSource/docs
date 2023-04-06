@@ -69,7 +69,7 @@ Kubernetes Pod 资源的原地调整大小功能，该功能不需要重建容�
 
 该功能在 Pod 对象中引入了 `.spec.schedulingGates` 字段，用来定义 Pod 是否允许开始调度。此功能最常见的一个场景是批量调度，一组 Pod 调度等待集群资源足够整组 Pod 同时启动才开始调度。
 
-针对受 SchedulingGate 限制悬停（Gated）状态的 Pod，为了让第三方控制器更灵活的控制这些 Pod 的最终调度策略，新版本中允许 Gated Pod 的 NodeAffinity 和 NodeSelector 可以被修改，但是修改仅限添加，不能删除或者修改已有策略。
+针对受 SchedulingGate 限制悬停（Gated）状态的 Pod，为了让第三方控制器更灵活的控制这些 Pod 的最终调度策略，新版本中允许 Gated Pod 的 NodeAffinity 和 NodeSelector 可以被修改，但仅允许缩小节点范围。缩小范围是指支持添加新策略，不能删除或者修改已有策略。
 
 ### Deployment 滚动更新过程中的调度优化
 
@@ -108,7 +108,7 @@ x-kubernetes-validations:
 - [kubeadm] Kubeadm: 添加特性门控 EtcdLearnerMode，它允许将新增的控制节点的 etcd 作为学习者 Learner 加入，然后再升级为投票成员。
 - [node] Kubelet 默认允许 Pod 使用 net.ipv4.ip_local_reserved_ports sysctl，要求内核版本 3.16+。
 
-在 v1.27 发布过程中，DaoCloud 参与上百个问题修复和功能研发，作为作者约有 90 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=118)（该版本的两百多位贡献者中有来自 DaoCloud 的 15 位）。在 Kubernetes v1.27 的发布周期中，DaoCloud 的多名研发工程师取得了不少成就。其中，由张世明主要维护的项目 KWOK (Kubernetes Without Kubelet) 成为社区热点，并在大规模集群模拟方面有效地节约资源，提升效率。几位研发人员参与了 Kubernetes 官网的大量中文翻译工作，其中要海峰几乎包揽了近期官网博客的翻译，并成为 SIG-doc-zh 的维护者。此外，刘梦姣也是 SIG-doc 的维护者。在即将召开的 2023 年欧洲 KubeCon 上，殷纳将以调度方向的维护者身份作为讲师，分享调度方向的深度剖析；徐俊杰将分享 kubeadm 的深度解析。
+在 v1.27 发布过程中，DaoCloud 参与上百个问题修复和功能研发，作为作者约有 90 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=118)（该版本的两百多位贡献者中有来自 DaoCloud 的 15 位）。在 Kubernetes v1.27 的发布周期中，DaoCloud 的多名研发工程师取得了不少成就。其中，由张世明主要维护的项目 KWOK (Kubernetes Without Kubelet) 成为社区热点，并在大规模集群模拟方面有效地节约资源，提升效率。几位研发人员参与了 Kubernetes 官网的大量中文翻译工作，其中要海峰几乎包揽了近期官网博客的翻译，并成为 SIG-doc-zh 的维护者。此外，刘梦姣也是 SIG-doc 的维护者。在即将召开的 2023 年欧洲 KubeCon 上，殷纳将分享两个有趣的调度方向的主题，分别是“Sig Scheduling Deep Dive” 和 “Building a Batch System for the Cloud with Kueue” （属于 Kubernetes Batch + HPC Day） 。徐俊杰将分享 “Kubeadm Deep Dive” 的主题。
 
 ## 3. 其他需要了解的功能
 
@@ -144,10 +144,8 @@ ValidatingAdmissionPolicy 添加了 matchConditions 字段，用来支持基于 
 - [日志] kube-proxy、kube-scheduler 和 kubelet 有 HTTP API，可以在运行时更改日志 Level。该功能也适用于 JSON 格式日志输出。
 - [metrics] /metrics/slis 现在可用于控制平面组件，可以用来获取当前组件的健康检查指标。
 - [Lease] Kubernetes 组件选举现在仅支持使用 Lease。
-- [调度] ReadWriteOncePod feature gate 升级至 Beta 级别。
 - [调度] 调度器新增 Metric “plugin_evaluation_total”。该指标显示特定插件影响调度结果的次数。
-- [调度] PodSchedulingReadiness 升级至 Beta 级别。
-- [调度] 调度框架跳过非必要的插件以提升性能：在 PreFilter 阶段，如果 Plugin 返回 Skip 信息，那么在后续可以跳过执行该 Plugin 相应的 Filter 流程。
+- [调度] 调度框架在 Filter 和 Score 阶段可以利用 Skip 状态跳过该流程，以提升性能。在 PreFilter 阶段，如果 Plugin 返回 Skip 信息，那么在后续可以跳过执行该 Plugin 相应的 Filter 和 Score 阶段。
 - [存储] NewVolumeManagerReconstruction 功能升级为 Beta。这是 VolumeManager 的重构，允许 kubelet 在启动期间带上关于现有卷如何挂载的附加信息。
 - [存储] SELinuxMountReadWriteOncePod 功能升级为 Beta。该功能在卷挂载过程中使用正确的 SELinux 标签，相比逐个递归更改每个文件的方式，该功能加快了容器启动速度。
 - [存储] "ReadWriteOncePod" PV 访问模式功能升级为 Beta。此功能引入了一个新的 ReadWriteOncePod 访问模式，用于限制 PV 对单个节点上的单个 pod 的访问。而 ReadWriteOnce 模式限制了单节点访问，但并不限制同一个节点的多个 Pod 同时访问。
@@ -178,7 +176,7 @@ ValidatingAdmissionPolicy 添加了 matchConditions 字段，用来支持基于 
 - kubelet 移除了命令行参数 --container-runtime，该参数目前只有一个可选值 "remote" 并在之前版本中废弃。
 - 弃用了 Alpha 状态的 seccomp 注解 seccomp.security.Alpha.kubernetes.io/pod 和 container.seccomp.security.Alpha.kubernetes.io。
 - SecurityContextDeny 特性门控已经废弃，将在未来版本移除。
-- Linux/arm will not ship in Kubernetes 1.27 as we are running into issues with building artifacts using golang 1.20.2
+- 由于使用 golang 1.20.2 构建时遇到问题，Linux/arm 将不会在 Kubernetes 1.27 中发布。注意， arm64 仍然支持。
 
 ## 6. 历史文档
 
