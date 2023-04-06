@@ -2,9 +2,7 @@
 
 太平洋时间 2023 年 4 月 11 日，Kubernetes 1.27 正式发布。此版本距离上版本发布时隔 4 个月，是 2023 年的第一个版本。
 
-新版本中 release 团队跟踪了 60 个 enhancements，比之前版本都要多。其中 13 个功能升级为稳定版，29 个已有功能进行优化升级为 Beta，另有 18 个Alpha 级别的功能，大多数为全新功能。此外，还有超过 8 个功能在 GA 后被移除。
-
-本版本包含了很多重要功能和用户体验优化，重要功能会在下一小节进行详细介绍。
+新版本中 release 团队跟踪了 60 个 enhancements，比之前版本都要多。其中 13 个功能升级为稳定版，29 个已有功能进行优化升级为 Beta，另有 18 个Alpha 级别的功能，大多数为全新功能。此外，还有超过 8 个功能在 GA 后被移除。本版本包含了很多重要功能以及用户体验优化，本文会在下一小节进行部分重要功能的详细介绍。
 
 ## 1. 重要功能
 
@@ -13,32 +11,44 @@
 从 Kubernetes 1.25 开始，Kubernetes 容器镜像仓库域名已经从 `k8s.gcr.io` 更改为 `registry.k8s.io`。
 2023 年 3 月 20 日之后，`k8s.gcr.io` 将不在继续直接维护，而是代理到 `registry.k8s.io`。
 
-### [Alpha] Pod 资源的纵向弹性伸缩
-
-Kubernetes Pod 资源的原地调整大小功能，该功能不需要重建容器组，这很大程度上缓解了横向弹性的冷启动等问题。
-
-- 在之前的版本中，Pod API 是不支持资源修改的 ，以使容器定义的资源（CPU 和内存资源类型）可变。在 1.25 中，CRI API 开始支持 Pod 资源限制的热更新。
-- 为 Pod 中的容器添加了 resizePolicy 字段，以允许用户控制容器在资源变更时是否重启。
-- 在容器状态中添加了 allocatedResources 字段，用于描述为 Pod 分配的节点资源。
-- 在容器状态中添加了 resources 字段，用于报告应用于正在运行的容器的实际资源。
-- 在 Pod 状态中添加了 resize 字段，用于描述请求调整 Pod 大小的状态。该字段可以是 Proposed（已提出），InProgress（进行中），Deferred（已延迟）或 Infeasible（不可行）。
-
-### StatefulSet PVC 自动删除功能特性 Beta
+### StatefulSet PVC 自动删除功能特性 Beta #KEP-1847
 
 StatefulSetAutoDeletePVC 功能在 v1.23 引入，将在 1.27 中升级为 Beta，默认开启。该功能默认开启并不表示所有的 StatefulSet 的 PVC 都会自动删除。
-用户可以配置可以在 whenDeleted 或 whenScaled 阶段触发 Retain 或者 Delete 行为，其中 Retain 是默认行为，只有配置了 Delete 策略的 StatefulSet 再被删除时才会触发对应的 PVC 的删除。
 
-### APIServer 和 Kubelet 的 Tracing 功能 Beta
+用户可以配置可以在 `whenDeleted` 或 `whenScaled` 阶段触发保留 `Retain` 或者删除 `Delete` 行为，其中 `Retain` 是默认行为，只有配置了 `Delete` 策略的 StatefulSet 在被删除时才会触发对应的 PVC 的删除。
 
-APIServerTracing 升级为 Beta，默认开启，目前仅 Trace 了组件 apiserver 和 etcd，未来会添加 client-go 支持。之后其他组件会陆续添加 Tracing 能力。
-apiserver 中的 tracing 仍然默认禁用，需要指定配置文件才会启用，这里需要制定 tracing 的接收端。
+### kube-proxy 的 iptables 模式在大规模集群的性能优化 #KEP-3453
+
+功能 MinimizeIPTablesRestore 在 1.26 引入，在 1.27 升级为 Beta 并默认启用，目的是改善大型集群中 kube-proxy 的 iptables 模式的性能。
+
+如果您遇到 Service 信息未正确同步到 iptables 的问题，您可以通过把 kube-proxy 启动参数设置为 `--feature-gates=MinimizeIPTablesRestore=false` 来禁用该功能（并向社区提交问题）。你可以能通过查看 kube-proxy 的 metrics 信息中的 sync_proxy_rules_iptables_partial_restore_failures_total 指标来监控到规则同步失败的次数。
+
+### APIServer 和 Kubelet 的 Tracing 功能 Beta #KEP-2831 & #KEP-647
+
+APIServerTracing 升级为 Beta，默认开启，目前仅 Tracing 了组件 kube-apiserver 和 etcd，未来会添加 client-go 支持。之后其他组件会陆续添加 Tracing 能力。
+kube-apiserver 中的 Tracing 仍然默认禁用，需要指定配置文件才会启用，这里需要指定 Tracing 的接收端。
 
 ![tracing](tracing.png)
 
-Kubelet 和 container runtime 通过 CRI 调用的 tracing 也已经默认开启。
+Kubelet 和 container runtime 通过 CRI 调用的 Tracing 也已经默认开启。类似的， kubelet 的 KubeletTracing 功能已经默认开启，但是需要配置 Tracing 的接收端才能工作。
 <https://github.com/kubernetes/enhancements/issues/2831>
 
-### [Beta] Kubelet 事件驱动 PLEG 升级为 Beta(但是默认关闭)
+### 上下文日志 #KEP-3077
+
+上下文日志可以帮助用户理解日志的上下文信息，更好的让日志帮助用户排错和理解，提升日志的可观测性。
+目前 kube-controller-manager 的已经完成了一部分，kube-scheduler 大部分工作将在 1.28 完成。
+
+### [Alpha] Pod 资源的纵向弹性伸缩 #KEP-1287
+
+Kubernetes Pod 资源的原地调整大小功能，该功能不需要重建容器组，这很大程度上缓解了横向弹性的冷启动等问题。
+
+- 在之前的版本中，Pod API 是不支持资源修改的，也就是容器定义的资源（CPU 和内存等）限制和请求 Limit/Request 是不可变的。在 1.25 中，CRI API 开始支持 Pod 资源限制的热更新。
+- 在 Pod 的容器添加了 `resizePolicy` 字段，以允许用户控制容器在资源变更时是否重启。
+- 在容器状态中添加了 `allocatedResources` 字段，用于描述为 Pod 分配的节点资源。
+- 在容器状态中添加了 `resources` 字段，用于报告应用于正在运行的容器的实际资源。
+- 在 Pod 状态中添加了 `resize` 字段，用于描述请求调整 Pod 大小的状态。该字段可以是 Proposed（已提出），InProgress（进行中），Deferred（已延迟）或 Infeasible（不可行）。
+
+### [Beta] Kubelet 事件驱动 PLEG 升级为 Beta(但是默认关闭) #KEP-3386
 
 在节点 Pod 较多的情况下，通过容器运行时的 Event 驱动 Pod 状态更新，能够有效的提升效率。在 1.27中，该功能已经达到了 Beta 条件，基础的 E2E 测试任务已经添加。
 之所以默认关闭该功能，是因为社区认为该功能还需要补充以下验证：压力测试、恢复测试和带退避逻辑的重试。
@@ -47,53 +57,25 @@ Kubelet 和 container runtime 通过 CRI 调用的 tracing 也已经默认开启
 2. 恢复测试则是为了验证 Kubelet 在重新启动后能否正确地更新容器状态。
 3. 而带退避逻辑的重试则是为了解决 CRI Runtime 宕机时 Kubelet 可能无法连接的问题。
 
-### 调度
-
-#### 新功能
-
-Mutable Pod scheduling directives when gated: 这是一个始于 Beta 版本对新功能，它和“修改悬停Job的调度指令“有一些类似，但是是为 Pod 设计的。 当我们启用该功能，如果一个 Pod 被”调度门控“拒绝，Pod 的 NodeAffinity 和 NodeSelector 可以被修改。第三方的控制器可以利用这些特性来影响调度指令。它是 Pod 调度就绪功能的一个衍生品。
-
-#### Beta -> GA
-
-Mutable scheduling directives for suspended Jobs: 该功能在 v1.22 以 Beta 状态引入，目前已经 GA。该功能允许修改 Pod 调度指令，如 Job 的 Pod 模版中的 NodeAffinity，NodeSelector，Toleration，schedulingGates，annotation，label。一旦开启该功能，上层的队列控制器可以在启动 Job 之前修改调度指令，达到特殊的调度目的。
-
-#### Alpha -> Beta
-
-Pod Scheduling Readiness: 该功能引入一个新字段至 Pod 对象，即 .spec.schedulingGates，该字段可以控制 Pod 是否允许被调度。第三方控制器可以利用该门控来满足自己的调度需求。目前 SchedulingGate 插件已经默认开启。
-Respect PodTopologySpread after rolling upgrades: 它只关注 label 的键，不关注 label 的值，这样可以简化 Pod 拓扑调度的配置，同时为解决 Pod 滚动更新时调度不均衡提供了一个新的解决方案。
-
-#### 其他
-
-- [调度] ReadWriteOncePod feature gate 升级至 Beta 级别。
-- [调度] 调度器新增 Metric “plugin_evaluation_total”。该指标显示特定插件影响调度结果的次数。
-- [调度] PodSchedulingReadiness 升级至 Beta 级别。
-- [调度] 调度框架 Filter 阶段利用 Skip 状态：当 Pod 调度时会进行预选流程，即我们常说的 Filter 阶段，之前所有开启的插件都会走到该流程。现在，在 PreFilter 阶段会再进行一波新的删选，如果 Pod 与该插件所关注的功能无关，将返回 Skip 状态，跳过 Filter 阶段，达到提升性能的目的。
-
-### 存储
-
-存储方面有以下几个功能的更新比较重要，而组快照能力更是一个重大突破。
-
-1. NewVolumeManagerReconstruction 功能升级为 Beta版本。这是 VolumeManager 的重构，允许 kubelet 在启动期间填充关于现有卷如何挂载的附加信息。总体而言，这使得卷清理更加稳健。
-2. SELinuxMountReadWriteOncePod 功能升级为 Beta 版本。该功能通过将卷正确挂载到 SELinux 标签，而不是逐个递归更改每个文件的方式加快了容器启动速度。
-3. "ReadWriteOncePod" PV 访问模式功能升级为 Beta 版本。此功能引入了一个新的 ReadWriteOncePod 访问模式，用于 PersistentVolumes，限制对单个节点上的单个 pod 的访问。
-4. CSINodeExpandSecret 功能升级为 Beta 级别。
-
-#### Volume Group 快照 #KEP-3476
+### Volume Group 快照 alpha（API） #KEP-3476
 
 能够在 Pod 的所有卷上同一时间快照，将成为容灾备份和故障恢复场景的重大技术突破。现在，您不必担心应用程序因备份的卷存在几秒钟差异而无法正确运行。
 此外，在安全研究方面，存储卷的组快照功能也将是一个重大变革。排查问题时，您现在可以您的快照和 Pod 的状态是可对照的。
 需要注意的是该功能并非在 Kubernetes 仓库，VolumeGroupSnapshots API 的定义目前维护在 <https://github.com/kubernetes-csi/external-snapshotter>。
 
-### 上下文日志 #KEP-3077
+### Pod 调度就绪态功能增强 #KEP-3521 & #KEP-3838
 
-上下文日志可以帮助用户理解日志的上下文信息，更好的让日志帮助用户排错和理解，提升日志的可观测性。
-目前 kube-controller-manager 的已经完成了一部分，kube-scheduler 大部分工作将在 1.28 完成。
+调度就绪态功能 PodSchedulingReadiness，在 v1.26 作为 Alpha 功能引入，从 v1.27 开始该功能升级为 Beta，默认开启
 
-### kube-proxy 的 iptables 模式在大规模集群的性能优化 #KEP-3453
+该功能在 Pod 对象中引入了 `.spec.schedulingGates` 字段，用来定义 Pod 是否允许开始调度。此功能最常见的一个场景是批量调度，一组 Pod 调度等待集群资源足够整组 Pod 同时启动才开始调度。
 
-功能 MinimizeIPTablesRestore 在 1.26 引入，在 1.27 升级为 Beta 并默认启用，目的是改善大型集群中 kube-proxy 的 iptables 模式的性能。
+针对受 SchedulingGate 限制悬停（Gated）状态的 Pod，为了让第三方控制器更灵活的控制这些 Pod 的最终调度策略，新版本中允许 Gated Pod 的 NodeAffinity 和 NodeSelector 可以被修改，但是修改仅限添加，不能删除或者修改已有策略。
 
-如果您遇到 Service 信息未正确同步到 iptables 的问题，您可以通过把 kube-proxy 启动参数设置为 `--feature-gates=MinimizeIPTablesRestore=false` 来禁用该功能（并向社区提交问题）。你可以能通过查看 kube-proxy 的 metrics 信息中的 sync_proxy_rules_iptables_partial_restore_failures_total 指标来监控到规则同步失败的次数。
+### Deployment 滚动更新过程中的调度优化
+
+PodTopologySpread 调度策略之前只关注标签的键，而不关注标签的值，因此在滚动更新 Deployment 时，调度无法区分新旧实例，进而导致可能新实例调度不均匀。例如，滚动更新的最后一组 4 个旧 Pod 都在同一个节点，那么新 Pod 调度为了更加均匀分布，大概率会调度到其他节点；滚动最后删除这一组旧 Pod 后，有可能一个节点没有调度该 Deployment。
+
+在 v1.27 中，PodTopologySpread 调度策略可以区分调度 Pod 标签的值（这里通常指 pod 的 pod-template-hash 标签，不同 replica set 对应的 pod 该标签的值不同），这样滚动更新后，新的 Pod 实例会被调度的更加均匀。
 
 ### CRD validation expression language #KEP-2876
 
@@ -107,7 +89,28 @@ x-kubernetes-validations:
   messageExpression: '"x exceeded max limit of " + string(self.maxLimit)'
 ```
 
-## 2. 其他需要了解的功能
+### 节点日志查询
+
+- [日志] 添加了 NodeLogQuery 功能门，为集群管理员提供了使用 kubectl 流式查看日志的功能，无需实现客户端读取器或登录节点。对 Windows 的支持也在逐步完善。
+
+## 2. DaoCloud 参与功能
+
+本次发布中， DaoCloud 重点贡献了 sig-node，sig-scheduling 和 kubeadm 相关内容，具体功能点如下：
+
+- [client-go] 修复尝试获取 leader lease 的等待时间的问题。
+- [node] 如果 Pod 的 spec.terminationGracePeriodSeconds 属性值是负数，则会被视为设定了1秒的 terminationGracePeriodSeconds。
+- [node] 添加了一个可以限制节点进行并行镜像下载数量的新功能。
+- [node] 改进目前 Memory QoS 功能，优化了其在 cgroup v2 场景的适配性。
+- [scheduling] MinDomainsInPodTopologySpread 功能升级为 Beta。
+- [scheduling] 当任何调度程序插件在 PostFilter 中返回 unschedulableAndUnresolvable 状态时，该 Pod 的调度周期立即终止。
+- [instrumentation] 迁移控制器使用 contextual logging。
+- [node] Kubelet：将“--container-runtime-endpoint”和“--image-service-endpoint”迁移到kubelet配置中。
+- [kubeadm] Kubeadm: 添加特性门控 EtcdLearnerMode，它允许将新增的控制节点的 etcd 作为学习者 Learner 加入，然后再升级为投票成员。
+- [node] Kubelet 默认允许 Pod 使用 net.ipv4.ip_local_reserved_ports sysctl，要求内核版本 3.16+。
+
+在 v1.27 发布过程中，DaoCloud 参与上百个问题修复和功能研发，作为作者约有 90 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=118)（该版本的两百多位贡献者中有来自 DaoCloud 的 15 位）。在 Kubernetes v1.27 的发布周期中，DaoCloud 的多名研发工程师取得了不少成就。其中，由张世明主要维护的项目 KWOK (Kubernetes Without Kubelet) 成为社区热点，并在大规模集群模拟方面有效地节约资源，提升效率。几位研发人员参与了 Kubernetes 官网的大量中文翻译工作，其中要海峰几乎包揽了近期官网博客的翻译，并成为 SIG-doc-zh 的维护者。此外，刘梦姣也是 SIG-doc 的维护者。在即将召开的 2023 年欧洲 KubeCon 上，殷纳将以调度方向的维护者身份作为讲师，分享调度方向的深度剖析；徐俊杰将分享 kubeadm 的深度解析。
+
+## 3. 其他需要了解的功能
 
 - [apps] PodDisruptionBudget 之前不支持指定不健康 Pod 的处理方法，不健康 Pod 是指 Pod Running 但是状态不是 Ready。 我们添加了一个新字段 unhealthyPodEvictionPolicy，允许用户指定这些不健康的pod应该发生什么。该字段在 v1.27 中升级为 Beta。
 - [apps] "StatefulSetStartOrdinal" 功能升级为 Beta，默认允许在 StatefulSet 中配置起始序号。
@@ -138,30 +141,21 @@ ValidatingAdmissionPolicy 添加了 matchConditions 字段，用来支持基于 
 - [节点] 提高 Kubelet 的默认 API QPS 限制，其中 kubeAPIQPS 和 kubeAPIBurst 都调大了 10 倍。
 - [节点] Kubelet 的拓扑管理器 Topology Manager 功能 GA。
 - [节点] seccomp profile 默认值升级至 GA 级别。
-- [日志] 添加了 NodeLogQuery 功能门，为集群管理员提供了使用 kubectl 流式查看日志的功能，无需实现客户端读取器或登录节点。对 Windows 的支持也在逐步完善。
 - [日志] kube-proxy、kube-scheduler 和 kubelet 有 HTTP API，可以在运行时更改日志 Level。该功能也适用于 JSON 格式日志输出。
 - [metrics] /metrics/slis 现在可用于控制平面组件，可以用来获取当前组件的健康检查指标。
 - [Lease] Kubernetes 组件选举现在仅支持使用 Lease。
-
-## 3. DaoCloud 参与功能
-
-本次发布中， DaoCloud 重点贡献了 sig-node，sig-scheduling 和 kubeadm 相关内容，具体功能点如下：
-
-- [client-go] 修复尝试获取 leader lease 的等待时间的问题。
-- [node] 如果 Pod 的 spec.terminationGracePeriodSeconds 属性值是负数，则会被视为设定了1秒的 terminationGracePeriodSeconds。
-- [node] 添加了一个可以限制节点进行并行镜像下载数量的新功能。
-- [node] 改进目前 Memory QoS 功能，优化了其在 cgroup v2 场景的适配性。
-- [scheduling] MinDomainsInPodTopologySpread 功能升级为 Beta。
-- [scheduling] 当任何调度程序插件在 PostFilter 中返回 unschedulableAndUnresolvable 状态时，该 Pod 的调度周期立即终止。
-- [instrumentation] 迁移控制器使用 contextual logging。
-- [node] Kubelet：将“--container-runtime-endpoint”和“--image-service-endpoint”迁移到kubelet配置中。
-- [kubeadm] Kubeadm: 添加特性门控 EtcdLearnerMode，它允许将新增的控制节点的 etcd 作为学习者 Learner 加入，然后再升级为投票成员。
-- [node] Kubelet 默认允许 Pod 使用 net.ipv4.ip_local_reserved_ports sysctl，要求内核版本 3.16+。
-
-在 v1.27 发布过程中，DaoCloud 参与上百个问题修复和功能研发，作为作者约有 90 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=118)（该版本的两百多位贡献者中有来自 DaoCloud 的 15 位）。在 Kubernetes v1.27 的发布周期中，DaoCloud 的多名研发工程师取得了不少成就。其中，由张世明主要维护的项目 KWOK (Kubernetes Without Kubelet) 成为社区热点，并在大规模集群模拟方面有效地节约资源，提升效率。几位研发人员参与了 Kubernetes 官网的大量中文翻译工作，其中要海峰几乎包揽了近期官网博客的翻译，并成为 SIG-doc-zh 的维护者。此外，刘梦姣也是 SIG-doc 的维护者。在即将召开的 2023 年欧洲 KubeCon 上，殷纳将以调度方向的维护者身份作为讲师，分享调度方向的深度剖析；徐俊杰将分享 kubeadm 的深度解析。
+- [调度] ReadWriteOncePod feature gate 升级至 Beta 级别。
+- [调度] 调度器新增 Metric “plugin_evaluation_total”。该指标显示特定插件影响调度结果的次数。
+- [调度] PodSchedulingReadiness 升级至 Beta 级别。
+- [调度] 调度框架跳过非必要的插件以提升性能：在 PreFilter 阶段，如果 Plugin 返回 Skip 信息，那么在后续可以跳过执行该 Plugin 相应的 Filter 流程。
+- [存储] NewVolumeManagerReconstruction 功能升级为 Beta。这是 VolumeManager 的重构，允许 kubelet 在启动期间带上关于现有卷如何挂载的附加信息。
+- [存储] SELinuxMountReadWriteOncePod 功能升级为 Beta。该功能在卷挂载过程中使用正确的 SELinux 标签，相比逐个递归更改每个文件的方式，该功能加快了容器启动速度。
+- [存储] "ReadWriteOncePod" PV 访问模式功能升级为 Beta。此功能引入了一个新的 ReadWriteOncePod 访问模式，用于限制 PV 对单个节点上的单个 pod 的访问。而 ReadWriteOnce 模式限制了单节点访问，但并不限制同一个节点的多个 Pod 同时访问。
+- [存储] CSINodeExpandSecret 功能升级为 Beta 级别。
 
 ## 4. 版本标志
 
+// TODO in 10号
 本次发布的主题是 。 Kubernetes 是。
 ![logo](kubernetes-1.27.png)
 
@@ -173,7 +167,7 @@ ValidatingAdmissionPolicy 添加了 matchConditions 字段，用来支持基于 
 
 ### k8s.gcr.io 重定向到 registry.k8s.io 相关说明
 
-Kubernetes 项目为了托管其容器镜像，使用社区拥有的一个名为 registry.k8s.io. 的镜像仓库。 从 3 月 20 日起，所有来自过期 k8s.gcr.io 仓库的流量将被重定向到 registry.k8s.io。 已弃用的 k8s.gcr.io 仓库最终将被淘汰。
+再次强调，Kubernetes 项目为了托管其容器镜像，使用社区拥有的一个名为 registry.k8s.io. 的镜像仓库。 从 3 月 20 日起，所有来自过期 k8s.gcr.io 仓库的流量将被重定向到 registry.k8s.io。 已弃用的 k8s.gcr.io 仓库未来最终将被关停。
 
 ### 其他需要注意的变化
 
