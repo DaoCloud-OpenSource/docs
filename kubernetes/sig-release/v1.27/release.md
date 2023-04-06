@@ -89,24 +89,41 @@ x-kubernetes-validations:
   messageExpression: '"x exceeded max limit of " + string(self.maxLimit)'
 ```
 
-### 节点日志查询
+### 节点日志查询 #KEP-2258
 
-- [日志] 添加了 NodeLogQuery 功能门，为集群管理员提供了使用 kubectl 流式查看日志的功能，无需实现客户端读取器或登录节点。对 Windows 的支持也在逐步完善。
+v1.27 添加了 NodeLogQuery 特性门控(Feature Gate)，为集群管理员提供了使用 kubectl 流式查看节点日志的功能，无需登录节点。
+该功能目前是 Alpha，需要配置 kubelet 开启特性门控，同时还需要设置 `enableSystemLogHandler` 和 `enableSystemLogQuery` 为 true。
+在 Linux 上，我们假设系统服务日志可以通过 journald 获得。在 Windows 上，我们假设系统服务日志可以在应用程序日志提供程序中获得。在这两个操作系统中，还可以通过读取/var/log/目录下的文件来获取日志。此功能对 Windows 的支持也在逐步完善，目前使用 Get-WinEvent 来获取系统和应用程序日志。
+
+不仅如此，目前节点日志获取功能还支持了一些参数。 其中 `query` 表示服务名，可指定 kubelet、containerd 等。
+`patern` 通过提供的 PERL 兼容正则表达式过滤日志条目。此外支持的参数还有 sinceTime、untilTime、tailLines、boot。
+
+```shell
+# Fetch kubelet logs from a node named node-1.example that have the word "error"
+kubectl get --raw "/api/v1/nodes/node-1.example/proxy/logs/?query=kubelet&pattern=error"
+```
+
+### `kubectl apply –prune` 重新设计 #KEP-3659
+
+`--prune` 在 v1.5 就作为 Alpha 功能引入，提供了自动清理 apply yaml 删除的部分对象，但是这个过程有些性能问题和缺陷，在一些情况下会造成对象泄漏。常见原因包括 allowlist （之前叫whitelist）GVK 内容和 apply 内容不匹配，或者命名空间变化。命名空间操作变化的案例，比如第一次 apply 是操作了命名空间 A 和 B；而第二次 apply 如果只 apply 命名空间 A 的资源，那么命名空间 B 的资源将不会被清理。
+
+在 v1.27 中，kubectl 对 apply --prune 的功能进行了重新的设计，增加了 `--applyset` 配合使用，目前该功能仍然是 Alpha 级别，因此需要配置 KUBECTL_APPLYSET 环境变量为 1 或者 true，才能启用。在 `kubectl apply` 时，kubectl 会给对象添加 `applyset.kubernetes.io/part-of` 标签，在清理时会使用该标签。而为了满足更复杂的场景，还引入了 `applyset.kubernetes.io/id` 来标识 Parent 对象，以及 toolling、additional-namespaces 来帮助区分对象和增加命名空间信息等，更多详情请阅读 KEP 内容。
 
 ## 2. DaoCloud 参与功能
 
 本次发布中， DaoCloud 重点贡献了 sig-node，sig-scheduling 和 kubeadm 相关内容，具体功能点如下：
 
 - [client-go] 修复尝试获取 leader lease 的等待时间的问题。
-- [node] 如果 Pod 的 spec.terminationGracePeriodSeconds 属性值是负数，则会被视为设定了1秒的 terminationGracePeriodSeconds。
-- [node] 添加了一个可以限制节点进行并行镜像下载数量的新功能。
-- [node] 改进目前 Memory QoS 功能，优化了其在 cgroup v2 场景的适配性。
-- [scheduling] MinDomainsInPodTopologySpread 功能升级为 Beta。
-- [scheduling] 当任何调度程序插件在 PostFilter 中返回 unschedulableAndUnresolvable 状态时，该 Pod 的调度周期立即终止。
-- [instrumentation] 迁移控制器使用 contextual logging。
-- [node] Kubelet：将“--container-runtime-endpoint”和“--image-service-endpoint”迁移到kubelet配置中。
+- [调度] MinDomainsInPodTopologySpread 功能升级为 Beta。
+- [调度] 当任何调度程序插件在 PostFilter 中返回 unschedulableAndUnresolvable 状态时，该 Pod 的调度周期立即终止。
+- [日志] 迁移控制器使用 contextual logging。
 - [kubeadm] Kubeadm: 添加特性门控 EtcdLearnerMode，它允许将新增的控制节点的 etcd 作为学习者 Learner 加入，然后再升级为投票成员。
-- [node] Kubelet 默认允许 Pod 使用 net.ipv4.ip_local_reserved_ports sysctl，要求内核版本 3.16+。
+- [节点] 如果 Pod 的 spec.terminationGracePeriodSeconds 属性值是负数，则会被视为设定了1秒的 terminationGracePeriodSeconds。
+- [节点] 添加了一个可以限制节点进行并行镜像下载数量的新功能。
+- [节点] 改进目前 Memory QoS 功能，优化了其在 cgroup v2 场景的适配性。
+- [节点] Kubelet：将“--container-runtime-endpoint”和“--image-service-endpoint”迁移到kubelet配置中。
+- [节点] Kubelet 默认允许 Pod 使用 net.ipv4.ip_local_reserved_ports sysctl，要求内核版本 3.16+。
+- [CLI] `kubectl.kubernetes.io/default-container` 标签正式 GA，主要用于 kubectl 的 logs、exec 等命令来决定默认容器。
 
 在 v1.27 发布过程中，DaoCloud 参与上百个问题修复和功能研发，作为作者约有 90 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=118)（该版本的两百多位贡献者中有来自 DaoCloud 的 15 位）。在 Kubernetes v1.27 的发布周期中，DaoCloud 的多名研发工程师取得了不少成就。其中，由张世明主要维护的项目 KWOK (Kubernetes Without Kubelet) 成为社区热点，并在大规模集群模拟方面有效地节约资源，提升效率。几位研发人员参与了 Kubernetes 官网的大量中文翻译工作，其中要海峰几乎包揽了近期官网博客的翻译，并成为 SIG-doc-zh 的维护者。此外，刘梦姣也是 SIG-doc 的维护者。在即将召开的 2023 年欧洲 KubeCon 上，殷纳将分享两个有趣的调度方向的主题，分别是“Sig Scheduling Deep Dive” 和 “Building a Batch System for the Cloud with Kueue” （属于 Kubernetes Batch + HPC Day） 。徐俊杰将分享 “Kubeadm Deep Dive” 的主题。
 
@@ -120,20 +137,21 @@ x-kubernetes-validations:
 - [apps] Indexed JOb 的 API 验证已放宽，允许通过同时更改 parallelism 和 completions 来扩展或者缩小 Indexed Job，但是需要保持 parallelism == completions 同步修改。
 - [API] 基于 Kubernetes v1.25 提供的 KEP-2876 CRD验证表达式语言，该功能增加一个新的资源 —— `ValidatingAdmissionPolicy`，允许在不使用 Validation Webhook 时实现字段验证。在 1.27 中，
 - [API] Kubernetes 为聚合发现提供了 Beta 支持，通过 `/api` 和 `/apis` 发布集群支持的所有资源，而不是每个 Group 分别提供。
-- [API] OpenAPIV3 功能 GA, 允许 API 服务器发布 OpenAPI V3。社区建议使用 OpenAPI v3，v3 有诸多优势，其中包括 CustomResourceDefinition OpenAPI v3 验证模式的无损表示，而 OpenAPI v2 在 CRD validation 中做了有损转换。
+- [API] OpenAPIV3 功能 GA, 允许 API 服务器发布 OpenAPI V3。社区建议使用 OpenAPI v3，v3 有诸多优势，其中包括 CustomResourceDefinition OpenAPI v3 验证模式的无损表示，而 OpenAPI v2 在 CRD validation 中做了有损转换。`kubectl explain` 也已经支持了 OpenAPI v3，但是需要配置环境变量 KUBECTL_EXPLAIN_OPENAPIV3 来启用。
 - [API] 将 SelfSubjectReview 提升为 Beta 级别。
 - [auth] KMSv2 升级为 Beta，该功能在 1.27 中做了许多优化，比如：在插件 key ID 不变的情况下，重用 DEK 数据加密密钥，而当 Server 启动时，DEK 会重新随机生成。
 - [auth] 添加了一个新的 Alpha API：ClusterTrustBundle（certificates.k8s.io/v1Alpha1）。
-- [auth] AdmissionWebhookMatchConditions 功能门已进入 Alpha： 在v1Beta和v1 API中，为`ValidatingWebhookConfiguration`和`MutatingWebhookConfiguration`添加了 `MatchConditions` 字段。
-- [auth] 将 LegacyServiceAccountTokenTracking 功能门升级为Beta，用于跟踪基于 Sercet 的 SA token 的使用情况。
+- [auth] AdmissionWebhookMatchConditions 功能已进入 Alpha： 在v1Beta和v1 API中，为`ValidatingWebhookConfiguration`和`MutatingWebhookConfiguration`添加了 `MatchConditions` 字段。
+- [auth] 将 LegacyServiceAccountTokenTracking 功能升级为Beta，用于跟踪基于 Sercet 的 SA token 的使用情况。
 - [CLI] kubectl 的 `--subresource` 支持升级为 Beta，目前 subresource 只支持 status 和 scale。
+- [CLI] 改进 kubectl 插件解析以支持 non-shadowing 子命令。需要配置环境变量 KUBECTL_ENABLE_CMD_SHADOW=true 开启该功能，此时例如 `kubectl create foo` 执行会首先发现 create 没有 foo 子命令，kubectl 会自动尝试运行 `kubectl-create-foo` 插件。
 - [网络] 当外部 cloud provider 支持提供双战 IP 时，在 kubelet 中启用 `CloudNodeIPs` 功能，您就可以指定双栈的 `--node-ip`。该功能目前是 Alpha，需要手动开启。
 ValidatingAdmissionPolicy 添加了 matchConditions 字段，用来支持基于 CEL 的自定义匹配条件。该功能目前仍然是 Alpha 。
 - [网络] 允许动态扩展可用于服务 Service 的 IP 数量。新增了 MultiCIDRServiceAllocator 功能，目前是 Alpha 级别。
-- [网络] 新功能门限 ServiceNodePortStaticSubrange，以启用新的策略在 NodePort 服务端口分配器中，因此节点端口范围被细分，并且首选从上部分配动态分配的 NodePort 端口为服务。
+- [网络] 新功能 ServiceNodePortStaticSubrange，以启用新的策略在 NodePort 服务端口分配器中，因此节点端口范围被细分，并且首选从上部分配动态分配的 NodePort 端口为服务。
 - [网络] 添加了有关工作负载资源（Pod、ReplicaSets、Deployments、Jobs、CronJobs或ReplicationControllers）名称无效DNS标签的警告。
 - [弹性] HPAContainerMetrics 升级为 Beta，该功能允许 HorizontalPodAutoscaler 基于目标 Pods 中各容器 ContainerResource 类型的 metrics 来执行扩缩操作。
-- [节点] 动态资源分配功能，使用功能门 DynamicResourceAllocation。新增的 API 比 Kubernetes 现有的设备插件 Device Plugin 功能更加灵活。因为它允许 Pod 请求（声明）指定类型的资源，这些资源可以在节点级别、集群级别或任何其他用户自定义实现的模型中使用。
+- [节点] 动态资源分配功能，使用功能 DynamicResourceAllocation。新增的 API 比 Kubernetes 现有的设备插件 Device Plugin 功能更加灵活。因为它允许 Pod 请求（声明）指定类型的资源，这些资源可以在节点级别、集群级别或任何其他用户自定义实现的模型中使用。
 - [节点] 用户命名空间支持范围扩大，该功能仍然是 Alpha，但相比 v1.26 支持 StatefulSet。
 - [节点] GRPC 探针功能 GA。
 - [节点] Bump default API QPS limits for Kubelet.
@@ -142,13 +160,13 @@ ValidatingAdmissionPolicy 添加了 matchConditions 字段，用来支持基于 
 - [节点] Kubelet 的拓扑管理器 Topology Manager 功能 GA。
 - [节点] seccomp profile 默认值升级至 GA 级别。
 - [日志] kube-proxy、kube-scheduler 和 kubelet 有 HTTP API，可以在运行时更改日志 Level。该功能也适用于 JSON 格式日志输出。
-- [metrics] /metrics/slis 现在可用于控制平面组件，可以用来获取当前组件的健康检查指标。
+- [metrics] `/metrics/slis` 现在可用于控制平面组件，可以用来获取当前组件的健康检查指标。
 - [Lease] Kubernetes 组件选举现在仅支持使用 Lease。
-- [调度] 调度器新增 Metric “plugin_evaluation_total”。该指标显示特定插件影响调度结果的次数。
+- [调度] 调度器新增 Metric `plugin_evaluation_total`。该指标显示特定插件影响调度结果的次数。
 - [调度] 调度框架在 Filter 和 Score 阶段可以利用 Skip 状态跳过该流程，以提升性能。在 PreFilter 阶段，如果 Plugin 返回 Skip 信息，那么在后续可以跳过执行该 Plugin 相应的 Filter 和 Score 阶段。
 - [存储] NewVolumeManagerReconstruction 功能升级为 Beta。这是 VolumeManager 的重构，允许 kubelet 在启动期间带上关于现有卷如何挂载的附加信息。
 - [存储] SELinuxMountReadWriteOncePod 功能升级为 Beta。该功能在卷挂载过程中使用正确的 SELinux 标签，相比逐个递归更改每个文件的方式，该功能加快了容器启动速度。
-- [存储] "ReadWriteOncePod" PV 访问模式功能升级为 Beta。此功能引入了一个新的 ReadWriteOncePod 访问模式，用于限制 PV 对单个节点上的单个 pod 的访问。而 ReadWriteOnce 模式限制了单节点访问，但并不限制同一个节点的多个 Pod 同时访问。
+- [存储] ReadWriteOncePod PV 访问模式功能升级为 Beta。此功能引入了一个新的 ReadWriteOncePod 访问模式，用于限制 PV 对单个节点上的单个 pod 的访问。而 ReadWriteOnce 模式限制了单节点访问，但并不限制同一个节点的多个 Pod 同时访问。
 - [存储] CSINodeExpandSecret 功能升级为 Beta 级别。
 
 ## 4. 版本标志
