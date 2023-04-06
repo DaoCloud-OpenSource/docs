@@ -78,23 +78,24 @@ Respect PodTopologySpread after rolling upgrades: 它只关注 label 的键，�
 3. "ReadWriteOncePod" PV 访问模式功能升级为 Beta 版本。此功能引入了一个新的 ReadWriteOncePod 访问模式，用于 PersistentVolumes，限制对单个节点上的单个 pod 的访问。
 4. CSINodeExpandSecret 功能升级为 Beta 级别。
 
-#### Volume Group 快照
+#### Volume Group 快照 #KEP-3476
 
 能够在 Pod 的所有卷上同一时间快照，将成为容灾备份和故障恢复场景的重大技术突破。现在，您不必担心应用程序因备份的卷存在几秒钟差异而无法正确运行。
 此外，在安全研究方面，存储卷的组快照功能也将是一个重大变革。排查问题时，您现在可以您的快照和 Pod 的状态是可对照的。
+需要注意的是该功能并非在 Kubernetes 仓库，VolumeGroupSnapshots API 的定义目前维护在 <https://github.com/kubernetes-csi/external-snapshotter>。
 
-### 上下文日志
+### 上下文日志 #KEP-3077
 
 上下文日志可以帮助用户理解日志的上下文信息，更好的让日志帮助用户排错和理解，提升日志的可观测性。
 目前 kube-controller-manager 的已经完成了一部分，kube-scheduler 大部分工作将在 1.28 完成。
 
-### kube-proxy 的 iptables 模式在大规模集群的性能优化
+### kube-proxy 的 iptables 模式在大规模集群的性能优化 #KEP-3453
 
 功能 MinimizeIPTablesRestore 在 1.26 引入，在 1.27 升级为 Beta 并默认启用，目的是改善大型集群中 kube-proxy 的 iptables 模式的性能。
 
 如果您遇到 Service 信息未正确同步到 iptables 的问题，您可以通过把 kube-proxy 启动参数设置为 `--feature-gates=MinimizeIPTablesRestore=false` 来禁用该功能（并向社区提交问题）。你可以能通过查看 kube-proxy 的 metrics 信息中的 sync_proxy_rules_iptables_partial_restore_failures_total 指标来监控到规则同步失败的次数。
 
-### CRD validation expression language
+### CRD validation expression language #KEP-2876
 
 CustomResourceValidationExpressions 在 v1.25 中就已经升级为 Beta。验证规则使用通用表达式语言（CEL）来验证定制资源的值。
 验证规则使用 x-kubernetes-validations 扩展包含在 CustomResourceDefinition 模式定义中。
