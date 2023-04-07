@@ -8,47 +8,46 @@
 
 ### 镜像仓库切换 k8s.gcr.io 到 registry.gcr.io
 
-从 Kubernetes 1.25 开始，Kubernetes 容器镜像仓库域名已经从 `k8s.gcr.io` 更改为 `registry.k8s.io`。
-2023 年 3 月 20 日之后，`k8s.gcr.io` 将不在继续直接维护，而是代理到 `registry.k8s.io`。
+自 Kubernetes 1.25 版本起，Kubernetes 容器镜像仓库域名已经从 `k8s.gcr.io` 更改为 `registry.k8s.io`。
+2023 年 3 月 20 日之后，`k8s.gcr.io` 将不在继续直接维护，而是被代理到 `registry.k8s.io`。
 
-### StatefulSet PVC 自动删除功能特性 Beta #KEP-1847
+### KEP-1847：StatefulSet PVC 自动删除功能特性 Beta
 
-StatefulSetAutoDeletePVC 功能在 v1.23 引入，将在 1.27 中升级为 Beta，默认开启。该功能默认开启并不表示所有的 StatefulSet 的 PVC 都会自动删除。
+在 v1.23 中引入的 StatefulSetAutoDeletePVC 功能将在 1.27 版本中升级为 Beta，并默认开启。然而，默认开启并不意味着所有 StatefulSet 的 PVC 都将自动删除。
 
-用户可以配置可以在 `whenDeleted` 或 `whenScaled` 阶段触发保留 `Retain` 或者删除 `Delete` 行为，其中 `Retain` 是默认行为，只有配置了 `Delete` 策略的 StatefulSet 在被删除时才会触发对应的 PVC 的删除。
+用户可以配置 whenDeleted 或 whenScaled 阶段以触发 Retain 或 Delete 行为。其中，Retain 是默认行为，只有配置了 Delete 策略的 StatefulSet 在被删除时才会触发对应的 PVC 删除动作。
 
-### kube-proxy 的 iptables 模式在大规模集群的性能优化 #KEP-3453
+### KEP-3453：优化大型集群中 kube-proxy 的 iptables 模式性能
 
-功能 MinimizeIPTablesRestore 在 1.26 引入，在 1.27 升级为 Beta 并默认启用，目的是改善大型集群中 kube-proxy 的 iptables 模式的性能。
+功能 MinimizeIPTablesRestore 在 1.26 版本中引入，并在 1.27 版本中升级为 Beta 并默认启用。该功能旨在改善大型集群中 kube-proxy 的 iptables 模式性能。
 
-如果您遇到 Service 信息未正确同步到 iptables 的问题，您可以通过把 kube-proxy 启动参数设置为 `--feature-gates=MinimizeIPTablesRestore=false` 来禁用该功能（并向社区提交问题）。你可以能通过查看 kube-proxy 的 metrics 信息中的 sync_proxy_rules_iptables_partial_restore_failures_total 指标来监控到规则同步失败的次数。
+如果您遇到 Service 信息未正确同步到 iptables 的问题，您可以通过将 kube-proxy 启动参数设置为 `--feature-gates=MinimizeIPTablesRestore=false` 来禁用该功能（并向社区提交问题）。您还可以查看 kube-proxy 的 metrics 信息中的 `sync_proxy_rules_iptables_partial_restore_failures_total` 指标来监控规则同步失败的次数。
 
-### APIServer 和 Kubelet 的 Tracing 功能 Beta #KEP-2831 & #KEP-647
+### KEP-2831 和 KEP-647：APIServer 和 Kubelet 的 Tracing 功能 Beta
 
-APIServerTracing 升级为 Beta，默认开启，目前仅 Tracing 了组件 kube-apiserver 和 etcd，未来会添加 client-go 支持。之后其他组件会陆续添加 Tracing 能力。
-kube-apiserver 中的 Tracing 仍然默认禁用，需要指定配置文件才会启用，这里需要指定 Tracing 的接收端。
+APIServerTracing 已升级为 Beta 状态，并默认启用。目前仅支持 kube-apiserver 和 etcd 组件的 Tracing，但未来会添加对 client-go 的支持。其他组件也将逐步添加 Tracing 能力。
+kube-apiserver 中的 Tracing 需要指定配置文件才能启用，并且必须指定接收端。
 
 ![tracing](tracing.png)
 
-Kubelet 和 container runtime 通过 CRI 调用的 Tracing 也已经默认开启。类似的， kubelet 的 KubeletTracing 功能已经默认开启，但是需要配置 Tracing 的接收端才能工作。
-<https://github.com/kubernetes/enhancements/issues/2831>
+Kubelet 和容器运行时通过 CRI 调用的 Tracing 也已经默认开启。类似地， kubelet 的 KubeletTracing 功能已经默认开启，但是需要配置 Tracing 的接收端才能正常工作。
 
-### 上下文日志 #KEP-3077
+### KEP-3077：上下文日志
 
 上下文日志可以帮助用户理解日志的上下文信息，更好的让日志帮助用户排错和理解，提升日志的可观测性。
-目前 kube-controller-manager 的已经完成了一部分，kube-scheduler 大部分工作将在 1.28 完成。
+目前 kube-controller-manager 的迁移工作已经完成，kube-scheduler 的迁移工作将在 1.28 版本中完成。
 
-### [Alpha] Pod 资源的纵向弹性伸缩 #KEP-1287
+### KEP-1287：Pod 资源的纵向弹性伸缩
 
-Kubernetes Pod 资源的原地调整大小功能，该功能不需要重建容器组，这很大程度上缓解了横向弹性的冷启动等问题。
+Kubernetes 现已支持原地调整 Pod 资源大小，容器组重建不在是必须的，这很大程度上缓解了横向弹性的冷启动等问题。
 
-- 在之前的版本中，Pod API 是不支持资源修改的，也就是容器定义的资源（CPU 和内存等）限制和请求 Limit/Request 是不可变的。在 1.25 中，CRI API 开始支持 Pod 资源限制的热更新。
-- 在 Pod 的容器添加了 `resizePolicy` 字段，以允许用户控制容器在资源变更时是否重启。
+- 在之前的版本中，Pod API 不支持修改资源。也就是说，容器定义的资源限制和请求（如 CPU 和内存）是不可变的。在 1.25 版本中，CRI API 开始支持 Pod 资源限制的热更新。
+- 在 Pod 的容器中添加了 `resizePolicy` 字段，以允许用户控制容器在资源变更时是否重启。
 - 在容器状态中添加了 `allocatedResources` 字段，用于描述为 Pod 分配的节点资源。
 - 在容器状态中添加了 `resources` 字段，用于报告应用于正在运行的容器的实际资源。
 - 在 Pod 状态中添加了 `resize` 字段，用于描述请求调整 Pod 大小的状态。该字段可以是 Proposed（已提出），InProgress（进行中），Deferred（已延迟）或 Infeasible（不可行）。
 
-### [Beta] Kubelet 事件驱动 PLEG 升级为 Beta(但是默认关闭) #KEP-3386
+### KEP-3386：Kubelet 事件驱动 PLEG 升级为 Beta
 
 在节点 Pod 较多的情况下，通过容器运行时的 Event 驱动 Pod 状态更新，能够有效的提升效率。在 1.27中，该功能已经达到了 Beta 条件，基础的 E2E 测试任务已经添加。
 之所以默认关闭该功能，是因为社区认为该功能还需要补充以下验证：压力测试、恢复测试和带退避逻辑的重试。
@@ -57,13 +56,13 @@ Kubernetes Pod 资源的原地调整大小功能，该功能不需要重建容�
 2. 恢复测试则是为了验证 Kubelet 在重新启动后能否正确地更新容器状态。
 3. 而带退避逻辑的重试则是为了解决 CRI Runtime 宕机时 Kubelet 可能无法连接的问题。
 
-### Volume Group 快照 alpha（API） #KEP-3476
+### KEP-3476：Volume Group 快照 alpha（API）
 
 能够在 Pod 的所有卷上同一时间快照，将成为容灾备份和故障恢复场景的重大技术突破。现在，您不必担心应用程序因备份的卷存在几秒钟差异而无法正确运行。
 此外，在安全研究方面，存储卷的组快照功能也将是一个重大变革。排查问题时，您现在可以您的快照和 Pod 的状态是可对照的。
 需要注意的是该功能并非在 Kubernetes 仓库，VolumeGroupSnapshots API 的定义目前维护在 <https://github.com/kubernetes-csi/external-snapshotter>。
 
-### Pod 调度就绪态功能增强 #KEP-3521 & #KEP-3838
+### KEP-3838 和 KEP-3521：Pod 调度就绪态功能增强
 
 调度就绪态功能 PodSchedulingReadiness，在 v1.26 作为 Alpha 功能引入，从 v1.27 开始该功能升级为 Beta，默认开启
 
@@ -71,13 +70,13 @@ Kubernetes Pod 资源的原地调整大小功能，该功能不需要重建容�
 
 针对受 SchedulingGate 限制悬停（Gated）状态的 Pod，为了让第三方控制器更灵活的控制这些 Pod 的最终调度策略，新版本中允许 Gated Pod 的 NodeAffinity 和 NodeSelector 可以被修改，但仅允许缩小节点范围。缩小范围是指支持添加新策略，不能删除或者修改已有策略。
 
-### Deployment 滚动更新过程中的调度优化
+### KEP-3243：Deployment 滚动更新过程中的调度优化
 
 PodTopologySpread 调度策略之前只关注标签的键，而不关注标签的值，因此在滚动更新 Deployment 时，调度无法区分新旧实例，进而导致可能新实例调度不均匀。例如，滚动更新的最后一组 4 个旧 Pod 都在同一个节点，那么新 Pod 调度为了更加均匀分布，大概率会调度到其他节点；滚动最后删除这一组旧 Pod 后，有可能一个节点没有调度该 Deployment。
 
 在 v1.27 中，PodTopologySpread 调度策略可以区分调度 Pod 标签的值（这里通常指 pod 的 pod-template-hash 标签，不同 replica set 对应的 pod 该标签的值不同），这样滚动更新后，新的 Pod 实例会被调度的更加均匀。
 
-### CRD validation expression language #KEP-2876
+### KEP-2876：使用通用表达式语言（CEL）来验证 CRD
 
 CustomResourceValidationExpressions 在 v1.25 中就已经升级为 Beta。验证规则使用通用表达式语言（CEL）来验证定制资源的值。
 验证规则使用 x-kubernetes-validations 扩展包含在 CustomResourceDefinition 模式定义中。
@@ -89,7 +88,7 @@ x-kubernetes-validations:
   messageExpression: '"x exceeded max limit of " + string(self.maxLimit)'
 ```
 
-### 节点日志查询 #KEP-2258
+### KEP-2258：节点日志查询
 
 v1.27 添加了 NodeLogQuery 特性门控(Feature Gate)，为集群管理员提供了使用 kubectl 流式查看节点日志的功能，无需登录节点。
 该功能目前是 Alpha，需要配置 kubelet 开启特性门控，同时还需要设置 `enableSystemLogHandler` 和 `enableSystemLogQuery` 为 true。
@@ -103,7 +102,7 @@ v1.27 添加了 NodeLogQuery 特性门控(Feature Gate)，为集群管理员提�
 kubectl get --raw "/api/v1/nodes/node-1.example/proxy/logs/?query=kubelet&pattern=error"
 ```
 
-### `kubectl apply –prune` 重新设计 #KEP-3659
+### KEP-3659：`kubectl apply –prune` 重新设计
 
 `--prune` 在 v1.5 就作为 Alpha 功能引入，提供了自动清理 apply yaml 删除的部分对象，但是这个过程有些性能问题和缺陷，在一些情况下会造成对象泄漏。常见原因包括 allowlist （之前叫whitelist）GVK 内容和 apply 内容不匹配，或者命名空间变化。命名空间操作变化的案例，比如第一次 apply 是操作了命名空间 A 和 B；而第二次 apply 如果只 apply 命名空间 A 的资源，那么命名空间 B 的资源将不会被清理。
 
@@ -118,14 +117,14 @@ kubectl get --raw "/api/v1/nodes/node-1.example/proxy/logs/?query=kubelet&patter
 - [调度] 当任何调度程序插件在 PostFilter 中返回 unschedulableAndUnresolvable 状态时，该 Pod 的调度周期立即终止。
 - [日志] 迁移控制器使用 contextual logging。
 - [kubeadm] Kubeadm: 添加特性门控 EtcdLearnerMode，它允许将新增的控制节点的 etcd 作为学习者 Learner 加入，然后再升级为投票成员。
-- [节点] 如果 Pod 的 spec.terminationGracePeriodSeconds 属性值是负数，则会被视为设定了1秒的 terminationGracePeriodSeconds。
+- [节点] 如果 Pod 的 spec.terminationGracePeriodSeconds 属性值是负数，则会被修改为 1 秒的 terminationGracePeriodSeconds。
 - [节点] 添加了一个可以限制节点进行并行镜像下载数量的新功能。
 - [节点] 改进目前 Memory QoS 功能，优化了其在 cgroup v2 场景的适配性。
 - [节点] Kubelet：将“--container-runtime-endpoint”和“--image-service-endpoint”迁移到kubelet配置中。
 - [节点] Kubelet 默认允许 Pod 使用 net.ipv4.ip_local_reserved_ports sysctl，要求内核版本 3.16+。
 - [CLI] `kubectl.kubernetes.io/default-container` 标签正式 GA，主要用于 kubectl 的 logs、exec 等命令来决定默认容器。
 
-在 v1.27 发布过程中，DaoCloud 参与上百个问题修复和功能研发，作为作者约有 90 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=118)（该版本的两百多位贡献者中有来自 DaoCloud 的 15 位）。在 Kubernetes v1.27 的发布周期中，DaoCloud 的多名研发工程师取得了不少成就。其中，由张世明主要维护的项目 KWOK (Kubernetes Without Kubelet) 成为社区热点，并在大规模集群模拟方面有效地节约资源，提升效率。几位研发人员参与了 Kubernetes 官网的大量中文翻译工作，其中要海峰几乎包揽了近期官网博客的翻译，并成为 SIG-doc-zh 的维护者。此外，刘梦姣也是 SIG-doc 的维护者。在即将召开的 2023 年欧洲 KubeCon 上，殷纳将分享两个有趣的调度方向的主题，分别是“Sig Scheduling Deep Dive” 和 “Building a Batch System for the Cloud with Kueue” （属于 Kubernetes Batch + HPC Day） 。徐俊杰将分享 “Kubeadm Deep Dive” 的主题。
+在 v1.27 发布过程中，DaoCloud 参与上百个问题修复和功能研发，作为作者约有 90 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=120)（该版本的两百多位贡献者中有来自 DaoCloud 的 15 位）。在 Kubernetes v1.27 的发布周期中，DaoCloud 的多名研发工程师取得了不少成就。其中，由张世明主要维护的项目 KWOK (Kubernetes Without Kubelet) 成为社区热点，并在大规模集群模拟方面有效地节约资源，提升效率。几位研发人员参与了 Kubernetes 官网的大量中文翻译工作，其中要海峰几乎包揽了近期官网博客的翻译，并成为 SIG-doc-zh 的维护者。此外，刘梦姣也是 SIG-doc 的维护者。在即将召开的 2023 年欧洲 KubeCon 上，殷纳将分享两个有趣的调度方向的主题，分别是“Sig Scheduling Deep Dive” 和 “Building a Batch System for the Cloud with Kueue” （属于 Kubernetes Batch + HPC Day） 。徐俊杰将分享 “Kubeadm Deep Dive” 的主题。
 
 ## 3. 其他需要了解的功能
 
@@ -134,7 +133,7 @@ kubectl get --raw "/api/v1/nodes/node-1.example/proxy/logs/?query=kubelet&patter
 - [apps] Cronjob 支持 Timezone 功能 GA。
 - [apps] Enable the "StatefulSetStartOrdinal" feature gate in Beta.
 - [apps] DownwardAPIHugePages kubelet 功能已稳定 GA。
-- [apps] Indexed JOb 的 API 验证已放宽，允许通过同时更改 parallelism 和 completions 来扩展或者缩小 Indexed Job，但是需要保持 parallelism == completions 同步修改。
+- [apps] Indexed Job 的 API 验证已放宽，允许通过同时更改 parallelism 和 completions 来扩展或者缩小 Indexed Job，但是需要保持 parallelism == completions 同步修改。
 - [API] 基于 Kubernetes v1.25 提供的 KEP-2876 CRD验证表达式语言，该功能增加一个新的资源 —— `ValidatingAdmissionPolicy`，允许在不使用 Validation Webhook 时实现字段验证。在 1.27 中，
 - [API] Kubernetes 为聚合发现提供了 Beta 支持，通过 `/api` 和 `/apis` 发布集群支持的所有资源，而不是每个 Group 分别提供。
 - [API] OpenAPIV3 功能 GA, 允许 API 服务器发布 OpenAPI V3。社区建议使用 OpenAPI v3，v3 有诸多优势，其中包括 CustomResourceDefinition OpenAPI v3 验证模式的无损表示，而 OpenAPI v2 在 CRD validation 中做了有损转换。`kubectl explain` 也已经支持了 OpenAPI v3，但是需要配置环境变量 KUBECTL_EXPLAIN_OPENAPIV3 来启用。
@@ -145,7 +144,7 @@ kubectl get --raw "/api/v1/nodes/node-1.example/proxy/logs/?query=kubelet&patter
 - [auth] 将 LegacyServiceAccountTokenTracking 功能升级为Beta，用于跟踪基于 Sercet 的 SA token 的使用情况。
 - [CLI] kubectl 的 `--subresource` 支持升级为 Beta，目前 subresource 只支持 status 和 scale。
 - [CLI] 改进 kubectl 插件解析以支持 non-shadowing 子命令。需要配置环境变量 KUBECTL_ENABLE_CMD_SHADOW=true 开启该功能，此时例如 `kubectl create foo` 执行会首先发现 create 没有 foo 子命令，kubectl 会自动尝试运行 `kubectl-create-foo` 插件。
-- [网络] 当外部 cloud provider 支持提供双战 IP 时，在 kubelet 中启用 `CloudNodeIPs` 功能，您就可以指定双栈的 `--node-ip`。该功能目前是 Alpha，需要手动开启。
+- [网络] 当外部 cloud provider 支持提供双栈 IP 时，在 kubelet 中启用 `CloudNodeIPs` 功能，您就可以指定双栈的 `--node-ip`。该功能目前是 Alpha，需要手动开启。
 ValidatingAdmissionPolicy 添加了 matchConditions 字段，用来支持基于 CEL 的自定义匹配条件。该功能目前仍然是 Alpha 。
 - [网络] 允许动态扩展可用于服务 Service 的 IP 数量。新增了 MultiCIDRServiceAllocator 功能，目前是 Alpha 级别。
 - [网络] 新功能 ServiceNodePortStaticSubrange，以启用新的策略在 NodePort 服务端口分配器中，因此节点端口范围被细分，并且首选从上部分配动态分配的 NodePort 端口为服务。
