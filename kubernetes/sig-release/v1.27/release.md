@@ -2,7 +2,7 @@
 
 太平洋时间 2023 年 4 月 11 日，Kubernetes 1.27 正式发布。此版本距离上版本发布时隔 4 个月，是 2023 年的第一个版本。
 
-新版本中 release 团队跟踪了 60 个 enhancements，比之前版本都要多。其中 13 个功能升级为稳定版，29 个已有功能进行优化升级为 Beta，另有 18 个Alpha 级别的功能，大多数为全新功能。此外，还有超过 8 个功能在 GA 后被移除。本版本包含了很多重要功能以及用户体验优化，本文会在下一小节进行部分重要功能的详细介绍。
+新版本中 release 团队跟踪了 60 个 enhancements，比之前版本都要多。其中 13 个功能升级为稳定版，29 个已有功能进行优化升级为 Beta，另有 18 个 Alpha 级别的功能，大多数为全新功能。本版本包含了很多重要功能以及用户体验优化，本文会在下一小节进行部分重要功能的详细介绍。
 
 ## 1. 重要功能
 
@@ -52,11 +52,11 @@ Kubernetes 现已支持原地调整 Pod 资源大小，容器组重建不在是�
 在节点 Pod 较多的情况下，通过容器运行时的 Event 驱动 Pod 状态更新，能够有效的提升效率。在 1.27中，该功能已经达到了 Beta 条件，基础的 E2E 测试任务已经添加。
 之所以默认关闭该功能，是因为社区认为该功能还需要补充以下验证：压力测试、恢复测试和带退避逻辑的重试。
 
-1. 压力测试需要在单个 pod 中创建大量容器以生成 CRI 事件，并观察 latency 值是否超过 1 秒。
+1. 压力测试需要在单个 Pod 中创建大量容器以生成 CRI 事件，并观察 latency 值是否超过 1 秒。
 2. 恢复测试则是为了验证 Kubelet 在重新启动后能否正确地更新容器状态。
 3. 而带退避逻辑的重试则是为了解决 CRI Runtime 宕机时 Kubelet 可能无法连接的问题。
 
-### KEP-3476：Volume Group 快照 alpha（API）
+### KEP-3476：Volume Group 快照 Alpha（API）
 
 能够在 Pod 的所有卷上同一时间快照，将成为容灾备份和故障恢复场景的重大技术突破。现在，您不必担心应用程序因备份的卷存在几秒钟差异而无法正确运行。
 此外，在安全研究方面，存储卷的组快照功能也将是一个重大变革。排查问题时，您现在可以您的快照和 Pod 的状态是可对照的。
@@ -74,7 +74,7 @@ Kubernetes 现已支持原地调整 Pod 资源大小，容器组重建不在是�
 
 PodTopologySpread 调度策略之前只关注标签的键，而不关注标签的值，因此在滚动更新 Deployment 时，调度无法区分新旧实例，进而导致可能新实例调度不均匀。例如，滚动更新的最后一组 4 个旧 Pod 都在同一个节点，那么新 Pod 调度为了更加均匀分布，大概率会调度到其他节点；滚动最后删除这一组旧 Pod 后，有可能一个节点没有调度该 Deployment。
 
-在 v1.27 中，PodTopologySpread 调度策略可以区分调度 Pod 标签的值（这里通常指 pod 的 pod-template-hash 标签，不同 replica set 对应的 pod 该标签的值不同），这样滚动更新后，新的 Pod 实例会被调度的更加均匀。
+在 v1.27 中，PodTopologySpread 调度策略可以区分调度 Pod 标签的值（这里通常指 Pod 的 pod-template-hash 标签，不同 replica set 对应的 Pod 该标签的值不同），这样滚动更新后，新的 Pod 实例会被调度的更加均匀。
 
 ### KEP-2876：使用通用表达式语言（CEL）来验证 CRD
 
@@ -124,11 +124,11 @@ kubectl get --raw "/api/v1/nodes/node-1.example/proxy/logs/?query=kubelet&patter
 - [节点] Kubelet 默认允许 Pod 使用 net.ipv4.ip_local_reserved_ports sysctl，要求内核版本 3.16+。
 - [CLI] `kubectl.kubernetes.io/default-container` 标签正式 GA，主要用于 kubectl 的 logs、exec 等命令来决定默认容器。
 
-在 v1.27 发布过程中，DaoCloud 参与上百个问题修复和功能研发，作为作者约有 90 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=120)（该版本的两百多位贡献者中有来自 DaoCloud 的 15 位）。在 Kubernetes v1.27 的发布周期中，DaoCloud 的多名研发工程师取得了不少成就。其中，由张世明主要维护的项目 KWOK (Kubernetes Without Kubelet) 成为社区热点，并在大规模集群模拟方面有效地节约资源，提升效率。几位研发人员参与了 Kubernetes 官网的大量中文翻译工作，其中要海峰几乎包揽了近期官网博客的翻译，并成为 SIG-doc-zh 的维护者。此外，刘梦姣也是 SIG-doc 的维护者。在即将召开的 2023 年欧洲 KubeCon 上，殷纳将分享两个有趣的调度方向的主题，分别是“Sig Scheduling Deep Dive” 和 “Building a Batch System for the Cloud with Kueue” （属于 Kubernetes Batch + HPC Day） 。徐俊杰将分享 “Kubeadm Deep Dive” 的主题。
+在 v1.27 发布过程中，DaoCloud 参与上百个问题修复和功能研发，作为作者约有 90 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=120)（该版本的两百多位贡献者中有来自 DaoCloud 的 15 位）。在 Kubernetes v1.27 的发布周期中，DaoCloud 的多名研发工程师取得了不少成就。其中，由张世明主要维护的项目 KWOK (Kubernetes Without Kubelet) 成为社区热点，并在大规模集群模拟方面有效地节约资源，提升效率。几位研发人员参与了 Kubernetes 官网的大量中文翻译工作，其中要海峰几乎包揽了近期官网博客的翻译，并成为 SIG-docs-zh 的维护者。此外，刘梦姣也是 SIG-docs 的维护者。在即将召开的 2023 年欧洲 KubeCon 上，殷纳将分享两个有趣的调度方向的主题，分别是“Sig Scheduling Deep Dive” 和 “Building a Batch System for the Cloud with Kueue” （属于 Kubernetes Batch + HPC Day）。徐俊杰将分享 “Kubeadm Deep Dive” 的主题。
 
 ## 3. 其他需要了解的功能
 
-- [apps] PodDisruptionBudget 之前不支持指定不健康 Pod 的处理方法，不健康 Pod 是指 Pod Running 但是状态不是 Ready。 我们添加了一个新字段 unhealthyPodEvictionPolicy，允许用户指定这些不健康的pod应该发生什么。该字段在 v1.27 中升级为 Beta。
+- [apps] PodDisruptionBudget 之前不支持指定不健康 Pod 的处理方法，不健康 Pod 是指 Pod Running 但是状态不是 Ready。 我们添加了一个新字段 unhealthyPodEvictionPolicy，允许用户指定这些不健康的 Pod 应该发生什么。该字段在 v1.27 中升级为 Beta。
 - [apps] "StatefulSetStartOrdinal" 功能升级为 Beta，默认允许在 StatefulSet 中配置起始序号。
 - [apps] Cronjob 支持 Timezone 功能 GA。
 - [apps] Enable the "StatefulSetStartOrdinal" feature gate in Beta.
@@ -139,7 +139,7 @@ kubectl get --raw "/api/v1/nodes/node-1.example/proxy/logs/?query=kubelet&patter
 - [API] OpenAPIV3 功能 GA, 允许 API 服务器发布 OpenAPI V3。社区建议使用 OpenAPI v3，v3 有诸多优势，其中包括 CustomResourceDefinition OpenAPI v3 验证模式的无损表示，而 OpenAPI v2 在 CRD validation 中做了有损转换。`kubectl explain` 也已经支持了 OpenAPI v3，但是需要配置环境变量 KUBECTL_EXPLAIN_OPENAPIV3 来启用。
 - [API] 将 SelfSubjectReview 提升为 Beta 级别。
 - [auth] KMSv2 升级为 Beta，该功能在 1.27 中做了许多优化，比如：在插件 key ID 不变的情况下，重用 DEK 数据加密密钥，而当 Server 启动时，DEK 会重新随机生成。
-- [auth] 添加了一个新的 Alpha API：ClusterTrustBundle（certificates.k8s.io/v1Alpha1）。
+- [auth] 添加了一个新的 Alpha API：ClusterTrustBundle（certificates.k8s.io/v1alpha1）。
 - [auth] AdmissionWebhookMatchConditions 功能已进入 Alpha： 在v1Beta和v1 API中，为`ValidatingWebhookConfiguration`和`MutatingWebhookConfiguration`添加了 `MatchConditions` 字段。
 - [auth] 将 LegacyServiceAccountTokenTracking 功能升级为Beta，用于跟踪基于 Sercet 的 SA token 的使用情况。
 - [CLI] kubectl 的 `--subresource` 支持升级为 Beta，目前 subresource 只支持 status 和 scale。
@@ -149,7 +149,7 @@ ValidatingAdmissionPolicy 添加了 matchConditions 字段，用来支持基于 
 - [网络] 允许动态扩展可用于服务 Service 的 IP 数量。新增了 MultiCIDRServiceAllocator 功能，目前是 Alpha 级别。
 - [网络] 新功能 ServiceNodePortStaticSubrange，以启用新的策略在 NodePort 服务端口分配器中，因此节点端口范围被细分，并且首选从上部分配动态分配的 NodePort 端口为服务。
 - [网络] 添加了有关工作负载资源（Pod、ReplicaSets、Deployments、Jobs、CronJobs或ReplicationControllers）名称无效DNS标签的警告。
-- [弹性] HPAContainerMetrics 升级为 Beta，该功能允许 HorizontalPodAutoscaler 基于目标 Pods 中各容器 ContainerResource 类型的 metrics 来执行扩缩操作。
+- [弹性] HPAContainerMetrics 升级为 Beta，该功能允许 HorizontalPodAutoscaler 基于目标 Pod 中各容器 ContainerResource 类型的 metrics 来执行扩缩操作。
 - [节点] 动态资源分配功能，使用功能 DynamicResourceAllocation。新增的 API 比 Kubernetes 现有的设备插件 Device Plugin 功能更加灵活。因为它允许 Pod 请求（声明）指定类型的资源，这些资源可以在节点级别、集群级别或任何其他用户自定义实现的模型中使用。
 - [节点] 用户命名空间支持范围扩大，该功能仍然是 Alpha，但相比 v1.26 支持 StatefulSet。
 - [节点] GRPC 探针功能 GA。
@@ -165,7 +165,7 @@ ValidatingAdmissionPolicy 添加了 matchConditions 字段，用来支持基于 
 - [调度] 调度框架在 Filter 和 Score 阶段可以利用 Skip 状态跳过该流程，以提升性能。在 PreFilter 阶段，如果 Plugin 返回 Skip 信息，那么在后续可以跳过执行该 Plugin 相应的 Filter 和 Score 阶段。
 - [存储] NewVolumeManagerReconstruction 功能升级为 Beta。这是 VolumeManager 的重构，允许 kubelet 在启动期间带上关于现有卷如何挂载的附加信息。
 - [存储] SELinuxMountReadWriteOncePod 功能升级为 Beta。该功能在卷挂载过程中使用正确的 SELinux 标签，相比逐个递归更改每个文件的方式，该功能加快了容器启动速度。
-- [存储] ReadWriteOncePod PV 访问模式功能升级为 Beta。此功能引入了一个新的 ReadWriteOncePod 访问模式，用于限制 PV 对单个节点上的单个 pod 的访问。而 ReadWriteOnce 模式限制了单节点访问，但并不限制同一个节点的多个 Pod 同时访问。
+- [存储] ReadWriteOncePod PV 访问模式功能升级为 Beta。此功能引入了一个新的 ReadWriteOncePod 访问模式，用于限制 PV 对单个节点上的单个 Pod 的访问。而 ReadWriteOnce 模式限制了单节点访问，但并不限制同一个节点的多个 Pod 同时访问。
 - [存储] CSINodeExpandSecret 功能升级为 Beta 级别。
 
 ## 4. 版本标志
@@ -186,7 +186,7 @@ ValidatingAdmissionPolicy 添加了 matchConditions 字段，用来支持基于 
 
 ### 其他需要注意的变化
 
-- CSIStorageCapacity 的 storage.k8s.io/v1Beta1 API 版本在 v1.24 中已被弃用，将在 v1.27 中被移除。
+- CSIStorageCapacity 的 storage.k8s.io/v1beta1 API 版本在 v1.24 中已被弃用，将在 v1.27 中被移除。
 - 移除 NetworkPolicyEndPort、LocalStorageCapacityIsolation、StatefulSetMinReadySeconds、IdentifyPodOS、DaemonSetUpdateSurge、EphemeralContainers、CSIInlineVolume、CSIMigration、ControllerManagerLeaderMigration 特性门控，这些特性大部分都是在 v1.25 之前的版本正式 GA。
 - kube-apiserver 移除了 --master-service-namespace 命令行参数
 - kube-controller-manager 命令行参数 --enable-taint-manager 和 --pod-eviction-timeout 被移除。
