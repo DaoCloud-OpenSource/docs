@@ -170,9 +170,13 @@ ValidatingAdmissionPolicy 添加了 matchConditions 字段，用来支持基于 
 
 ## 4. 版本标志
 
-// TODO in 10号
-本次发布的主题是 。 Kubernetes 是。
+本次发布的主题是 。 Kubernetes 是 "Chill Vibes" 放松的氛围。
+
 ![logo](kubernetes-1.27.png)
+
+这个灵感来源于最近一次发布过程中，在功能冻结后没有出现任何异常情况，这是我们在多次发布中唯一的一次。我们能够更加轻松地完成此版本的发布，原因在于幕后工作人员为改善发布管理付出了许多努力。这也正是本主题希望庆祝的内容：大家在为提升社区体验做出了很多努力。
+
+特别感谢 Britnee Laverack 创造标志设计图案，并且她还设计了 Kubernetes 1.24: Stargazer 的标志设计图案。
 
 ## 5. 升级注意事项
 
