@@ -59,7 +59,7 @@ Kubernetes 现已支持原地调整 Pod 资源大小，容器组重建不在是�
 ### KEP-3476：Volume Group 快照 Alpha（API）
 
 能够在 Pod 的所有卷上同一时间快照，将成为容灾备份和故障恢复场景的重大技术突破。现在，您不必担心应用程序因备份的卷存在几秒钟差异而无法正确运行。
-此外，在安全研究方面，存储卷的组快照功能也将是一个重大变革。排查问题时，您现在可以您的快照和 Pod 的状态是可对照的。
+此外，在安全研究方面，存储卷的组快照功能也将是一个重大变革。排查问题时，您的快照和 Pod 的状态是可对照的。
 需要注意的是该功能并非在 Kubernetes 仓库，VolumeGroupSnapshots API 的定义目前维护在 <https://github.com/kubernetes-csi/external-snapshotter>。
 
 ### KEP-3838 和 KEP-3521：Pod 调度就绪态功能增强
@@ -134,7 +134,6 @@ kubectl get --raw "/api/v1/nodes/node-1.example/proxy/logs/?query=kubelet&patter
 - [apps] Enable the "StatefulSetStartOrdinal" feature gate in Beta.
 - [apps] DownwardAPIHugePages kubelet 功能已稳定 GA。
 - [apps] Indexed Job 的 API 验证已放宽，允许通过同时更改 parallelism 和 completions 来扩展或者缩小 Indexed Job，但是需要保持 parallelism == completions 同步修改。
-- [API] 基于 Kubernetes v1.25 提供的 KEP-2876 CRD验证表达式语言，该功能增加一个新的资源 —— `ValidatingAdmissionPolicy`，允许在不使用 Validation Webhook 时实现字段验证。在 1.27 中，
 - [API] Kubernetes 为聚合发现提供了 Beta 支持，通过 `/api` 和 `/apis` 发布集群支持的所有资源，而不是每个 Group 分别提供。
 - [API] OpenAPIV3 功能 GA, 允许 API 服务器发布 OpenAPI V3。社区建议使用 OpenAPI v3，v3 有诸多优势，其中包括 CustomResourceDefinition OpenAPI v3 验证模式的无损表示，而 OpenAPI v2 在 CRD validation 中做了有损转换。`kubectl explain` 也已经支持了 OpenAPI v3，但是需要配置环境变量 KUBECTL_EXPLAIN_OPENAPIV3 来启用。
 - [API] 将 SelfSubjectReview 提升为 Beta 级别。
