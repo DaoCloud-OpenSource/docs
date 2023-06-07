@@ -81,6 +81,24 @@ Master排到Node节点代表，管理本机容器
 - 一个Pod里运行多个容器,又叫:边车(SideCar)模式
 - 一组容器的集合共享网络生命周期是短暂的
 
+**创建pod**
+
+```
+apiVersion: v1  #api版本，一般为v1
+kind: Pod  #资源对象类型
+metadata:
+  name: command-demo  #对象名称
+  labels:
+    purpose: demonstrate-command  #目的
+spec:
+  containers:  #container相关信息
+  - name: command-demo-container  #container名称
+    image: debian  #目标image名称
+    command: ["printenv"]
+    args: ["HOSTNAME", "KUBERNETES_PORT"]
+  restartPolicy: OnFailure
+```
+
 **生命周期图**
 
 - 挂起（Pending）：Pod 已被 Kubernetes 系统接受，但有一个或者多个容器镜像尚未创建。等待时间包括调度 Pod 的时间和通过网络下载镜像的时间，这可能需要花点时间。
@@ -105,6 +123,10 @@ Master排到Node节点代表，管理本机容器
 
 ### 1. Delopyment
 
+用于无状态服务
+
+*无状态服务不会在本地存储持久化数据.多个服务实例对于同一个用户请求的响应结果是完全一致的.这种多服务实例之间是没有依赖关系,比如web应用,在k8s控制器 中动态启停无状态服务的pod并不会对其它的pod产生影响.*
+
 Deployment 为 Pod 和 ReplicaSet 提供了一个声明式定义（declarative）方法，用来替代以前的 ReplicationController 来方便的管理应用。典型的应用场景包括：
 
 - 定义 Deployment 来创建 Pod 和 ReplicaSet
@@ -112,17 +134,165 @@ Deployment 为 Pod 和 ReplicaSet 提供了一个声明式定义（declarative�
 - 扩容和缩容
 - 暂停和继续 Deployment
 
+**创建deployment**
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 2 # 告知 Deployment 运行 2 个与该模板匹配的 Pod
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+```
+
 ### 2. Job
 
 Job 负责批处理任务，即仅执行一次的任务，它保证批处理任务的一个或多个 Pod 成功结束。
 
-### 3. DaemonSet
+一旦所有的 Pod 都完成了工作，Job 就会自动删除这些 Pod。
+
+**创建Job**
+```
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi
+spec:
+  template:
+    spec:
+      containers:
+      - name: pi
+        image: perl:5.34.0
+        command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      restartPolicy: Never
+  backoffLimit: 4
+```
+
+### 3. CronJob
+
+CronJob 创建基于时隔重复调度的 Job。
+
+**创建CronJob**
+```
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox:1.28
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure
+
+```
+
+
+
+**Cron 时间表语法**
+
+.spec.schedule 字段是必需的。该字段的值遵循 Cron 语法：
+
+```
+ ┌───────────── 分钟 (0 - 59)
+ │ ┌───────────── 小时 (0 - 23)
+ │ │ ┌───────────── 月的某天 (1 - 31)
+ │ │ │ ┌───────────── 月份 (1 - 12)
+ │ │ │ │ ┌───────────── 周的某天 (0 - 6)（周日到周一；在某些系统上，7 也是星期日）
+ │ │ │ │ │                          或者是 sun，mon，tue，web，thu，fri，sat
+ │ │ │ │ │
+ │ │ │ │ │
+ * * * * *
+ ```
+例如 0 0 13 * 5 表示此任务必须在每个星期五的午夜以及每个月的 13 日的午夜开始。
+
+### 4. DaemonSet
 
 *DaemonSet* 确保全部（或者一些）Node 上运行一个 Pod 的副本。当有 Node 加入集群时，也会为他们新增一个 Pod 。当有 Node 从集群移除时，这些 Pod 也会被回收。删除 DaemonSet 将会删除它创建的所有 Pod。
 
-### 4. StatefulSet
+**创建DaemonSet**
+```
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd-elasticsearch
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-logging
+spec:
+  selector:
+    matchLabels:
+      name: fluentd-elasticsearch
+  template:
+    metadata:
+      labels:
+        name: fluentd-elasticsearch
+    spec:
+      tolerations:
+      # 这些容忍度设置是为了让该守护进程集在控制平面节点上运行
+      # 如果你不希望自己的控制平面节点运行 Pod，可以删除它们
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: fluentd-elasticsearch
+        image: quay.io/fluentd_elasticsearch/fluentd:v2.5.2
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+
+```
+
+### 5. StatefulSet
 
 StatefulSet是为了解决有状态服务的问题（对应Deployments和ReplicaSets是为无状态服务而设计）
+
+*有状态服务需要在本地存储持久化数据,典型的是分布式数据库的应用,分布式节点实例之间有依赖的拓扑关系.比如,主从关系. 如果K8S停止分布式集群中任 一实例pod,就可能会导致数据丢失或者集群的crash.*
+
+## Service
+
+### 1. Ingress
+Ingress 是对集群中服务的外部访问进行管理的 API 对象，典型的访问方式是 HTTP。
+
+Ingress 可以提供负载均衡、SSL 终结和基于名称的虚拟托管。
+
+视频教程：https://www.youtube.com/watch?v=80Ew_fsV4rM
 
 ## Storage
 
@@ -133,7 +303,20 @@ Secret 解决了密码、token、密钥等敏感数据的配置问题，而不�
 Secret 有三种类型：
 
 - **Service Account** ：用来访问 Kubernetes API，由 Kubernetes 自动创建，并且会自动挂载到 Pod 的 `/run/secrets/[kubernetes.io/serviceaccount](http://kubernetes.io/serviceaccount)` 目录中；
-- **Opaque** ：base64 编码格式的 Secret，用来存储密码、密钥等；**[kubernetes.io/dockerconfigjson](http://kubernetes.io/dockerconfigjson)** ：用来存储私有 docker registry 的认证信息。
+- **Opaque** ：base64 编码格式的 Secret，用来存储密码、密钥等
+- **[kubernetes.io/dockerconfigjson](http://kubernetes.io/dockerconfigjson)** ：用来存储私有 docker registry 的认证信息。
+
+**创建secret**
+
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-secret
+data:
+  username: bXktYXBw
+  password: Mzk1MjgkdmRnN0pi
+```
 
 ### 2. Volume
 
@@ -198,62 +381,6 @@ metadata常用的配置项有 name,namespace,即配置其显示的名字与归�
 ## spec
 
 一个嵌套字典与列表的配置项，也是主要的配置项，支持的子项非常多，根据资源对象的不同，子项会有不同的配置。
-
-## yaml file examples
-
-### 创建pod
-
-```
-apiVersion: v1  #api版本，一般为v1
-kind: Pod  #资源对象类型
-metadata:
-  name: command-demo  #对象名称
-  labels:
-    purpose: demonstrate-command  #目的
-spec:
-  containers:  #container相关信息
-  - name: command-demo-container  #container名称
-    image: debian  #目标image名称
-    command: ["printenv"]
-    args: ["HOSTNAME", "KUBERNETES_PORT"]
-  restartPolicy: OnFailure
-```
-
-### 创建secret
-
-```
-apiVersion: v1
-kind: Secret
-metadata:
-  name: test-secret
-data:
-  username: bXktYXBw
-  password: Mzk1MjgkdmRnN0pi
-```
-
-### 创建deployment
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-spec:
-  selector:
-    matchLabels:
-      app: nginx
-  replicas: 2 # 告知 Deployment 运行 2 个与该模板匹配的 Pod
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:1.14.2
-        ports:
-        - containerPort: 80
-```
 
 ## 参考原文
 1. https://kubernetes.io/zh-cn/docs/home/  
