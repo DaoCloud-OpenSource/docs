@@ -110,27 +110,17 @@ Docker 公司提供了公共的镜像仓库 [https://hub.docker.com](https://hu
 ### 1. 创建Dockerfile
 
 ```
-FROM golang:1.20-alpine
+FROM golang:alpine
 
 WORKDIR /src
 
 COPY . .
 
-RUN go mod download
+RUN go mod download (没有mod文件不写这一行）
 
-RUN go build -o /bin/client ./cmd/client
+RUN go build -o main main.go
 
-RUN go build -o /bin/server ./cmd/server
-
-ENTRYPOINT [ "/bin/server" ]
-
-### 2. Build the image
-
-docker build --tag=<image's name>:<version> . （注意最后还有一个点）
-
-### 3. Run the container
-
-docker run --name=<image's name>:<version>
+ENTRYPOINT [ "./main" ]
 ```
 
 # **Docker 常用命令**
