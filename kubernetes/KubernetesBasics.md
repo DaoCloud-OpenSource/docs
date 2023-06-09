@@ -121,6 +121,8 @@ spec:
 
 ## Controller
 
+![pic](/kubernetes/images/k8s.PNG)
+
 ### 1. Delopyment
 
 用于无状态服务
@@ -287,7 +289,15 @@ StatefulSet是为了解决有状态服务的问题（对应Deployments和Replica
 
 ## Service
 
-### 1. Ingress
+### 1. Service
+
+**ClusterIP:** 通过集群内部IP暴露服务，只能在集群内部使用。
+
+**NodePort：** 可以从集群外部访问。使用公共IP。
+
+**LoadBalancer：** 可以向外部暴露服务。
+
+### 2. Ingress
 Ingress 是对集群中服务的外部访问进行管理的 API 对象，典型的访问方式是 HTTP。
 
 Ingress 可以提供负载均衡、SSL 终结和基于名称的虚拟托管。
