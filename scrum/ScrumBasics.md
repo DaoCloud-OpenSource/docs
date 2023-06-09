@@ -77,19 +77,19 @@ Sprint Planning 处理以下话题：
 
 Daily Scrum 的目的是检视达成 Sprint Goal 的进展，并根据需要调整适应 Sprint Backlog，以调整即将进行的计划工作。
 
-    一般为15分钟左右
+    会议时间一般为15分钟左右
 
 ### 3. Sprint Review
 
 Sprint Review 的目的是检视 Sprint 的成果并确定未来的适应性。Scrum Team 向关键利益攸关者展示他们的工作结果，并讨论 Product Goal 的进展情况
 
-    一个月的 Sprint，最多为4个小时。 对于更短的 Sprint，Sprint Review 通常所需的时间更短。
+    会议时间一般按照Sprint长度计算，+1h/周（例如2周的Sprint就是2小时）
 
 ### 4. Sprint Retrospective
 
 Sprint Retrospective 的目的是规划提高质量和效能的方法。
 
-    一个月的 Sprint，最多为3个小时。对于更短的 Sprint， Sprint Retrospective 通常所需的时间更短。
+    会议时间一般按照Sprint长度计算，+1h/周（例如2周的Sprint就是2小时）
 
 - Scrum Team 检视最近 Sprint 中有关个体、交互、过程、工具和他们的 Definition of Done 的情况如何。被检查的元素通常随工作领域而变化。识别使他们误入歧途的假设，并探究其起源。Scrum Team 讨论在Sprint 期间哪些进展顺利，遭遇到哪些问题以及这些问题是如何解决（或未解决）的。
 - Scrum Team 识别出最有用的改变以提高其效能。最有影响力的改进将尽快得到执行。甚至可以将它们添加到下一个 Sprint 的 Sprint Backlog 中。
