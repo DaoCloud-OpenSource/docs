@@ -18,7 +18,7 @@
 
 ### 2. Product Owner
 - 开发并明确地沟通 Product Goal
-- 创建并清晰地沟通 Product Backlog 条目（items
+- 创建并清晰地沟通 Product Backlog 条目
 - 对 Product Backlog 条目进行排序
 - 确保 Product Backlog 是透明的、可见的和可理解的
 
