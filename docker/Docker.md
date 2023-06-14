@@ -1,5 +1,4 @@
 # 目录
-
 - [目录](#目录)
 - [Docker Docs](#docker-docs)
 - [Why Docker](#why-docker)
@@ -16,6 +15,7 @@
     - [8. Registry注册中心](#8-registry注册中心)
 - [Docker image 创建](#docker-image-创建)
     - [1. 创建Dockerfile](#1-创建dockerfile)
+    - [2. 使用命令创建镜像](#2-使用命令创建镜像)
 - [Docker 常用命令](#docker-常用命令)
   - [参考原文](#参考原文)
 
@@ -144,6 +144,10 @@ RUN go build -o main main.go
 
 ENTRYPOINT [ "./main" ]
 ```
+
+### 2. 使用命令创建镜像
+
+    docker build --tag=<image's name>:<tag>
 
 # Docker 常用命令
 
