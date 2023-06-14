@@ -1,8 +1,30 @@
-# **Docker Docs**
+# 目录
+
+- [目录](#目录)
+- [Docker Docs](#docker-docs)
+- [Why Docker](#why-docker)
+    - [Docker vs. Virtual Machines](#docker-vs-virtual-machines)
+    - [Docker优点](#docker优点)
+- [Docker 架构](#docker-架构)
+    - [1. Client客户端](#1-client客户端)
+    - [2. Docker Daemon](#2-docker-daemon)
+    - [3. Host主机](#3-host主机)
+    - [4. Image镜像](#4-image镜像)
+    - [5. Container容器](#5-container容器)
+    - [6. 镜像分层](#6-镜像分层)
+    - [7. Volume数据卷](#7-volume数据卷)
+    - [8. Registry注册中心](#8-registry注册中心)
+- [Docker image 创建](#docker-image-创建)
+    - [1. 创建Dockerfile](#1-创建dockerfile)
+- [Docker 常用命令](#docker-常用命令)
+  - [参考原文](#参考原文)
+
+
+# Docker Docs
 
 链接：https://docs.docker.com/
 
-# **Why Docker**
+# Why Docker
 
 ### Docker vs. Virtual Machines
 
@@ -23,7 +45,7 @@
 - 更轻松的迁移
 - 更轻松的维护和扩展
 
-# **Docker 架构**
+# Docker 架构
 
 ![Docker Framework](/docker/images/7868545-060cc40d94102469.jpg)
 
@@ -105,7 +127,7 @@ Docker 公司提供了公共的镜像仓库 [https://hub.docker.com](https://hu
 
 通常，一个仓库会包含同一个软件不同版本的镜像，而标签对应该软件的各个版本。我们可以通过 **「<仓库名>:<标签>」** 的格式来指定具体是这个软件哪个版本的镜像。如果不给出标签，将以 **「latest」** 作为默认标签。
 
-# **Docker image 创建**
+# Docker image 创建
 
 ### 1. 创建Dockerfile
 
@@ -123,7 +145,7 @@ RUN go build -o main main.go
 ENTRYPOINT [ "./main" ]
 ```
 
-# **Docker 常用命令**
+# Docker 常用命令
 
 1. docker images 查看镜像列表
 2. docker ps 查看容器列表

@@ -1,3 +1,54 @@
+# 目录
+
+- [目录](#目录)
+- [Kubernetes Doc](#kubernetes-doc)
+- [Kubernetes前身](#kubernetes前身)
+  - [Borg](#borg)
+    - [Borg vs Kubernetes](#borg-vs-kubernetes)
+- [Why Kubernetes](#why-kubernetes)
+- [Kubernetes 架构](#kubernetes-架构)
+  - [kubectl](#kubectl)
+    - [常用命令](#常用命令)
+  - [Master](#master)
+    - [1. API Server](#1-api-server)
+    - [2. Scheduler](#2-scheduler)
+    - [3. Controller-manager](#3-controller-manager)
+    - [4. etcd](#4-etcd)
+  - [Node](#node)
+    - [1. Kubelet](#1-kubelet)
+    - [2. Kube-proxy](#2-kube-proxy)
+    - [3. Pod](#3-pod)
+  - [NameSpace](#namespace)
+  - [Controller](#controller)
+    - [1. Delopyment](#1-delopyment)
+    - [2. Job](#2-job)
+    - [3. CronJob](#3-cronjob)
+    - [4. DaemonSet](#4-daemonset)
+    - [5. StatefulSet](#5-statefulset)
+  - [Service](#service)
+    - [1. Service](#1-service)
+    - [2. Ingress](#2-ingress)
+  - [Storage](#storage)
+    - [1. Secret](#1-secret)
+    - [2. Volume](#2-volume)
+  - [ConfigMap](#configmap)
+- [Kubernetes 对象](#kubernetes-对象)
+  - [资源对象](#资源对象)
+- [yaml文件](#yaml文件)
+  - [属性说明](#属性说明)
+  - [数据结构](#数据结构)
+  - [常用apiVersion](#常用apiversion)
+  - [kind](#kind)
+  - [metadata](#metadata)
+  - [spec](#spec)
+- [使用部署工具安装Kubernetes](#使用部署工具安装kubernetes)
+  - [kubectl](#kubectl-1)
+  - [Kind / kubeadm](#kind--kubeadm)
+    - [Kind](#kind-1)
+    - [kubeadm](#kubeadm)
+- [参考原文](#参考原文)
+
+
 # Kubernetes Doc
 
 链接：https://kubernetes.io/zh-cn/docs/home/  
@@ -447,7 +498,30 @@ metadata常用的配置项有 name,namespace,即配置其显示的名字与归�
 
 一个嵌套字典与列表的配置项，也是主要的配置项，支持的子项非常多，根据资源对象的不同，子项会有不同的配置。
 
-## 参考原文
+# 使用部署工具安装Kubernetes
+
+## kubectl
+
+- Linux：https://kubernetes.io/zh-cn/docs/tasks/tools/install-kubectl-linux/
+- maxOS: https://kubernetes.io/zh-cn/docs/tasks/tools/install-kubectl-macos/
+- Windows: https://kubernetes.io/zh-cn/docs/tasks/tools/install-kubectl-windows/
+
+## Kind / kubeadm
+
+### Kind
+
+查看文档：https://kind.sigs.k8s.io/docs/user/quick-start/
+
+### kubeadm
+
+官方安装文档：https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+可行的使用方法帖子：https://developer.aliyun.com/article/927657
+
+**注意：最好保证 kubelet、kubeadm、kubectl 版本号一致**
+
+
+
+# 参考原文
 1. https://kubernetes.io/zh-cn/docs/home/  
 2. https://jimmysong.io/kubernetes-handbook/concepts/
 3. https://www.cnblogs.com/caodan01/p/15102328.html
