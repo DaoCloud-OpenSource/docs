@@ -1,5 +1,4 @@
 # 目录
-
 - [目录](#目录)
 - [Kubernetes Doc](#kubernetes-doc)
 - [Kubernetes前身](#kubernetes前身)
@@ -32,6 +31,7 @@
     - [1. Secret](#1-secret)
     - [2. Volume](#2-volume)
   - [ConfigMap](#configmap)
+  - [HPA (HorizontalPodAutoscaler)](#hpa-horizontalpodautoscaler)
 - [Kubernetes 对象](#kubernetes-对象)
   - [资源对象](#资源对象)
 - [yaml文件](#yaml文件)
@@ -109,11 +109,11 @@
 
 ### 2. Scheduler
 
-节点调度，选择node节点应用部署
-
-负责资源的调度，按照预定的调度策略将Pod调度到相应的机器上（选择具有合适资源的node去运行对应pod）
+负责资源的调度，按照预定的调度策略将Pod调度到相应的节点上（选择具有合适资源的node去运行对应pod）
 
 ### 3. Controller-manager
+
+是一个守护进程，是一个永不停止的循环
 
 处理集群中常规后台任务，一个资源一个控制器
 
@@ -140,6 +140,12 @@
 ## Node
 
 ### 1. Kubelet
+
+kubelet 是在每个节点上运行的主要 “节点代理”。它可以使用以下方式之一向 API 服务器注册：
+
+- 主机名（hostname
+- 覆盖主机名的参数
+- 特定于某云驱动的逻辑
 
 Master排到Node节点代表，管理本机容器
 
@@ -396,9 +402,12 @@ StatefulSet是为了解决**有状态服务**的问题（对应Deployments和Rep
 **ExternalName：** 把集群外部的服务引入到集群内部。
 
 ### 2. Ingress
+
 Ingress 是对集群中服务的**外部访问**进行管理的 API 对象，典型的访问方式是 HTTP。
 
 Ingress 可以提供负载均衡、SSL 终结和基于名称的虚拟托管。
+
+**注意：集群中必须有一个正在运行的 Ingress Controller 才可以使用 Ingress**
 
 视频教程：https://www.youtube.com/watch?v=80Ew_fsV4rM
 
@@ -435,6 +444,10 @@ Kubernetes 中的卷有明确的寿命——与封装它的 Pod 相同。所以�
 ConfigMap 是一种 API 对象，用来将非机密性的数据保存到键值对中（存储机密数据请使用 Secret ）。使用时， Pods 可以将其用作环境变量、命令行参数或者存储卷中的配置文件。
 
 ConfigMap 将你的环境配置信息和 容器镜像 解耦，便于应用配置的修改。
+
+## HPA (HorizontalPodAutoscaler)
+
+根据CPU利用率，平行扩展和裁剪Pod数量
 
 
 
@@ -510,7 +523,7 @@ metadata常用的配置项有 name,namespace,即配置其显示的名字与归�
 
 ### Kind
 
-查看文档：https://kind.sigs.k8s.io/docs/user/quick-start/
+官方文档：https://kind.sigs.k8s.io/docs/user/quick-start/
 
 ### kubeadm
 
