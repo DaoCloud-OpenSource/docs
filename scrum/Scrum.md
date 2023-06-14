@@ -1,5 +1,4 @@
 # 目录
-
 - [目录](#目录)
 - [Scrum Doc](#scrum-doc)
 - [Scrum Team](#scrum-team)
@@ -7,15 +6,15 @@
     - [1. Developers](#1-developers)
     - [2. Product Owner](#2-product-owner)
     - [3. Scrum Master](#3-scrum-master)
-  - [Sprint](#sprint)
-  - [4种会议](#4种会议)
+- [Sprint](#sprint)
+- [4种会议](#4种会议)
     - [1. Sprint Planning](#1-sprint-planning)
     - [2. Daily Scrum](#2-daily-scrum)
     - [3. Sprint Review](#3-sprint-review)
     - [4. Sprint Retrospective](#4-sprint-retrospective)
-  - [故事点](#故事点)
+- [故事点](#故事点)
     - [故事点包括什么内容](#故事点包括什么内容)
-  - [参考文档](#参考文档)
+- [参考文档](#参考文档)
 
 
 # Scrum Doc
@@ -60,13 +59,13 @@
     - 消除利益攸关者和 Scrum Teams 之间的隔阂
 
 
-## Sprint
+# Sprint
 
 Sprint 是 Scrum 的核心，在这里创意（idea）转化为价值。</br>
 
 它们是固定时长的事件，为期一个月或更短，以保持一致性。前一个 Sprint 结束后，下一个新的 Sprint 紧接着立即开始。
 
-## 4种会议
+# 4种会议
 
 ### 1. Sprint Planning
 
@@ -114,7 +113,7 @@ Sprint Retrospective 的目的是规划提高质量和效能的方法。
 - Scrum Team 检视最近 Sprint 中有关个体、交互、过程、工具和他们的 Definition of Done 的情况如何。被检查的元素通常随工作领域而变化。识别使他们误入歧途的假设，并探究其起源。Scrum Team 讨论在Sprint 期间哪些进展顺利，遭遇到哪些问题以及这些问题是如何解决（或未解决）的。
 - Scrum Team 识别出最有用的改变以提高其效能。最有影响力的改进将尽快得到执行。甚至可以将它们添加到下一个 Sprint 的 Sprint Backlog 中。
 
-## 故事点
+# 故事点
 
 故事点是一个度量单位，用于表示完成一个产品待办项或者其他任何某项工作所需的所有工作量的估算结果。
 
@@ -125,6 +124,6 @@ Sprint Retrospective 的目的是规划提高质量和效能的方法。
 3. 要开展的工作中存在的任何风险或不确定性（Risk and Uncertainty）
 
 
-## 参考文档
+# 参考文档
 1. https://scrumguides.org/docs/scrumguide/v2020/2020-Scrum-Guide-Chinese-Simplified.pdf
 2. https://www.scrumcn.com/scrum/19837.html
