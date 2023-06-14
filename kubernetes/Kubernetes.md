@@ -129,13 +129,13 @@
 
 键值对存储数据库
 
-**v2**: Memory
-**v3**: Database
+- **v2**: Memory
+- **v3**: Database
 
-**HTTP Server**: 采用HTTP协议
-**Raft**: 读写信息存储
-**WAL**： 生成日志（有备份）
-**Store**： 持久化存储
+- **HTTP Server**: 采用HTTP协议
+- **Raft**: 读写信息存储
+- **WAL**： 生成日志（有备份）
+- **Store**： 持久化存储
 
 ## Node
 
@@ -171,7 +171,7 @@ Master排到Node节点代表，管理本机容器
 - 一个Pod里运行多个容器,又叫:边车(SideCar)模式
 - 一组容器的集合共享网络生命周期是短暂的
 
-Pod内有自己的IP address、Volume、Containerized Apps
+Pod内有自己的 IP address、 Volume、 Containerized Apps
 
 **为什么需要Pod：**
 
