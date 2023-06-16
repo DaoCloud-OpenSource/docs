@@ -58,7 +58,7 @@
 ## Borg
 
 ### Borg vs Kubernetes
-1. Borg 没有 pod 概念
+1. Borg 没有 pod 概念 (Borg 的 outermost containers 叫 alloc)
 2. Borg 没有像 Kubernetes 一样大的社区
 3. Kubernetes 更加具有灵活性和延展性
 
@@ -69,7 +69,7 @@
 - 自我修复：容器失败/Node出问题时自动对容器进行重新部署和调度
 - 服务发现：不需要知道每个IP和端口，只需要通过服务的名字就可以使用服务（Service）
 - 负载均衡：可以合理分配负载
-- 自动发布(默认滚动发布模式)和回滚：可以回滚到历史版本
+- 自动发布(默认滚动发布模式)和回滚：不停机更新 & 可以回滚到历史版本
 - 集中化配置管理和密钥管理：可以热部署（Secret）
 - 存储编排：可以存储在本地目录、网络存储（NFS、Cluster、Ceph等）、公共云存储服务
 - 任务批处理运行：提供一次性、定时任务（Job、CronJob）
@@ -83,16 +83,16 @@
 
 用户客户端</br></br>
 ### 常用命令
-1. kubectl create -f <file's name> 创建资源（需要yaml/yml/json文件）
-2. kubectl run <name> --image=<image's name> 创建资源
-3. kubectl get services 列出services
-4. kubectl get pods 列出pods
-5. kubectl get pods -A 列出所有pods
-6. kubectl get pods -o wide 列出pods并显示详细信息
-7. kubectl delete pod <pod's name> 删除目标pod
-8. kubectl describe pod <pod's name> 显示pod详细信息
-9. kubectl get nodes 列出nodes
-10. kubectl get ns 列出namespace
+1. kubectl create -f <file's name> 创建新资源（重复配置会报错）（需要yaml/yml/json文件）
+2. kubectl apply -f <file's name> 配置应用于资源（重复配置不会报错）（需要yaml/yml/json文件）
+3. kubectl run <name> --image=<image's name> 创建容器镜像
+4. kubectl get pods / nodes / ingresses (ing） / deployments / secrets / namespaces (ns) / services (svc) ... 列出pods/nodes/ingresses/deployments/secrets/namespaces/services...
+6. kubectl get pods -A 列出所有pods
+7. kubectl get pods -o wide 列出pods并显示详细信息
+8. kubectl get pods --ns=<namespace> 列出指定namespace的pod
+9. kubectl get pods --watch 实时查看pods的信息
+10. kubectl delete pod <pod's name> 删除目标pod
+11. kubectl describe pod <pod's name> 显示pod详细信息
 
 
 ## Master
@@ -521,16 +521,132 @@ metadata常用的配置项有 name,namespace,即配置其显示的名字与归�
 
 ## Kind / kubeadm
 
-### Kind
+### 1. Kind
 
 官方文档：https://kind.sigs.k8s.io/docs/user/quick-start/
 
-### kubeadm
+**安装方法**
+1. 确保已安装 go 1.16+ 未安装请参见文档：https://go.dev/dl/
+2. 输入命令：``` go install sigs.k8s.io/kind@v0.20.0 ``` 
+
+**使用方法**
+1. 创建集群：``` kind create cluster ```
+2. 与集群交互：使用kubectl（下载方式见上文）
+3. 删除集群：``` kind delete cluster ```
+4. 载入镜像：``` kind load docker-image my-custom-image-0 my-custom-image-1 ```
+5. 搭建镜像：``` kind build node-image /path/to/kubernetes/source ```
+
+### 2. kubeadm
 
 官方安装文档：https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+
 可行的使用方法帖子：https://developer.aliyun.com/article/927657
 
-**注意：最好保证 kubelet、kubeadm、kubectl 版本号一致**
+***注意：最好保证 kubelet、kubeadm、kubectl 版本号一致***
+
+**安装方法**
+1. 安装kubelet、kubeadm、kubectl：``` yum install kubelet-1.22.2 kubeadm-1.22.2 kubectl-1.22.2 -y ``` (建议使用更新的版本，1.22.2比较老了）
+2. 在Master上操作：
+   ```
+    #关闭防火墙
+    systemctl stop firewalld
+    systemctl disable firewalld
+
+    #关闭selinux
+    setenforce 0
+
+    #关闭swap
+    swapoff -a
+
+    #将桥接的IPv4流量传递到iptables的链
+    cat > /etc/sysctl.d/k8s.conf << EOF
+    net.bridge.bridge-nf-call-ip6tables = 1
+    net.bridge.bridge-nf-call-iptables = 1
+    EOF
+
+    sysctl --system
+
+    #时间同步
+    yum -y install ntpdate
+    ntpdate ntp.aliyun.com
+   
+    # master 添加hosts
+    cat >> /etc/hosts << EOF
+    <ip addr> master
+    <ip addr> node1
+    <ip addr> node2
+    EOF
+   ```
+3. 所有nodes上操作
+   ```
+    #安装Docker
+    wget https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker-ce.repo --no-check-certificate
+    yum -y install docker-ce-18.06.1.ce-3.el7
+    systemctl enable --now docker
+    cat > /etc/docker/daemon.json << EOF
+    {
+        "registry-mirrors":["http://b9pmyelo.mirror.aliyunces.com"]
+    }
+    EOF
+   
+    # 重启docker 
+    systemctl restart docker
+
+    #添加阿里云yum软件源
+    cat > /etc/yum.repos.d/kubernetes.repo << EOF
+    [kubernetes]
+    name=Kubernetes
+    baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+    enabled=1
+    gpgcheck=1
+    repo_gpgcheck=1
+    gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+    EOF
+   ```
+4. 启动kubenetes
+   ```
+    #启动kubelet
+    systemctl enable kubelet
+
+    # 更改docker的驱动
+    vim /etc/docker/daemon.json里加上这句话
+    "exec-opts": ["native.cgroupdriver=systemd"]
+    systemctl restart docker
+    docker info | grep Cgroup
+   ```
+
+5. Master节点上 Kubernentes init
+   ```
+    #代理，国内无法访问k8s.io
+    kubeadm init \
+    --apiserver-advertise-address=<Master's ip addr> \
+    --image-repository registry.aliyuncs.com/google_containers \
+    --kubernetes-version v1.22.2 \
+    --service-cidr=10.96.0.0/12 \
+    --pod-network-cidr=10.244.0.0/16
+
+    #成功之后，添加权限
+    mkdir -p $HOME/.kube
+    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    sudo chown $(id -u):$(id -g) $HOME/.kube/config
+    kubectl get nodes
+
+6. 子节点上执行
+   ```
+    #加入集群，指令在master节点init成功时自动打出来。
+    #类似于 kubeadm join 192.168.31.46:6443 --token ufw0ia.wiaf4vru6t2v9982 --discovery-token-ca-cert-hash sha256:d21a2c79bf368e91927ef3ea68172d29097478918f655b1d0d4ddcc9a155037e
+
+    #token有效期24小时，如果过期了就在master节点输入：
+    kubeadm token create --print-join-command
+   ```
+
+7. 部署CNI网络插件
+   ```
+    kubectl apply -f  https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+    kubectl get pods -n kube-system
+   ```
+    
+   
 
 
 
@@ -538,4 +654,5 @@ metadata常用的配置项有 name,namespace,即配置其显示的名字与归�
 1. https://kubernetes.io/zh-cn/docs/home/  
 2. https://jimmysong.io/kubernetes-handbook/concepts/
 3. https://www.cnblogs.com/caodan01/p/15102328.html
-4. https://juejin.cn/post/7107251448034885639
+4. https://juejin.cn/post/7107251448034885639、
+5. https://developer.aliyun.com/article/927657
