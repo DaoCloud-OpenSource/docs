@@ -19,7 +19,7 @@
     - [3. Pod](#3-pod)
   - [NameSpace](#namespace)
   - [Controller](#controller)
-    - [1. Delopyment](#1-delopyment)
+    - [1. Deployment](#1-deployment)
     - [2. Job](#2-job)
     - [3. CronJob](#3-cronjob)
     - [4. DaemonSet](#4-daemonset)
@@ -238,7 +238,7 @@ spec:
 
 ![pic](/kubernetes/images/k8s.PNG)
 
-### 1. Delopyment
+### 1. Deployment
 
 用于**无状态服务**
 
