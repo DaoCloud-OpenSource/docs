@@ -173,12 +173,21 @@ Master排到Node节点代表，管理本机容器
 
 Pod内有自己的 IP address、 Volume、 Containerized Apps
 
+
 **为什么需要Pod：**
 
 因为Pod可以搭载多个containers，在运维时可以成组地操作多个containers。
 
 
-**创建pod**
+**重启策略：**
+
+在配置文件的RestartPolicy中可以修改
+- Always：当容器失效时，由kubelet自动重启该容器。
+- OnFailure：当容器终止运行且退出码不为0时，由kubelet自动重启该容器。
+- Never：不论容器运行状态如何，kubelet都不会重启该容器。
+
+
+**创建pod：**
 
 ```
 apiVersion: v1  #api版本，一般为v1
