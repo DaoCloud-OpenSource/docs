@@ -44,14 +44,14 @@
 - [使用部署工具安装Kubernetes](#使用部署工具安装kubernetes)
   - [kubectl](#kubectl-1)
   - [Kind / kubeadm](#kind--kubeadm)
-    - [Kind](#kind-1)
-    - [kubeadm](#kubeadm)
+    - [1. Kind](#1-kind)
+    - [2. kubeadm](#2-kubeadm)
 - [参考原文](#参考原文)
 
 
 # Kubernetes Doc
 
-链接：https://kubernetes.io/zh-cn/docs/home/  
+链接：https://kubernetes.io/zh-cn/docs/home/
 
 # Kubernetes前身
 
@@ -70,7 +70,7 @@
 - 服务发现：不需要知道每个IP和端口，只需要通过服务的名字就可以使用服务（Service）
 - 负载均衡：可以合理分配负载
 - 自动发布(默认滚动发布模式)和回滚：不停机更新 & 可以回滚到历史版本
-- 集中化配置管理和密钥管理：可以热部署（Secret）
+- 集中化配置管理和密钥管理：（Secret）
 - 存储编排：可以存储在本地目录、网络存储（NFS、Cluster、Ceph等）、公共云存储服务
 - 任务批处理运行：提供一次性、定时任务（Job、CronJob）
 - 开源
@@ -101,11 +101,13 @@
 
 ### 1. API Server
 
-集群统一入口，以RESTful方式，交给etcd存储
+1. API Server 为 REST 操作提供服务
 
-提供了**资源的唯一入口**，并提供认证、授权、访问控制、API注册和发现等
+2. **所有组件都通过该前端进行交互**
 
-*RESTful:  REST，全名 Representational State Transfer (表现层状态转移)，他是一种设计风格，一种软件架构风格，而不是标准，只是提供了一组设计原则和约束条件。RESTful 只是转为形容詞，就像那么 RESTful API 就是满足 REST 风格的，以此规范设计的 API。*
+3. 提供了**资源的唯一入口**，并提供认证、授权、访问控制、API注册和发现等
+   
+ *RESTful:  REST，全名 Representational State Transfer (表现层状态转移)，他是一种设计风格，一种软件架构风格，而不是标准，只是提供了一组设计原则和约束条件。RESTful 只是转为形容詞，就像那么 RESTful API 就是满足 REST 风格的，以此规范设计的 API。*
 
 ### 2. Scheduler
 
@@ -113,25 +115,34 @@
 
 ### 3. Controller-manager
 
-是一个守护进程，是一个永不停止的循环
+1. 是一个守护进程，是一个永不停止的循环
 
-处理集群中常规后台任务，一个资源一个控制器
+2. 处理集群中常规后台任务，一个资源一个控制器
 
-负责维护集群的状态，比如故障检测、自动扩展、滚动更新等
+3. 负责维护集群的状态，比如故障检测、自动扩展、滚动更新等
 
-维护副本数目，满足期望值
+4. 维护副本数目，满足期望值
+
+**内部结构：**
+- Replication Controller
+- Node Controller
+- ResourceQuota Controller
+- NameSpace Controller
+- ServiceAccount Controller
+- Token Controller
+- Service Controller
+- EndPoint Controller
 
 ### 4. etcd
 
-存储系统，用于保存集群相关的数据
+1. 存储系统，用于保存集群相关的数据
 
-保存整个集群的状态
+2. 保存整个集群的状态
 
-键值对存储数据库
+3. 键值对存储数据库
 
 - **v2**: Memory
 - **v3**: Database
-
 - **HTTP Server**: 采用HTTP协议
 - **Raft**: 读写信息存储
 - **WAL**： 生成日志（有备份）
@@ -141,25 +152,23 @@
 
 ### 1. Kubelet
 
-kubelet 是在每个节点上运行的主要 “节点代理”。它可以使用以下方式之一向 API 服务器注册：
+1. kubelet 是在每个节点上运行的主要 “节点代理”。它可以使用以下方式之一向 API 服务器注册：
 
 - 主机名（hostname
 - 覆盖主机名的参数
 - 特定于某云驱动的逻辑
 
-Master排到Node节点代表，管理本机容器
-
-负责维护容器的生命周期，同时也负责Volume(CVI)和网络（CNI）的管理
+2. 负责维护容器的生命周期，同时也负责Volume(CVI)和网络（CNI）的管理
 
 *CNI（容器网络接口）是一个云原生计算基金会项目，它包含了一些规范和库，用于编写在 Linux 容器中配置网络接口的一系列插件。CNI 只关注容器的网络连接，并在容器被删除时移除所分配的资源。*
 
-**接受Master发出的指令并操作管理对应容器/创建pod**
+3. **接受Master发出的指令并操作管理对应容器/创建pod**
 
 ### 2. Kube-proxy
 
-提供网络代理，负载均衡等操作
+1. 提供网络代理，负载均衡等操作
 
-写入规则到 IPVS、IPTABLES 实现服务映射访问
+2. 写入规则到 IPVS、IPTABLES 实现服务映射访问
 
 *IPTABLES 是Linux中的代理，IPTABLES + NETFILTER 是Linux的防火墙。*
 
@@ -340,9 +349,11 @@ spec:
 
 ### 4. DaemonSet
 
-*DaemonSet* 确保全部（或者一些）Node 上运行一个 Pod 的副本。当有 Node 加入集群时，也会为他们新增一个 Pod 。当有 Node 从集群移除时，这些 Pod 也会被回收。删除 DaemonSet 将会删除它创建的所有 Pod。
+1. *DaemonSet* 可以保证集群中所有的或者部分的节点都能够运行同一份 Pod 副本，每当有新的节点被加入到集群时，Pod 就会在目标的节点上启动，如果节点被从集群中剔除，节点上的 Pod 也会被垃圾收集器清除
 
-**适用于：当需要每一个node都运行一个进程去做某些任务的时候**
+2. 提供基础服务和守护进程
+
+**适用于：当需要每一个node都运行一个进程去做某些任务的时候， 例如集群存储、日志收集和监控等**
 
 **创建DaemonSet**
 ```
@@ -412,13 +423,13 @@ StatefulSet是为了解决**有状态服务**的问题（对应Deployments和Rep
 
 ### 2. Ingress
 
-Ingress 是对集群中服务的**外部访问**进行管理的 API 对象，典型的访问方式是 HTTP。
+1. Ingress 是对集群中服务的**外部访问**进行管理的 API 对象，典型的访问方式是 HTTP。
 
-Ingress 可以提供负载均衡、SSL 终结和基于名称的虚拟托管。
+2. Ingress 可以提供负载均衡、SSL 终结和基于名称的虚拟托管。
 
 **注意：集群中必须有一个正在运行的 Ingress Controller 才可以使用 Ingress**
 
-视频教程：https://www.youtube.com/watch?v=80Ew_fsV4rM
+Nginx Ingress Controller 安装文档：https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/
 
 ## Storage
 
@@ -450,9 +461,9 @@ Kubernetes 中的卷有明确的寿命——与封装它的 Pod 相同。所以�
 
 ## ConfigMap
 
-ConfigMap 是一种 API 对象，用来将非机密性的数据保存到键值对中（存储机密数据请使用 Secret ）。使用时， Pods 可以将其用作环境变量、命令行参数或者存储卷中的配置文件。
+1. ConfigMap 是一种 API 对象，用来将非机密性的数据保存到键值对中（存储机密数据请使用 Secret ）。使用时， Pods 可以将其用作环境变量、命令行参数或者存储卷中的配置文件。
 
-ConfigMap 将你的环境配置信息和 容器镜像 解耦，便于应用配置的修改。
+2. ConfigMap 将你的环境配置信息和 容器镜像 解耦，便于应用配置的修改。
 
 ## HPA (HorizontalPodAutoscaler)
 
