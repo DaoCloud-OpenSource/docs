@@ -614,33 +614,33 @@
      
 ## Pod创建到消亡的过程
 
-* 用户创建 Pod
-  1. 请求发送到 APIServer
-  2. APIServer 将对象存储到 etcd 内
-  3. Scheduler watch new Pod & 绑定 Pod
-  4. APIServer 将绑定完的 Pod 写入 etcd 内
-  5. Kubelet watch 已经绑定完的 Pod
-  6. Kubelet 运行 PodSandbox
-  7. runc setup Pod网络
-  8. Kubelet 拉取镜像
-  9.  Kubelet 启动 Pod -> 启动多个容器比如进程、pause等（pause用于帮助容器共享网络）
-  10. 完成创建
+1. **用户创建 Pod**
+    1. 请求发送到 APIServer
+    2. APIServer 将对象存储到 etcd 内
+    3. Scheduler watch new Pod & 绑定 Pod
+    4. APIServer 将绑定完的 Pod 写入 etcd 内
+    5. Kubelet watch 已经绑定完的 Pod
+    6. Kubelet 运行 PodSandbox
+    7. runc setup Pod网络
+    8. Kubelet 拉取镜像
+    9.  Kubelet 启动 Pod -> 启动多个容器比如进程、pause等（pause用于帮助容器共享网络）
+    10. 完成创建
    
-* 更新 Pod 状态
-  1.  Kubelet 向 APIServer 发送 Pod 状态
-  2.  APIServer 写入 etcd
-  3.  完成更新
+2. **更新 Pod 状态**
+    1.  Kubelet 向 APIServer 发送 Pod 状态
+    2.  APIServer 写入 etcd
+    3.  完成更新
 
-* 用户删除 Pod
-  1.  APIServer 收到消息并将Pod视为 dead
-  2.  APIServer 将 Pod 标记为 Terminating 状态
-  3.  （与第10步同时运行）kubelet 在监控到 Pod 对象转为 Terminating 状态的同时启动 Pod 关闭程序
-  4.  （与第10步同时运行）Endpoints Controller 将所有连接到此 Pod 的 Service 全部从列表移除
-  5.  Kubelet 发送 TERM 信号
-  6.  Kubelet 运行 preSTOP hook *(它可以让你在容器被终止之前执行一些操作，例如进行清理、备份、保存状态等。 在preStop钩子执行期间，容器将继续处理所有传入的请求，但不会再接收新的请求)*
-  7.  过了 Grace Period *(默认30秒)* 之后，Kubelet 发送 SIGKILL 信号终止此 Pod 相关进程
-  8.  Kubelet 请求 APIServer 将此 Pod 资源 Grace Period 设置为0
-  9.  用户不可见，完成删除
+3. **用户删除 Pod**
+    1.  APIServer 收到消息并将Pod视为 dead
+    2.  APIServer 将 Pod 标记为 Terminating 状态
+    3.  （与第10步同时运行）kubelet 在监控到 Pod 对象转为 Terminating 状态的同时启动 Pod 关闭程序
+    4.  （与第10步同时运行）Endpoints Controller 将所有连接到此 Pod 的 Service 全部从列表移除
+    5.  Kubelet 发送 TERM 信号
+    6.  Kubelet 运行 preSTOP hook *(它可以让你在容器被终止之前执行一些操作，例如进行清理、备份、保存状态等。 在preStop钩子执行期间，容器将继续处理所有传入的请求，但不会再接收新的请求)*
+    7.  过了 Grace Period *(默认30秒)* 之后，Kubelet 发送 SIGKILL 信号终止此 Pod 相关进程
+    8.  Kubelet 请求 APIServer 将此 Pod 资源 Grace Period 设置为0
+    9.  用户不可见，完成删除
 
 
 ## Kubernetes 对象
