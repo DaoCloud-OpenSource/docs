@@ -407,59 +407,90 @@ StatefulSet是为了解决**有状态服务**的问题（对应Deployments和Rep
 
 **创建StatefulSet**
 
-*下面例子由StatefulSet创建了3个pod来启动Nginx并创建了 Headless Service 用来控制网络域名*
+1. 创建StorageClass
 
-*注：Headless Service 不会分配负载均衡IP地址*
+```
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: standard
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+mountOptions:
+  - debug
+volumeBindingMode: Immediate
+```
+
+2. 创建PersistentVolume （根据需求创建相应数量，需要大于等于StatefulSet的Replicas数量）
 ```
 apiVersion: v1
-kind: Service
+kind: PersistentVolume
 metadata:
-  name: nginx
+  name: pv-0
   labels:
-    app: nginx
+    type: local
 spec:
-  ports:
-  - port: 80
-    name: web
-  clusterIP: None
-  selector:
-    app: nginx
+  storageClassName: standard
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+
 ---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-1
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+```
+
+3. 创建StatefulSet (volumeClaimTemplates用于自动创建pvc）
+```
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: web
+  name: web11111
 spec:
+  serviceName: "nginx"
+  replicas: 2
   selector:
     matchLabels:
-      app: nginx # 必须匹配 .spec.template.metadata.labels
-  serviceName: "nginx"
-  replicas: 3 # 默认值是 1
-  minReadySeconds: 10 # 默认值是 0
+      app: nginx
   template:
     metadata:
       labels:
-        app: nginx # 必须匹配 .spec.selector.matchLabels
+        app: nginx
     spec:
-      terminationGracePeriodSeconds: 10
       containers:
-      - name: nginx
-        image: registry.k8s.io/nginx-slim:0.8
-        ports:
-        - containerPort: 80
-          name: web
-        volumeMounts:
-        - name: www
-          mountPath: /usr/share/nginx/html
+        - name: nginx
+          image: nginx
+          volumeMounts:
+            - name: www
+              mountPath: /usr/share/nginx/html
   volumeClaimTemplates:
-  - metadata:
-      name: www
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "my-storage-class"
-      resources:
-        requests:
-          storage: 1Gi
+    - metadata:
+        name: www
+      spec:
+        storageClassName: standard
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
 ```
 
 ## Service
