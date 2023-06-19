@@ -547,7 +547,36 @@ Kubernetes 中的卷有明确的寿命——与封装它的 Pod 相同。所以�
 
 1. 持久卷：独立于Pod的生命周期
     1. PV： 是集群中的一块存储，可以由管理员事先制备， 或者使用存储类（Storage Class）来动态制备。 持久卷是集群资源，就像节点也是集群资源一样
-    2. PVC：表达的是用户对存储的请求。概念上与 Pod 类似。 Pod 会耗用节点资源，而 PVC 申领会耗用 PV 资源。Pod 可以请求特定数量的资源（CPU 和内存）
+       ```
+       apiVersion: v1
+       kind: PersistentVolume
+       metadata:
+         name: pv-0
+         labels:
+           type: local
+       spec:
+         storageClassName: standard
+         capacity:
+           storage: 10Gi
+         accessModes:
+           - ReadWriteOnce
+         hostPath:
+           path: "/mnt/data"
+       ```
+    3. PVC：表达的是用户对存储的请求。概念上与 Pod 类似。 Pod 会耗用节点资源，而 PVC 申领会耗用 PV 资源。Pod 可以请求特定数量的资源（CPU 和内存）
+       ```
+       apiVersion: v1
+       kind: PersistentVolumeClaim
+       metadata:
+         name: task-pv-claim
+       spec:
+         storageClassName: manual
+         accessModes:
+           - ReadWriteOnce
+         resources:
+           requests:
+             storage: 3Gi
+       ```
 3. 投射卷：可以将若干现有的卷源映射到同一个目录之上
 4. 临时卷：会遵从 Pod 的生命周期，与 Pod 一起创建和删除
 
@@ -557,9 +586,47 @@ Kubernetes 中的卷有明确的寿命——与封装它的 Pod 相同。所以�
 
 2. ConfigMap 将你的环境配置信息和 容器镜像 解耦，便于应用配置的修改。
 
+```
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  creationTimestamp: 2023-6-19T12:06:00Z
+  name: example-config
+  namespace: default
+data:
+  example.property.file: |
+    property.1=value-1
+    property.2=value-2
+    property.3=value-3
+```
+
 ## HPA (HorizontalPodAutoscaler)
 
 根据CPU利用率，平行扩展和裁剪Pod数量
+
+ex1. 维持扩缩目标中的 Pods 的平均资源利用率在 60% (*利用率是 Pod 的当前资源用量与其请求值之间的比值*)
+
+```
+type: Resource
+resource:
+  name: cpu
+  target:
+    type: Utilization
+    averageUtilization: 60
+```
+
+ex2. 确保所有 Pod 中 application 容器的平均 CPU 用量为 60%
+
+```
+type: ContainerResource
+containerResource:
+  name: cpu
+  container: application
+  target:
+    type: Utilization
+    averageUtilization: 60
+```
+   
 
 
 
