@@ -59,8 +59,7 @@
 
 ### kubectl
 
-用户客户端</br></br>
-
+* 用户客户端
 * **常用命令**
   1. kubectl create -f <file's name> 创建新资源（重复配置会报错）（需要yaml/yml/json文件）
   2. kubectl apply -f <file's name> 配置应用于资源（重复配置不会报错）（需要yaml/yml/json文件）
@@ -78,130 +77,128 @@
 
 它主要负责接受客户端的请求，安排容器的执行并且运行控制循环，将集群的状态向目标状态进行迁移
 
-* **API Server**
+1. **API Server**
 
-  1. API Server 为 REST 操作提供服务
-
-  2. **所有组件都通过该前端进行交互**
-
-  3. 提供了**资源的唯一入口**，并提供认证、授权、访问控制、API注册和发现等
+    1. API Server 为 REST 操作提供服务
+    2. **所有组件都通过该前端进行交互**
+    3. 提供了**资源的唯一入口**，并提供认证、授权、访问控制、API注册和发现等
    
      *RESTful:  REST，全名 Representational State Transfer (表现层状态转移)，他是一种设计风格，一种软件架构风格，而不是标准，只是提供了一组设计原则和约束条件。RESTful 只是转为形容詞，就像那么 RESTful API 就是满足 REST 风格的，以此规范设计的 API。*
 
-* **Scheduler**
+2. **Scheduler**
 
-  * 负责资源的调度，按照预定的调度策略将Pod调度到相应的节点上（选择具有合适资源的node去运行对应pod）
+    * 负责资源的调度，按照预定的调度策略将Pod调度到相应的节点上（选择具有合适资源的node去运行对应pod）
 
-* **Controller-manager**
+3. **Controller-manager**
 
-  1. 是一个守护进程，是一个永不停止的循环
+    1. 是一个守护进程，是一个永不停止的循环
+    
+    2. 处理集群中常规后台任务，一个资源一个控制器
+    
+    3. 负责维护集群的状态，比如故障检测、自动扩展、滚动更新等
+    
+    4. 维护副本数目，满足期望值
+
+    * **内部结构：**
+      - Replication Controller
+      - Node Controller
+      - ResourceQuota Controller
+      - NameSpace Controller
+      - ServiceAccount Controller
+      - Token Controller
+      - Service Controller
+      - EndPoint Controller
+
+4. **etcd**
   
-  2. 处理集群中常规后台任务，一个资源一个控制器
+    - 存储系统，用于保存集群相关的数据
+    
+    - 保存整个集群的状态
+    
+    - 键值对存储数据库
   
-  3. 负责维护集群的状态，比如故障检测、自动扩展、滚动更新等
-  
-  4. 维护副本数目，满足期望值
-
-  * **内部结构：**
-    - Replication Controller
-    - Node Controller
-    - ResourceQuota Controller
-    - NameSpace Controller
-    - ServiceAccount Controller
-    - Token Controller
-    - Service Controller
-    - EndPoint Controller
-
-* **etcd**
-
-  - 存储系统，用于保存集群相关的数据
-  
-  - 保存整个集群的状态
-  
-  - 键值对存储数据库
-
-    **内部：**
-  
-    - **v2**: Memory
-    - **v3**: Database
-    - **HTTP Server**: 采用HTTP协议
-    - **Raft**: 读写信息存储
-    - **WAL**： 生成日志（有备份）
-    - **Store**： 持久化存储
+      **内部：**
+    
+      - **v2**: Memory
+      - **v3**: Database
+      - **HTTP Server**: 采用HTTP协议
+      - **Raft**: 读写信息存储
+      - **WAL**： 生成日志（有备份）
+      - **Store**： 持久化存储
 
 ### Node
 
-* **Kubelet**
+1. **Kubelet**
 
-  1. kubelet 是在每个节点上运行的主要 “节点代理”。它可以使用以下方式之一向 API 服务器注册：
-  
-       - 主机名（hostname
-       - 覆盖主机名的参数
-       - 特定于某云驱动的逻辑
-
-  2. 负责维护容器的生命周期，同时也负责Volume(CVI)和网络（CNI）的管理
-  
-       - *CNI（容器网络接口）是一个云原生计算基金会项目，它包含了一些规范和库，用于编写在 Linux 容器中配置网络接口的一系列插件。CNI 只关注容器的网络连接，并在容器被删除时移除所分配的资源。*
-
-  3. **接受Master发出的指令并操作管理对应容器/创建pod**
-
-* **Kube-proxy**
-
-  1. 提供网络代理，负载均衡等操作
-  
-  2. 写入规则到 IPVS、IPTABLES 实现服务映射访问
-  
-  *IPTABLES 是Linux中的代理，IPTABLES + NETFILTER 是Linux的防火墙。*
-
-* **Pod**
-  * 定义：
-    1. Pod是K8S里能够被运行的**最小的逻辑单元(原子单元)** - **最小部署单元**
-    2. 1个Pod里面可以**运行多个容器**,它们共享UTS+NET +IPC名称空间
-    3. 可以把Pod理解成豌豆荚,而同- -Pod内的每个容器是一 颗颗豌豆
-    4. 一个Pod里运行多个容器,又叫:边车(SideCar)模式
-    5. 一组容器的集合共享网络生命周期是短暂的
-    6. Pod内有自己的 IP address、 Volume、 Containerized Apps
-
-  * 为什么需要Pod：
-  
-    * 因为Pod可以搭载多个containers，在运维时可以成组地操作多个containers。
+    1. kubelet 是在每个节点上运行的主要 “节点代理”。它可以使用以下方式之一向 API 服务器注册：
     
+         - 主机名（hostname
+         - 覆盖主机名的参数
+         - 特定于某云驱动的逻辑
   
-  * 重启策略：
-  
-    * 在配置文件的RestartPolicy中可以修改
-      - Always：当容器失效时，由kubelet自动重启该容器。
-      - OnFailure：当容器终止运行且退出码不为0时，由kubelet自动重启该容器。
-      - Never：不论容器运行状态如何，kubelet都不会重启该容器。
-
-
-  * **创建pod：**
-  
-    ```
-    apiVersion: v1  #api版本，一般为v1
-    kind: Pod  #资源对象类型
-    metadata:
-      name: command-demo  #对象名称
-      labels:
-        purpose: demonstrate-command  #目的
-    spec:
-      containers:  #container相关信息
-      - name: command-demo-container  #container名称
-        image: debian  #目标image名称
-        command: ["printenv"]
-        args: ["HOSTNAME", "KUBERNETES_PORT"]
-      restartPolicy: OnFailure
-    ```
-
-  * **生命周期图**
+    2. 负责维护容器的生命周期，同时也负责Volume(CVI)和网络（CNI）的管理
     
-    - 挂起（Pending）：Pod 已被 Kubernetes 系统接受，但有一个或者多个容器镜像尚未创建。等待时间包括调度 Pod 的时间和通过网络下载镜像的时间，这可能需要花点时间。
-    - 运行中（Running）：该 Pod 已经绑定到了一个节点上，Pod 中所有的容器都已被创建。至少有一个容器正在运行，或者正处于启动或重启状态。
-    - 成功（Succeeded）：Pod 中的所有容器都被成功终止，并且不会再重启。
-    - 失败（Failed）：Pod 中的所有容器都已终止了，并且至少有一个容器是因为失败终止。也就是说，容器以非0状态退出或者被系统终止。
-    - 未知（Unknown）：因为某些原因无法取得 Pod 的状态，通常是因为与 Pod 所在主机通信失败
+         - *CNI（容器网络接口）是一个云原生计算基金会项目，它包含了一些规范和库，用于编写在 Linux 容器中配置网络接口的一系列插件。CNI 只关注容器的网络连接，并在容器被删除时移除所分配的资源。*
+  
+    3. **接受Master发出的指令并操作管理对应容器/创建pod**
+
+2. **Kube-proxy**
+
+    1. 提供网络代理，负载均衡等操作
+    
+    2. 写入规则到 IPVS、IPTABLES 实现服务映射访问
+    
+    *IPTABLES 是Linux中的代理，IPTABLES + NETFILTER 是Linux的防火墙。*
+
+3. **Pod**
+    * 定义：
+      1. Pod是K8S里能够被运行的**最小的逻辑单元(原子单元)** - **最小部署单元**
+      2. 1个Pod里面可以**运行多个容器**,它们共享UTS+NET +IPC名称空间
+      3. 可以把Pod理解成豌豆荚,而同- -Pod内的每个容器是一 颗颗豌豆
+      4. 一个Pod里运行多个容器,又叫:边车(SideCar)模式
+      5. 一组容器的集合共享网络生命周期是短暂的
+      6. Pod内有自己的 IP address、 Volume、 Containerized Apps
+  
+    * 为什么需要Pod：
+    
+      * 因为Pod可以搭载多个containers，在运维时可以成组地操作多个containers。
       
-        ![kubernetes-pod-life-cycle](/kubernetes/images/kubernetes-pod-life-cycle.jpg)
+    
+    * 重启策略：
+    
+      * 在配置文件的RestartPolicy中可以修改
+        - Always：当容器失效时，由kubelet自动重启该容器。
+        - OnFailure：当容器终止运行且退出码不为0时，由kubelet自动重启该容器。
+        - Never：不论容器运行状态如何，kubelet都不会重启该容器。
+  
+
+    * **创建pod：**
+    
+      ```
+      apiVersion: v1  #api版本，一般为v1
+      kind: Pod  #资源对象类型
+      metadata:
+        name: command-demo  #对象名称
+        labels:
+          purpose: demonstrate-command  #目的
+      spec:
+        containers:  #container相关信息
+        - name: command-demo-container  #container名称
+          image: debian  #目标image名称
+          command: ["printenv"]
+          args: ["HOSTNAME", "KUBERNETES_PORT"]
+        restartPolicy: OnFailure
+      ```
+  
+    * **生命周期图**
+      
+      - 挂起（Pending）：Pod 已被 Kubernetes 系统接受，但有一个或者多个容器镜像尚未创建。等待时间包括调度 Pod 的时间和通过网络下载镜像的时间，这可能需要花点时间。
+      - 运行中（Running）：该 Pod 已经绑定到了一个节点上，Pod 中所有的容器都已被创建。至少有一个容器正在运行，或者正处于启动或重启状态。
+      - 成功（Succeeded）：Pod 中的所有容器都被成功终止，并且不会再重启。
+      - 失败（Failed）：Pod 中的所有容器都已终止了，并且至少有一个容器是因为失败终止。也就是说，容器以非0状态退出或者被系统终止。
+      - 未知（Unknown）：因为某些原因无法取得 Pod 的状态，通常是因为与 Pod 所在主机通信失败
+        
+          ![kubernetes-pod-life-cycle](/kubernetes/images/kubernetes-pod-life-cycle.jpg)
 
 ### NameSpace
 
@@ -217,375 +214,375 @@
 
   ![pic](/kubernetes/images/k8s.PNG)
 
-* **Deployment**
-
-  * 定义：
-
-    1. 用于**无状态服务**
-    
-    2. *无状态服务不会在本地存储持久化数据.多个服务实例对于同一个用户请求的响应结果是完全一致的.这种多服务实例之间是没有依赖关系,比如web应用,在k8s控制器 中动态启停无状态服务的pod并不会对其它的pod产生影响.*
-
-    3. Deployment 为 Pod 和 ReplicaSet 提供了一个声明式定义（declarative）方法，用来替代以前的 ReplicationController 来方便的管理应用。典型的应用场景包括：
-    
-        - 定义 Deployment 来创建 Pod 和 ReplicaSet
-        - 滚动升级和回滚应用
-        - 扩容和缩容
-        - 暂停和继续 Deployment
-
-  * *RC(Replication Controller)是一种用于保证应用程序副本数量的对象。它通过监视当前的副本数量，并在数量低于预期时创建新的副本，反之删除多余的副本。*
-
-  * *RS(Replica Set)是 RC 的替代者，提供了更灵活的选择器功能。它使用标签选择器来确定要保留的副本数量，并在必要时创建或删除副本。*
-
-  * **创建deployment**
+1. **Deployment**
   
-    ```
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: nginx-deployment
-    spec:
-      selector:
-        matchLabels:
-          app: nginx
-      replicas: 2 # 告知 Deployment 运行 2 个与该模板匹配的 Pod
-      template:
-        metadata:
-          labels:
-            app: nginx
-        spec:
-          containers:
-          - name: nginx
-            image: nginx:1.14.2
-            ports:
-            - containerPort: 80
-    ```
-
-* **Job**
-
-  * Job 负责批处理任务，即**仅执行一次的任务**，它保证批处理任务的一个或多个 Pod 成功结束。
-
-  * **创建Job**
-    ```
-    apiVersion: batch/v1
-    kind: Job
-    metadata:
-      name: pi
-    spec:
-      template:
-        spec:
-          containers:
-          - name: pi
-            image: perl:5.34.0
-            command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
-          restartPolicy: Never
-      backoffLimit: 4
-    ```
-
-* **CronJob**
-
-  * CronJob 创建基于**时隔重复调度**的 Job。
-
-  * **创建CronJob**
-    ```
-    apiVersion: batch/v1
-    kind: CronJob
-    metadata:
-      name: hello
-    spec:
-      schedule: "* * * * *"
-      jobTemplate:
-        spec:
-          template:
-            spec:
-              containers:
-              - name: hello
-                image: busybox:1.28
-                imagePullPolicy: IfNotPresent
-                command:
-                - /bin/sh
-                - -c
-                - date; echo Hello from the Kubernetes cluster
-              restartPolicy: OnFailure
-    
-    ```
-
-
-
-  * **Cron 时间表语法**
-
-    * .spec.schedule 字段是必需的。该字段的值遵循 Cron 语法：
-    
-    ```
-     ┌───────────── 分钟 (0 - 59)
-     │ ┌───────────── 小时 (0 - 23)
-     │ │ ┌───────────── 月的某天 (1 - 31)
-     │ │ │ ┌───────────── 月份 (1 - 12)
-     │ │ │ │ ┌───────────── 周的某天 (0 - 6)（周日到周一；在某些系统上，7 也是星期日）
-     │ │ │ │ │                          或者是 sun，mon，tue，web，thu，fri，sat
-     │ │ │ │ │
-     │ │ │ │ │
-     * * * * *
-     ```
-      * 例如 0 0 13 * 5 表示此任务必须在每个星期五的午夜以及每个月的 13 日的午夜开始。
-
-* **DaemonSet**
-
-  * 定义：
-    1. *DaemonSet* 可以保证集群中所有的或者部分的节点都能够运行同一份 Pod 副本，每当有新的节点被加入到集群时，Pod 就会在目标的节点上启动，如果节点被从集群中剔除，节点上的 Pod 也会被垃圾收集器清除
-    
-    2. 提供基础服务和守护进程
-
-  * **适用于：当需要每一个node都运行一个进程去做某些任务的时候， 例如集群存储、日志收集和监控等**
+    * 定义：
   
-  * **创建DaemonSet**
-    ```
-    apiVersion: apps/v1
-    kind: DaemonSet
-    metadata:
-      name: fluentd-elasticsearch
-      namespace: kube-system
-      labels:
-        k8s-app: fluentd-logging
-    spec:
-      selector:
-        matchLabels:
-          name: fluentd-elasticsearch
-      template:
-        metadata:
-          labels:
-            name: fluentd-elasticsearch
-        spec:
-          tolerations:
-          # 这些容忍度设置是为了让该守护进程集在控制平面节点上运行
-          # 如果你不希望自己的控制平面节点运行 Pod，可以删除它们
-          - key: node-role.kubernetes.io/control-plane
-            operator: Exists
-            effect: NoSchedule
-          - key: node-role.kubernetes.io/master
-            operator: Exists
-            effect: NoSchedule
-          containers:
-          - name: fluentd-elasticsearch
-            image: quay.io/fluentd_elasticsearch/fluentd:v2.5.2
-            resources:
-              limits:
-                memory: 200Mi
-              requests:
-                cpu: 100m
-                memory: 200Mi
-            volumeMounts:
-            - name: varlog
-              mountPath: /var/log
-          terminationGracePeriodSeconds: 30
-          volumes:
-          - name: varlog
-            hostPath:
-              path: /var/log
-    
-    ```
-
-* **StatefulSet**
-  
-  * StatefulSet是为了解决**有状态服务**的问题（对应Deployments和ReplicaSets是为无状态服务而设计）
-  
-  * **适用于：数据库等需要持久存储的模块**
-  
-    *有状态服务需要在本地存储持久化数据,典型的是分布式数据库的应用,分布式节点实例之间有依赖的拓扑关系.比如,主从关系. 如果K8S停止分布式集群中任 一实例pod,就可能会导致数据丢失或者集群的crash.*
-
-  * **创建StatefulSet**
-  
-    1. 创建StorageClass
-    
-      ```
-      apiVersion: storage.k8s.io/v1
-      kind: StorageClass
-      metadata:
-        name: standard
-      provisioner: kubernetes.io/aws-ebs
-      parameters:
-        type: gp2
-      reclaimPolicy: Retain
-      allowVolumeExpansion: true
-      mountOptions:
-        - debug
-      volumeBindingMode: Immediate
-      ```
-
-    2. 创建PersistentVolume （根据需求创建相应数量，需要大于等于StatefulSet的Replicas数量）
-      ```
-      apiVersion: v1
-      kind: PersistentVolume
-      metadata:
-        name: pv-0
-        labels:
-          type: local
-      spec:
-        storageClassName: standard
-        capacity:
-          storage: 10Gi
-        accessModes:
-          - ReadWriteOnce
-        hostPath:
-          path: "/mnt/data"
+      1. 用于**无状态服务**
       
-      ---
+      2. *无状态服务不会在本地存储持久化数据.多个服务实例对于同一个用户请求的响应结果是完全一致的.这种多服务实例之间是没有依赖关系,比如web应用,在k8s控制器 中动态启停无状态服务的pod并不会对其它的pod产生影响.*
+  
+      3. Deployment 为 Pod 和 ReplicaSet 提供了一个声明式定义（declarative）方法，用来替代以前的 ReplicationController 来方便的管理应用。典型的应用场景包括：
       
-      apiVersion: v1
-      kind: PersistentVolume
-      metadata:
-        name: pv-1
-        labels:
-          type: local
-      spec:
-        storageClassName: standard
-        capacity:
-          storage: 10Gi
-        accessModes:
-          - ReadWriteOnce
-        hostPath:
-          path: "/mnt/data"
-      ```
+          - 定义 Deployment 来创建 Pod 和 ReplicaSet
+          - 滚动升级和回滚应用
+          - 扩容和缩容
+          - 暂停和继续 Deployment
+  
+    * *RC(Replication Controller)是一种用于保证应用程序副本数量的对象。它通过监视当前的副本数量，并在数量低于预期时创建新的副本，反之删除多余的副本。*
+  
+    * *RS(Replica Set)是 RC 的替代者，提供了更灵活的选择器功能。它使用标签选择器来确定要保留的副本数量，并在必要时创建或删除副本。*
+  
+    * **创建deployment**
     
-    3. 创建StatefulSet (volumeClaimTemplates用于自动创建pvc）
       ```
       apiVersion: apps/v1
-      kind: StatefulSet
+      kind: Deployment
       metadata:
-        name: web11111
+        name: nginx-deployment
       spec:
-        serviceName: "nginx"
-        replicas: 2
         selector:
           matchLabels:
             app: nginx
+        replicas: 2 # 告知 Deployment 运行 2 个与该模板匹配的 Pod
         template:
           metadata:
             labels:
               app: nginx
           spec:
             containers:
-              - name: nginx
-                image: nginx
-                volumeMounts:
-                  - name: www
-                    mountPath: /usr/share/nginx/html
-        volumeClaimTemplates:
-          - metadata:
-              name: www
-            spec:
-              storageClassName: standard
-              accessModes: [ "ReadWriteOnce" ]
-              resources:
-                requests:
-                  storage: 1Gi
+            - name: nginx
+              image: nginx:1.14.2
+              ports:
+              - containerPort: 80
       ```
+
+2. **Job**
+
+    * Job 负责批处理任务，即**仅执行一次的任务**，它保证批处理任务的一个或多个 Pod 成功结束。
+  
+    * **创建Job**
+      ```
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: pi
+      spec:
+        template:
+          spec:
+            containers:
+            - name: pi
+              image: perl:5.34.0
+              command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+            restartPolicy: Never
+        backoffLimit: 4
+      ```
+
+3. **CronJob**
+
+    * CronJob 创建基于**时隔重复调度**的 Job。
+  
+    * **创建CronJob**
+      ```
+      apiVersion: batch/v1
+      kind: CronJob
+      metadata:
+        name: hello
+      spec:
+        schedule: "* * * * *"
+        jobTemplate:
+          spec:
+            template:
+              spec:
+                containers:
+                - name: hello
+                  image: busybox:1.28
+                  imagePullPolicy: IfNotPresent
+                  command:
+                  - /bin/sh
+                  - -c
+                  - date; echo Hello from the Kubernetes cluster
+                restartPolicy: OnFailure
+      
+      ```
+  
+  
+  
+    * **Cron 时间表语法**
+  
+      * .spec.schedule 字段是必需的。该字段的值遵循 Cron 语法：
+      
+      ```
+       ┌───────────── 分钟 (0 - 59)
+       │ ┌───────────── 小时 (0 - 23)
+       │ │ ┌───────────── 月的某天 (1 - 31)
+       │ │ │ ┌───────────── 月份 (1 - 12)
+       │ │ │ │ ┌───────────── 周的某天 (0 - 6)（周日到周一；在某些系统上，7 也是星期日）
+       │ │ │ │ │                          或者是 sun，mon，tue，web，thu，fri，sat
+       │ │ │ │ │
+       │ │ │ │ │
+       * * * * *
+       ```
+        * 例如 0 0 13 * 5 表示此任务必须在每个星期五的午夜以及每个月的 13 日的午夜开始。
+
+4. **DaemonSet**
+
+    * 定义：
+      1. *DaemonSet* 可以保证集群中所有的或者部分的节点都能够运行同一份 Pod 副本，每当有新的节点被加入到集群时，Pod 就会在目标的节点上启动，如果节点被从集群中剔除，节点上的 Pod 也会被垃圾收集器清除
+      
+      2. 提供基础服务和守护进程
+  
+    * **适用于：当需要每一个node都运行一个进程去做某些任务的时候， 例如集群存储、日志收集和监控等**
+    
+    * **创建DaemonSet**
+      ```
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: fluentd-elasticsearch
+        namespace: kube-system
+        labels:
+          k8s-app: fluentd-logging
+      spec:
+        selector:
+          matchLabels:
+            name: fluentd-elasticsearch
+        template:
+          metadata:
+            labels:
+              name: fluentd-elasticsearch
+          spec:
+            tolerations:
+            # 这些容忍度设置是为了让该守护进程集在控制平面节点上运行
+            # 如果你不希望自己的控制平面节点运行 Pod，可以删除它们
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
+            - key: node-role.kubernetes.io/master
+              operator: Exists
+              effect: NoSchedule
+            containers:
+            - name: fluentd-elasticsearch
+              image: quay.io/fluentd_elasticsearch/fluentd:v2.5.2
+              resources:
+                limits:
+                  memory: 200Mi
+                requests:
+                  cpu: 100m
+                  memory: 200Mi
+              volumeMounts:
+              - name: varlog
+                mountPath: /var/log
+            terminationGracePeriodSeconds: 30
+            volumes:
+            - name: varlog
+              hostPath:
+                path: /var/log
+      
+      ```
+
+5. **StatefulSet**
+    
+    * StatefulSet是为了解决**有状态服务**的问题（对应Deployments和ReplicaSets是为无状态服务而设计）
+    
+    * **适用于：数据库等需要持久存储的模块**
+    
+      *有状态服务需要在本地存储持久化数据,典型的是分布式数据库的应用,分布式节点实例之间有依赖的拓扑关系.比如,主从关系. 如果K8S停止分布式集群中任 一实例pod,就可能会导致数据丢失或者集群的crash.*
+  
+    * **创建StatefulSet**
+    
+      1. 创建StorageClass
+      
+        ```
+        apiVersion: storage.k8s.io/v1
+        kind: StorageClass
+        metadata:
+          name: standard
+        provisioner: kubernetes.io/aws-ebs
+        parameters:
+          type: gp2
+        reclaimPolicy: Retain
+        allowVolumeExpansion: true
+        mountOptions:
+          - debug
+        volumeBindingMode: Immediate
+        ```
+  
+      2. 创建PersistentVolume （根据需求创建相应数量，需要大于等于StatefulSet的Replicas数量）
+        ```
+        apiVersion: v1
+        kind: PersistentVolume
+        metadata:
+          name: pv-0
+          labels:
+            type: local
+        spec:
+          storageClassName: standard
+          capacity:
+            storage: 10Gi
+          accessModes:
+            - ReadWriteOnce
+          hostPath:
+            path: "/mnt/data"
+        
+        ---
+        
+        apiVersion: v1
+        kind: PersistentVolume
+        metadata:
+          name: pv-1
+          labels:
+            type: local
+        spec:
+          storageClassName: standard
+          capacity:
+            storage: 10Gi
+          accessModes:
+            - ReadWriteOnce
+          hostPath:
+            path: "/mnt/data"
+        ```
+      
+      3. 创建StatefulSet (volumeClaimTemplates用于自动创建pvc）
+        ```
+        apiVersion: apps/v1
+        kind: StatefulSet
+        metadata:
+          name: web11111
+        spec:
+          serviceName: "nginx"
+          replicas: 2
+          selector:
+            matchLabels:
+              app: nginx
+          template:
+            metadata:
+              labels:
+                app: nginx
+            spec:
+              containers:
+                - name: nginx
+                  image: nginx
+                  volumeMounts:
+                    - name: www
+                      mountPath: /usr/share/nginx/html
+          volumeClaimTemplates:
+            - metadata:
+                name: www
+              spec:
+                storageClassName: standard
+                accessModes: [ "ReadWriteOnce" ]
+                resources:
+                  requests:
+                    storage: 1Gi
+        ```
 
 ### Service
 
-* **Service**
+1. **Service**
+  
+    * **ClusterIP:** 通过集群内部IP暴露服务，只能在集群内部使用。
+    
+    * **NodePort：** 可以从集群外部访问。使用公共IP。
+    
+    * **LoadBalancer：** 可以向外部暴露服务。需要Cloud Provider（云供应商）。
+    
+    * **ExternalName：** 把集群外部的服务引入到集群内部。
 
-  * **ClusterIP:** 通过集群内部IP暴露服务，只能在集群内部使用。
-  
-  * **NodePort：** 可以从集群外部访问。使用公共IP。
-  
-  * **LoadBalancer：** 可以向外部暴露服务。需要Cloud Provider（云供应商）。
-  
-  * **ExternalName：** 把集群外部的服务引入到集群内部。
+2. **Ingress**
 
-* **Ingress**
-
-  1. Ingress 是对集群中服务的**外部访问**进行管理的 API 对象，典型的访问方式是 HTTP。
-  
-  2. Ingress 可以提供负载均衡、SSL 终结和基于名称的虚拟托管。
-  
-  * **注意：集群中必须有一个正在运行的 Ingress Controller 才可以使用 Ingress**
-  
-  * Nginx Ingress Controller 安装文档：https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/
+    1. Ingress 是对集群中服务的**外部访问**进行管理的 API 对象，典型的访问方式是 HTTP。
+    
+    2. Ingress 可以提供负载均衡、SSL 终结和基于名称的虚拟托管。
+    
+    * **注意：集群中必须有一个正在运行的 Ingress Controller 才可以使用 Ingress**
+    
+    * Nginx Ingress Controller 安装文档：https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/
 
 ### Storage
 
-* **Secret （投射卷）**
-
-  * Secret 解决了密码、token、密钥等敏感数据的配置问题，而不需要把这些敏感数据暴露到镜像或者 Pod Spec 中。Secret 可以以 Volume 或者环境变量的方式使用。
+1. **Secret （投射卷）**
   
-  * Secret 有三种类型：
-  
-    - **Service Account** ：用来访问 Kubernetes API，由 Kubernetes 自动创建，并且会自动挂载到 Pod 的 `/run/secrets/[kubernetes.io/serviceaccount](http://kubernetes.io/serviceaccount)` 目录中；
-    - **Opaque** ：base64 编码格式的 Secret，用来存储密码、密钥等
-    - **[kubernetes.io/dockerconfigjson](http://kubernetes.io/dockerconfigjson)** ：用来存储私有 docker registry 的认证信息。
-
-  * **创建secret**
-
-    ```
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: test-secret
-    data:
-      username: bXktYXBw
-      password: Mzk1MjgkdmRnN0pi
-    ```
-
-* **Volume**
-
-  Kubernetes 中的卷有明确的寿命——与封装它的 Pod 相同。所以，卷的生命比 Pod 中的所有容器都长，当这个容器重启时数据仍然得以保存。当然，**当 Pod 不再存在时，卷也将不复存在**。也许更重要的是，Kubernetes 支持多种类型的卷，Pod 可以同时使用任意数量的卷。
-
-  **【卷的种类】**
+    * Secret 解决了密码、token、密钥等敏感数据的配置问题，而不需要把这些敏感数据暴露到镜像或者 Pod Spec 中。Secret 可以以 Volume 或者环境变量的方式使用。
     
-    1. 持久卷：独立于Pod的生命周期
-        1. PV： 是集群中的一块存储，可以由管理员事先制备， 或者使用存储类（Storage Class）来动态制备。 持久卷是集群资源，就像节点也是集群资源一样
-           ```
-           apiVersion: v1
-           kind: PersistentVolume
-           metadata:
-             name: pv-0
-             labels:
-               type: local
-           spec:
-             storageClassName: standard
-             capacity:
-               storage: 10Gi
-             accessModes:
-               - ReadWriteOnce
-             hostPath:
-               path: "/mnt/data"
-           ```
-        3. PVC：表达的是用户对存储的请求。概念上与 Pod 类似。 Pod 会耗用节点资源，而 PVC 申领会耗用 PV 资源。Pod 可以请求特定数量的资源（CPU 和内存）
-           ```
-           apiVersion: v1
-           kind: PersistentVolumeClaim
-           metadata:
-             name: task-pv-claim
-           spec:
-             storageClassName: manual
-             accessModes:
-               - ReadWriteOnce
-             resources:
-               requests:
-                 storage: 3Gi
-           ```
-    3. 投射卷：可以将若干现有的卷源映射到同一个目录之上
-    4. 临时卷：会遵从 Pod 的生命周期，与 Pod 一起创建和删除
-  
-* **ConfigMap （投射卷）**
-  
-    1. ConfigMap 是一种 API 对象，用来将非机密性的数据保存到键值对中（存储机密数据请使用 Secret ）。使用时， Pods 可以将其用作环境变量、命令行参数或者存储卷中的配置文件。
+    * Secret 有三种类型：
     
-    2. ConfigMap 将你的环境配置信息和 容器镜像 解耦，便于应用配置的修改。
-      
+      - **Service Account** ：用来访问 Kubernetes API，由 Kubernetes 自动创建，并且会自动挂载到 Pod 的 `/run/secrets/[kubernetes.io/serviceaccount](http://kubernetes.io/serviceaccount)` 目录中；
+      - **Opaque** ：base64 编码格式的 Secret，用来存储密码、密钥等
+      - **[kubernetes.io/dockerconfigjson](http://kubernetes.io/dockerconfigjson)** ：用来存储私有 docker registry 的认证信息。
+  
+    * **创建secret**
+  
       ```
-      kind: ConfigMap
       apiVersion: v1
+      kind: Secret
       metadata:
-        creationTimestamp: 2023-6-19T12:06:00Z
-        name: example-config
-        namespace: default
+        name: test-secret
       data:
-        example.property.file: |
-          property.1=value-1
-          property.2=value-2
-          property.3=value-3
+        username: bXktYXBw
+        password: Mzk1MjgkdmRnN0pi
       ```
+
+2. **Volume**
+
+    Kubernetes 中的卷有明确的寿命——与封装它的 Pod 相同。所以，卷的生命比 Pod 中的所有容器都长，当这个容器重启时数据仍然得以保存。当然，**当 Pod 不再存在时，卷也将不复存在**。也许更重要的是，Kubernetes 支持多种类型的卷，Pod 可以同时使用任意数量的卷。
+  
+    **【卷的种类】**
+      
+      1. 持久卷：独立于Pod的生命周期
+          1. PV： 是集群中的一块存储，可以由管理员事先制备， 或者使用存储类（Storage Class）来动态制备。 持久卷是集群资源，就像节点也是集群资源一样
+             ```
+             apiVersion: v1
+             kind: PersistentVolume
+             metadata:
+               name: pv-0
+               labels:
+                 type: local
+             spec:
+               storageClassName: standard
+               capacity:
+                 storage: 10Gi
+               accessModes:
+                 - ReadWriteOnce
+               hostPath:
+                 path: "/mnt/data"
+             ```
+          3. PVC：表达的是用户对存储的请求。概念上与 Pod 类似。 Pod 会耗用节点资源，而 PVC 申领会耗用 PV 资源。Pod 可以请求特定数量的资源（CPU 和内存）
+             ```
+             apiVersion: v1
+             kind: PersistentVolumeClaim
+             metadata:
+               name: task-pv-claim
+             spec:
+               storageClassName: manual
+               accessModes:
+                 - ReadWriteOnce
+               resources:
+                 requests:
+                   storage: 3Gi
+             ```
+      3. 投射卷：可以将若干现有的卷源映射到同一个目录之上
+      4. 临时卷：会遵从 Pod 的生命周期，与 Pod 一起创建和删除
+  
+3. **ConfigMap （投射卷）**
+  
+      1. ConfigMap 是一种 API 对象，用来将非机密性的数据保存到键值对中（存储机密数据请使用 Secret ）。使用时， Pods 可以将其用作环境变量、命令行参数或者存储卷中的配置文件。
+      
+      2. ConfigMap 将你的环境配置信息和 容器镜像 解耦，便于应用配置的修改。
+        
+        ```
+        kind: ConfigMap
+        apiVersion: v1
+        metadata:
+          creationTimestamp: 2023-6-19T12:06:00Z
+          name: example-config
+          namespace: default
+        data:
+          example.property.file: |
+            property.1=value-1
+            property.2=value-2
+            property.3=value-3
+        ```
 
 ### HPA (HorizontalPodAutoscaler)
 
