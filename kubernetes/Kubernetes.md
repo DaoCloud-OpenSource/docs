@@ -1,3 +1,30 @@
+## 目录
+
+- [目录](#目录)
+- [Kubernetes Doc](#kubernetes-doc)
+- [Kubernetes前身](#kubernetes前身)
+  - [Borg](#borg)
+- [Why Kubernetes](#why-kubernetes)
+- [Kubernetes 架构](#kubernetes-架构)
+  - [kubectl](#kubectl)
+  - [Master](#master)
+  - [Node](#node)
+  - [NameSpace](#namespace)
+  - [Controller](#controller)
+  - [Service](#service)
+  - [Storage](#storage)
+  - [HPA (HorizontalPodAutoscaler)](#hpa-horizontalpodautoscaler)
+- [Kubernetes 对象](#kubernetes-对象)
+  - [资源对象](#资源对象)
+- [yaml文件](#yaml文件)
+  - [属性说明](#属性说明)
+  - [数据结构](#数据结构)
+  - [常用apiVersion](#常用apiversion)
+  - [kind](#kind)
+  - [metadata](#metadata)
+  - [spec](#spec)
+- [参考原文](#参考原文)
+
 
 
 ## Kubernetes Doc
@@ -9,9 +36,9 @@
 ### Borg
 
 **Borg vs Kubernetes**
-1. Borg 没有 pod 概念 (Borg 的 outermost containers 叫 alloc)
-2. Borg 没有像 Kubernetes 一样大的社区
-3. Kubernetes 更加具有灵活性和延展性
+  1. Borg 没有 pod 概念 (Borg 的 outermost containers 叫 alloc)
+  2. Borg 没有像 Kubernetes 一样大的社区
+  3. Kubernetes 更加具有灵活性和延展性
 
 ## Why Kubernetes
 
@@ -34,17 +61,17 @@
 
 用户客户端</br></br>
 
-**常用命令**
-1. kubectl create -f <file's name> 创建新资源（重复配置会报错）（需要yaml/yml/json文件）
-2. kubectl apply -f <file's name> 配置应用于资源（重复配置不会报错）（需要yaml/yml/json文件）
-3. kubectl run <name> --image=<image's name> 创建容器镜像
-4. kubectl get pods / nodes / ingresses (ing） / deployments / secrets / namespaces (ns) / services (svc) ... 列出pods/nodes/ingresses/deployments/secrets/namespaces/services...
-6. kubectl get pods -A 列出所有pods
-7. kubectl get pods -o wide 列出pods并显示详细信息
-8. kubectl get pods --ns=<namespace> 列出指定namespace的pod
-9. kubectl get pods --watch 实时查看pods的信息
-10. kubectl delete pod <pod's name> 删除目标pod
-11. kubectl describe pod <pod's name> 显示pod详细信息
+* **常用命令**
+  1. kubectl create -f <file's name> 创建新资源（重复配置会报错）（需要yaml/yml/json文件）
+  2. kubectl apply -f <file's name> 配置应用于资源（重复配置不会报错）（需要yaml/yml/json文件）
+  3. kubectl run <name> --image=<image's name> 创建容器镜像
+  4. kubectl get pods / nodes / ingresses (ing） / deployments / secrets / namespaces (ns) / services (svc) ... 列出pods/nodes/ingresses/deployments/secrets/namespaces/services...
+  5. kubectl get pods -A 列出所有pods
+  6. kubectl get pods -o wide 列出pods并显示详细信息
+  7. kubectl get pods --ns=<namespace> 列出指定namespace的pod
+  8. kubectl get pods --watch 实时查看pods的信息
+  9.  kubectl delete pod <pod's name> 删除目标pod
+  10. kubectl describe pod <pod's name> 显示pod详细信息
 
 
 ### Master
@@ -63,19 +90,19 @@
 
 * **Scheduler**
 
-  负责资源的调度，按照预定的调度策略将Pod调度到相应的节点上（选择具有合适资源的node去运行对应pod）
+  * 负责资源的调度，按照预定的调度策略将Pod调度到相应的节点上（选择具有合适资源的node去运行对应pod）
 
 * **Controller-manager**
 
-  - 是一个守护进程，是一个永不停止的循环
+  1. 是一个守护进程，是一个永不停止的循环
   
-  - 处理集群中常规后台任务，一个资源一个控制器
+  2. 处理集群中常规后台任务，一个资源一个控制器
   
-  - 负责维护集群的状态，比如故障检测、自动扩展、滚动更新等
+  3. 负责维护集群的状态，比如故障检测、自动扩展、滚动更新等
   
-  - 维护副本数目，满足期望值
+  4. 维护副本数目，满足期望值
 
-  **内部结构：**
+  * **内部结构：**
     - Replication Controller
     - Node Controller
     - ResourceQuota Controller
@@ -93,7 +120,7 @@
   
   - 键值对存储数据库
 
-  **内部：**
+    **内部：**
   
     - **v2**: Memory
     - **v3**: Database
@@ -104,53 +131,51 @@
 
 ### Node
 
-* Kubelet
+* **Kubelet**
 
-  * kubelet 是在每个节点上运行的主要 “节点代理”。它可以使用以下方式之一向 API 服务器注册：
+  1. kubelet 是在每个节点上运行的主要 “节点代理”。它可以使用以下方式之一向 API 服务器注册：
   
-    - 主机名（hostname
-    - 覆盖主机名的参数
-    - 特定于某云驱动的逻辑
+       - 主机名（hostname
+       - 覆盖主机名的参数
+       - 特定于某云驱动的逻辑
 
-  负责维护容器的生命周期，同时也负责Volume(CVI)和网络（CNI）的管理
+  2. 负责维护容器的生命周期，同时也负责Volume(CVI)和网络（CNI）的管理
   
-  *CNI（容器网络接口）是一个云原生计算基金会项目，它包含了一些规范和库，用于编写在 Linux 容器中配置网络接口的一系列插件。CNI 只关注容器的网络连接，并在容器被删除时移除所分配的资源。*
+       - *CNI（容器网络接口）是一个云原生计算基金会项目，它包含了一些规范和库，用于编写在 Linux 容器中配置网络接口的一系列插件。CNI 只关注容器的网络连接，并在容器被删除时移除所分配的资源。*
 
-  **接受Master发出的指令并操作管理对应容器/创建pod**
+  3. **接受Master发出的指令并操作管理对应容器/创建pod**
 
 * **Kube-proxy**
 
-  - 提供网络代理，负载均衡等操作
+  1. 提供网络代理，负载均衡等操作
   
-  - 写入规则到 IPVS、IPTABLES 实现服务映射访问
+  2. 写入规则到 IPVS、IPTABLES 实现服务映射访问
   
   *IPTABLES 是Linux中的代理，IPTABLES + NETFILTER 是Linux的防火墙。*
 
 * **Pod**
+  * 定义：
+    1. Pod是K8S里能够被运行的**最小的逻辑单元(原子单元)** - **最小部署单元**
+    2. 1个Pod里面可以**运行多个容器**,它们共享UTS+NET +IPC名称空间
+    3. 可以把Pod理解成豌豆荚,而同- -Pod内的每个容器是一 颗颗豌豆
+    4. 一个Pod里运行多个容器,又叫:边车(SideCar)模式
+    5. 一组容器的集合共享网络生命周期是短暂的
+    6. Pod内有自己的 IP address、 Volume、 Containerized Apps
 
-  - Pod是K8S里能够被运行的**最小的逻辑单元(原子单元)** - **最小部署单元**
-  - 1个Pod里面可以**运行多个容器**,它们共享UTS+NET +IPC名称空间
-  - 可以把Pod理解成豌豆荚,而同- -Pod内的每个容器是一 颗颗豌豆
-  - 一个Pod里运行多个容器,又叫:边车(SideCar)模式
-  - 一组容器的集合共享网络生命周期是短暂的
+  * 为什么需要Pod：
   
-  Pod内有自己的 IP address、 Volume、 Containerized Apps
-
-  
-  **为什么需要Pod：**
-  
-    因为Pod可以搭载多个containers，在运维时可以成组地操作多个containers。
+    * 因为Pod可以搭载多个containers，在运维时可以成组地操作多个containers。
     
   
-  **重启策略：**
+  * 重启策略：
   
-    在配置文件的RestartPolicy中可以修改
-    - Always：当容器失效时，由kubelet自动重启该容器。
-    - OnFailure：当容器终止运行且退出码不为0时，由kubelet自动重启该容器。
-    - Never：不论容器运行状态如何，kubelet都不会重启该容器。
+    * 在配置文件的RestartPolicy中可以修改
+      - Always：当容器失效时，由kubelet自动重启该容器。
+      - OnFailure：当容器终止运行且退出码不为0时，由kubelet自动重启该容器。
+      - Never：不论容器运行状态如何，kubelet都不会重启该容器。
 
 
-  **创建pod：**
+  * **创建pod：**
   
     ```
     apiVersion: v1  #api版本，一般为v1
@@ -168,7 +193,7 @@
       restartPolicy: OnFailure
     ```
 
-  **生命周期图**
+  * **生命周期图**
     
     - 挂起（Pending）：Pod 已被 Kubernetes 系统接受，但有一个或者多个容器镜像尚未创建。等待时间包括调度 Pod 的时间和通过网络下载镜像的时间，这可能需要花点时间。
     - 运行中（Running）：该 Pod 已经绑定到了一个节点上，Pod 中所有的容器都已被创建。至少有一个容器正在运行，或者正处于启动或重启状态。
@@ -194,22 +219,24 @@
 
 * **Deployment**
 
-  1. 用于**无状态服务**
-  
-  2. *无状态服务不会在本地存储持久化数据.多个服务实例对于同一个用户请求的响应结果是完全一致的.这种多服务实例之间是没有依赖关系,比如web应用,在k8s控制器 中动态启停无状态服务的pod并不会对其它的pod产生影响.*
+  * 定义：
 
-  3. Deployment 为 Pod 和 ReplicaSet 提供了一个声明式定义（declarative）方法，用来替代以前的 ReplicationController 来方便的管理应用。典型的应用场景包括：
-  
-      - 定义 Deployment 来创建 Pod 和 ReplicaSet
-      - 滚动升级和回滚应用
-      - 扩容和缩容
-      - 暂停和继续 Deployment
+    1. 用于**无状态服务**
+    
+    2. *无状态服务不会在本地存储持久化数据.多个服务实例对于同一个用户请求的响应结果是完全一致的.这种多服务实例之间是没有依赖关系,比如web应用,在k8s控制器 中动态启停无状态服务的pod并不会对其它的pod产生影响.*
 
-    *RC(Replication Controller)是一种用于保证应用程序副本数量的对象。它通过监视当前的副本数量，并在数量低于预期时创建新的副本，反之删除多余的副本。*
-  
-    *RS(Replica Set)是 RC 的替代者，提供了更灵活的选择器功能。它使用标签选择器来确定要保留的副本数量，并在必要时创建或删除副本。*
+    3. Deployment 为 Pod 和 ReplicaSet 提供了一个声明式定义（declarative）方法，用来替代以前的 ReplicationController 来方便的管理应用。典型的应用场景包括：
+    
+        - 定义 Deployment 来创建 Pod 和 ReplicaSet
+        - 滚动升级和回滚应用
+        - 扩容和缩容
+        - 暂停和继续 Deployment
 
-  **创建deployment**
+  * *RC(Replication Controller)是一种用于保证应用程序副本数量的对象。它通过监视当前的副本数量，并在数量低于预期时创建新的副本，反之删除多余的副本。*
+
+  * *RS(Replica Set)是 RC 的替代者，提供了更灵活的选择器功能。它使用标签选择器来确定要保留的副本数量，并在必要时创建或删除副本。*
+
+  * **创建deployment**
   
     ```
     apiVersion: apps/v1
@@ -237,7 +264,7 @@
 
   * Job 负责批处理任务，即**仅执行一次的任务**，它保证批处理任务的一个或多个 Pod 成功结束。
 
-  **创建Job**
+  * **创建Job**
     ```
     apiVersion: batch/v1
     kind: Job
@@ -258,7 +285,7 @@
 
   * CronJob 创建基于**时隔重复调度**的 Job。
 
-  **创建CronJob**
+  * **创建CronJob**
     ```
     apiVersion: batch/v1
     kind: CronJob
@@ -284,9 +311,9 @@
 
 
 
-  **Cron 时间表语法**
+  * **Cron 时间表语法**
 
-    .spec.schedule 字段是必需的。该字段的值遵循 Cron 语法：
+    * .spec.schedule 字段是必需的。该字段的值遵循 Cron 语法：
     
     ```
      ┌───────────── 分钟 (0 - 59)
@@ -299,17 +326,18 @@
      │ │ │ │ │
      * * * * *
      ```
-    例如 0 0 13 * 5 表示此任务必须在每个星期五的午夜以及每个月的 13 日的午夜开始。
+      * 例如 0 0 13 * 5 表示此任务必须在每个星期五的午夜以及每个月的 13 日的午夜开始。
 
 * **DaemonSet**
 
-  1. *DaemonSet* 可以保证集群中所有的或者部分的节点都能够运行同一份 Pod 副本，每当有新的节点被加入到集群时，Pod 就会在目标的节点上启动，如果节点被从集群中剔除，节点上的 Pod 也会被垃圾收集器清除
-  
-  2. 提供基础服务和守护进程
+  * 定义：
+    1. *DaemonSet* 可以保证集群中所有的或者部分的节点都能够运行同一份 Pod 副本，每当有新的节点被加入到集群时，Pod 就会在目标的节点上启动，如果节点被从集群中剔除，节点上的 Pod 也会被垃圾收集器清除
+    
+    2. 提供基础服务和守护进程
 
-  **适用于：当需要每一个node都运行一个进程去做某些任务的时候， 例如集群存储、日志收集和监控等**
+  * **适用于：当需要每一个node都运行一个进程去做某些任务的时候， 例如集群存储、日志收集和监控等**
   
-  **创建DaemonSet**
+  * **创建DaemonSet**
     ```
     apiVersion: apps/v1
     kind: DaemonSet
@@ -364,93 +392,93 @@
   
     *有状态服务需要在本地存储持久化数据,典型的是分布式数据库的应用,分布式节点实例之间有依赖的拓扑关系.比如,主从关系. 如果K8S停止分布式集群中任 一实例pod,就可能会导致数据丢失或者集群的crash.*
 
-  **创建StatefulSet**
+  * **创建StatefulSet**
   
-  1. 创建StorageClass
-  
-    ```
-    apiVersion: storage.k8s.io/v1
-    kind: StorageClass
-    metadata:
-      name: standard
-    provisioner: kubernetes.io/aws-ebs
-    parameters:
-      type: gp2
-    reclaimPolicy: Retain
-    allowVolumeExpansion: true
-    mountOptions:
-      - debug
-    volumeBindingMode: Immediate
-    ```
+    1. 创建StorageClass
+    
+      ```
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: standard
+      provisioner: kubernetes.io/aws-ebs
+      parameters:
+        type: gp2
+      reclaimPolicy: Retain
+      allowVolumeExpansion: true
+      mountOptions:
+        - debug
+      volumeBindingMode: Immediate
+      ```
 
-  2. 创建PersistentVolume （根据需求创建相应数量，需要大于等于StatefulSet的Replicas数量）
-    ```
-    apiVersion: v1
-    kind: PersistentVolume
-    metadata:
-      name: pv-0
-      labels:
-        type: local
-    spec:
-      storageClassName: standard
-      capacity:
-        storage: 10Gi
-      accessModes:
-        - ReadWriteOnce
-      hostPath:
-        path: "/mnt/data"
+    2. 创建PersistentVolume （根据需求创建相应数量，需要大于等于StatefulSet的Replicas数量）
+      ```
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        name: pv-0
+        labels:
+          type: local
+      spec:
+        storageClassName: standard
+        capacity:
+          storage: 10Gi
+        accessModes:
+          - ReadWriteOnce
+        hostPath:
+          path: "/mnt/data"
+      
+      ---
+      
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        name: pv-1
+        labels:
+          type: local
+      spec:
+        storageClassName: standard
+        capacity:
+          storage: 10Gi
+        accessModes:
+          - ReadWriteOnce
+        hostPath:
+          path: "/mnt/data"
+      ```
     
-    ---
-    
-    apiVersion: v1
-    kind: PersistentVolume
-    metadata:
-      name: pv-1
-      labels:
-        type: local
-    spec:
-      storageClassName: standard
-      capacity:
-        storage: 10Gi
-      accessModes:
-        - ReadWriteOnce
-      hostPath:
-        path: "/mnt/data"
-    ```
-  
-  3. 创建StatefulSet (volumeClaimTemplates用于自动创建pvc）
-    ```
-    apiVersion: apps/v1
-    kind: StatefulSet
-    metadata:
-      name: web11111
-    spec:
-      serviceName: "nginx"
-      replicas: 2
-      selector:
-        matchLabels:
-          app: nginx
-      template:
-        metadata:
-          labels:
+    3. 创建StatefulSet (volumeClaimTemplates用于自动创建pvc）
+      ```
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: web11111
+      spec:
+        serviceName: "nginx"
+        replicas: 2
+        selector:
+          matchLabels:
             app: nginx
-        spec:
-          containers:
-            - name: nginx
-              image: nginx
-              volumeMounts:
-                - name: www
-                  mountPath: /usr/share/nginx/html
-      volumeClaimTemplates:
-        - metadata:
-            name: www
+        template:
+          metadata:
+            labels:
+              app: nginx
           spec:
-            storageClassName: standard
-            accessModes: [ "ReadWriteOnce" ]
-            resources:
-              requests:
-                storage: 1Gi
-    ```
+            containers:
+              - name: nginx
+                image: nginx
+                volumeMounts:
+                  - name: www
+                    mountPath: /usr/share/nginx/html
+        volumeClaimTemplates:
+          - metadata:
+              name: www
+            spec:
+              storageClassName: standard
+              accessModes: [ "ReadWriteOnce" ]
+              resources:
+                requests:
+                  storage: 1Gi
+      ```
 
 ### Service
 
@@ -470,9 +498,9 @@
   
   2. Ingress 可以提供负载均衡、SSL 终结和基于名称的虚拟托管。
   
-  **注意：集群中必须有一个正在运行的 Ingress Controller 才可以使用 Ingress**
+  * **注意：集群中必须有一个正在运行的 Ingress Controller 才可以使用 Ingress**
   
-  Nginx Ingress Controller 安装文档：https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/
+  * Nginx Ingress Controller 安装文档：https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/
 
 ### Storage
 
