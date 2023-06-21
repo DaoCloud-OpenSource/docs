@@ -392,64 +392,19 @@
   
     * **创建StatefulSet**
     
-      1. 创建StorageClass
+      1. 部署local-path-provisioner（用于本地自动部署pv）
+           * 将下面的yaml文件保存到本地
+            ``` https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.24/deploy/local-path-storage.yaml ```
+           * 将文件的image更改为：
+             ``` registry.cn-shanghai.aliyuncs.com/kerthcet-public/local-path-provisioner:v0.0.24 ```
+           * kubectl部署本地文件       
       
-        ```
-        apiVersion: storage.k8s.io/v1
-        kind: StorageClass
-        metadata:
-          name: standard
-        provisioner: kubernetes.io/aws-ebs
-        parameters:
-          type: gp2
-        reclaimPolicy: Retain
-        allowVolumeExpansion: true
-        mountOptions:
-          - debug
-        volumeBindingMode: Immediate
-        ```
-  
-      2. 创建PersistentVolume （根据需求创建相应数量，需要大于等于StatefulSet的Replicas数量）
-        ```
-        apiVersion: v1
-        kind: PersistentVolume
-        metadata:
-          name: pv-0
-          labels:
-            type: local
-        spec:
-          storageClassName: standard
-          capacity:
-            storage: 10Gi
-          accessModes:
-            - ReadWriteOnce
-          hostPath:
-            path: "/mnt/data"
-        
-        ---
-        
-        apiVersion: v1
-        kind: PersistentVolume
-        metadata:
-          name: pv-1
-          labels:
-            type: local
-        spec:
-          storageClassName: standard
-          capacity:
-            storage: 10Gi
-          accessModes:
-            - ReadWriteOnce
-          hostPath:
-            path: "/mnt/data"
-        ```
-      
-      3. 创建StatefulSet (volumeClaimTemplates用于自动创建pvc）
+      2. 创建StatefulSet (volumeClaimTemplates用于自动创建pvc）
         ```
         apiVersion: apps/v1
         kind: StatefulSet
         metadata:
-          name: web11111
+          name: web
         spec:
           serviceName: "nginx"
           replicas: 2
@@ -471,7 +426,7 @@
             - metadata:
                 name: www
               spec:
-                storageClassName: standard
+                storageClassName: local-path
                 accessModes: [ "ReadWriteOnce" ]
                 resources:
                   requests:
