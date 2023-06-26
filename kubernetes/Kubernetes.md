@@ -589,8 +589,8 @@
 3. **用户删除 Pod**
     1.  APIServer 收到消息并将Pod视为 dead
     2.  APIServer 将 Pod 标记为 Terminating 状态
-    3.  （与第10步同时运行）kubelet 在监控到 Pod 对象转为 Terminating 状态的同时启动 Pod 关闭程序
-    4.  （与第10步同时运行）Endpoints Controller 将所有连接到此 Pod 的 Service 全部从列表移除
+    3.  （与第2步同时运行）kubelet 在监控到 Pod 对象转为 Terminating 状态的同时启动 Pod 关闭程序
+    4.  （与第2步同时运行）Endpoints Controller 将所有连接到此 Pod 的 Service 全部从列表移除
     5.  Kubelet 发送 TERM 信号
     6.  Kubelet 运行 preSTOP hook *(它可以让你在容器被终止之前执行一些操作，例如进行清理、备份、保存状态等。 在preStop钩子执行期间，容器将继续处理所有传入的请求，但不会再接收新的请求)*
     7.  过了 Grace Period *(默认30秒)* 之后，Kubelet 发送 SIGKILL 信号终止此 Pod 相关进程
