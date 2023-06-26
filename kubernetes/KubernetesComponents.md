@@ -38,9 +38,9 @@
 1. APIServer 是整个集群唯一操作etcd的入口，提供 REST API 接口。
     - 提供 https（port 6443）& http（port 8080），http API 非安全。
 2. 认证(Authentication)， 授权(Authorization) & 准入控制（Admission Control）
-    - 认证：用于识别用户身份。开启TLS时，请求都需要认证。认证成功则会进入授权模块。检查客户端证书、密码、plain tokens、bootstrap tokens 以及 JWT tokens。
-    - 授权：用于确认用户权限。授权成功进入控制模块。使用 RBAC（Role-Based Access Control）
-    - 准入控制：对请求做进一步验证或添加默认参数
+    - **认证**：用于识别用户身份。开启TLS时，请求都需要认证。认证成功则会进入授权模块。检查客户端证书、密码、plain tokens、bootstrap tokens 以及 JWT tokens。
+    - **授权**：用于确认用户权限。授权成功进入控制模块。使用 RBAC（Role-Based Access Control）
+    - **准入控制**：对请求做进一步验证或添加默认参数
 3. 访问方式：
     - kubectl 命令行工具
     - SDK（支持 OpenAPI 支持的编程语言）
@@ -84,9 +84,9 @@
                 effect: "NoExecute"
             ```
     - 三种策略：
-        - NoSchedule：新的 Pod 不调度到该 Node 上，不影响正在运行的 Pod
-        - PreferNoSchedule：soft 版的 NoSchedule，尽量不调度到该 Node 上
-        - NoExecute：新的 Pod 不调度到该 Node 上，并且删除（evict）已在运行的 Pod。Pod 可以增加一个时间（tolerationSeconds）
+        - **NoSchedule**：新的 Pod 不调度到该 Node 上，不影响正在运行的 Pod
+        - **PreferNoSchedule**：soft 版的 NoSchedule，尽量不调度到该 Node 上
+        - **NoExecute**：新的 Pod 不调度到该 Node 上，并且删除（evict）已在运行的 Pod。Pod 可以增加一个时间（tolerationSeconds）
 
 ## kube-controller-manager
 
@@ -123,8 +123,39 @@
 
 ## kubelet
 
-1. 
+1. 每个 node 上都运行一个 kubelet 服务进程，默认监听10250端口。
+2. 接受并执行 Master 发来的指令，管理 Pod 及 Pod 中的容器。
+3. 每个 Kubelet 进程会在 API Server 上注册所在Node节点的信息，定期向 Master 节点汇报该节点的资源使用情况，并通过 cAdvisor 监控节点和容器的资源。
+
+### 节点管理
+
+1. 节点自注册：通过设置启动参数 --register-node 来确定自己是否向 APIServer 注册自己
+2. 如果不自注册，需要手动配置 node 资源信息
+3. 定时向 APIServer 发送节点新消息， APIServer 在收到新消息后，将信息写入 etcd
+
+### Pod 管理
+1. 获取 pod 清单
+    - Kubelet 通过 PodSpec 来获取 pod 清单。*（PodSpec 用于描述 pod，是 YAML/JSON 对象）*
+    - 通过一下方法向 kubectl 提供清单：
+        1. **文件**：启动参数 --config 指定的配置目录下的文件 (默认 /etc/kubernetes/manifests/)。该文件每 20 秒重新检查一次（可配置）
+        2. **HTTP endpoint**：启动参数 --manifest-url 设置。每 20 秒检查一次这个端点（可配置）
+        3. **APIServer**：通过 APIServer 监听 etcd 目录， 同步 pod 清单（主要方式）
+            - Kubelet 通过 API Server Client(Kubelet 启动时创建) 使用 Watch 加 List 的方式监听 "/registry/nodes/$当前节点名" 和 “/registry/pods” 目录，将获取的信息同步到本地缓存中。
+            - Kubelet 监听 etcd，所有针对 Pod 的操作都将会被 Kubelet 监听到。如果发现有新的绑定到本节点的 Pod，则按照 Pod 清单的要求创建该 Pod。
+        4. **HTTP server**：kubelet 侦听 HTTP 请求，并响应简单的 API 以提交新的 Pod 清单
    
+
+## kube-proxy
+
+1. 负责监听 APIServer 中 service 和 endpoint 的变化情况
+2. 通过 iptables 等来达到服务的负载均衡
+
+### 实现
+1. **userspace**：在 namespace 中监听一个端口，所有服务通过 iptables 转发到此端口，然后在其内部负载均衡到实际的 Pod
+2. **iptables**：完全以 iptables 规则的方式来实现 service 负载均衡
+3. **ipvs**：采用增量式更新，并可以保证 service 更新期间连接保持不断开
+4. **winuserspace**：同 userspace，但仅工作在 windows 节点上
+
 
 
 ## 参考文档
