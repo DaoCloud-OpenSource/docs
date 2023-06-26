@@ -65,13 +65,15 @@
   1. kubectl create -f <file's name> 创建新资源（重复配置会报错）（需要yaml/yml/json文件）
   2. kubectl apply -f <file's name> 配置应用于资源（重复配置不会报错）（需要yaml/yml/json文件）
   3. kubectl run <name> --image=<image's name> 创建容器镜像
-  4. kubectl get pods / nodes / ingresses (ing） / deployments / secrets / namespaces (ns) / services (svc) ... 列出pods/nodes/ingresses/deployments/secrets/namespaces/services...
+  4. kubectl get pods / nodes / ingresses （ing） / deployments / secrets / namespaces (ns) / services (svc) ... 列出pods/nodes/ingresses/deployments/secrets/namespaces/services...
   5. kubectl get pods -A 列出所有pods
   6. kubectl get pods -o wide 列出pods并显示详细信息
   7. kubectl get pods --ns=<namespace> 列出指定namespace的pod
   8. kubectl get pods --watch 实时查看pods的信息
   9.  kubectl delete pod <pod's name> 删除目标pod
   10. kubectl describe pod <pod's name> 显示pod详细信息
+  11. --dry-run=client 干进行，只会在客户端执行命令，但不会向Kubernetes API 发送实际的请求
+  12. kubectl set image POD/<POD_NAME> <CONTAINER_NAME>=<IMAGE_NAME>:<TAG>  修改 pod 的镜像
 
 
 ### Master
