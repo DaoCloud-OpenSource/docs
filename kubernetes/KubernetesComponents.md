@@ -36,6 +36,8 @@
 
 ## kube-apiserver
 
+![APIServer](images/apiserver.png)
+
 1. APIServer 是整个集群唯一操作etcd的入口，提供 REST API 接口。
     - 提供 https（port 6443）& http（port 8080），http API 非安全。
 2. 认证(Authentication)， 授权(Authorization) & 准入控制（Admission Control）
