@@ -1,4 +1,24 @@
 # KubernetesComponects
+## 目录
+- [KubernetesComponects](#kubernetescomponects)
+  - [目录](#目录)
+  - [etcd](#etcd)
+    - [功能](#功能)
+    - [etcd v2 \& v3](#etcd-v2--v3)
+  - [kube-apiserver](#kube-apiserver)
+  - [kube-scheduler](#kube-scheduler)
+    - [调度策略](#调度策略)
+  - [kube-controller-manager](#kube-controller-manager)
+    - [工作原理](#工作原理)
+    - [组成](#组成)
+  - [kubelet](#kubelet)
+    - [节点管理](#节点管理)
+    - [Pod 管理](#pod-管理)
+  - [kube-proxy](#kube-proxy)
+    - [实现](#实现)
+  - [参考文档](#参考文档)
+
+
 ## etcd
 
 ### 功能
