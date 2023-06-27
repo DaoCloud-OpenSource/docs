@@ -13,7 +13,7 @@
 
     ![v2](images/etcdv2.png)
 
-    - v2 是内存实现的
+    - v2 的持久化是通过将内存复制一份写成JSON文件，写入磁盘得到的
     - 通过 EventHistory 查看历史 event（查看 index 在 waitIndex 到 currentIndex 的 event 列表, 但是 EventHistory 最长为1000。）
     - currnetIndex 每次更变会 +1 （全局变量）
     - 过期时间只能设置在key上面，保证多个key生命周期一致比较困难
