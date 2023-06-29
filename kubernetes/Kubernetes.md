@@ -65,13 +65,15 @@
   1. kubectl create -f <file's name> 创建新资源（重复配置会报错）（需要yaml/yml/json文件）
   2. kubectl apply -f <file's name> 配置应用于资源（重复配置不会报错）（需要yaml/yml/json文件）
   3. kubectl run <name> --image=<image's name> 创建容器镜像
-  4. kubectl get pods / nodes / ingresses (ing） / deployments / secrets / namespaces (ns) / services (svc) ... 列出pods/nodes/ingresses/deployments/secrets/namespaces/services...
+  4. kubectl get pods / nodes / ingresses （ing） / deployments / secrets / namespaces (ns) / services (svc) ... 列出pods/nodes/ingresses/deployments/secrets/namespaces/services...
   5. kubectl get pods -A 列出所有pods
   6. kubectl get pods -o wide 列出pods并显示详细信息
   7. kubectl get pods --ns=<namespace> 列出指定namespace的pod
   8. kubectl get pods --watch 实时查看pods的信息
   9.  kubectl delete pod <pod's name> 删除目标pod
   10. kubectl describe pod <pod's name> 显示pod详细信息
+  11. --dry-run=client 干进行，只会在客户端执行命令，但不会向Kubernetes API 发送实际的请求
+  12. kubectl set image POD/<POD_NAME> <CONTAINER_NAME>=<IMAGE_NAME>:<TAG>  修改 pod 的镜像
 
 
 ### Master
@@ -589,8 +591,8 @@
 3. **用户删除 Pod**
     1.  APIServer 收到消息并将Pod视为 dead
     2.  APIServer 将 Pod 标记为 Terminating 状态
-    3.  （与第10步同时运行）kubelet 在监控到 Pod 对象转为 Terminating 状态的同时启动 Pod 关闭程序
-    4.  （与第10步同时运行）Endpoints Controller 将所有连接到此 Pod 的 Service 全部从列表移除
+    3.  （与第2步同时运行）kubelet 在监控到 Pod 对象转为 Terminating 状态的同时启动 Pod 关闭程序
+    4.  （与第2步同时运行）Endpoints Controller 将所有连接到此 Pod 的 Service 全部从列表移除
     5.  Kubelet 发送 TERM 信号
     6.  Kubelet 运行 preSTOP hook *(它可以让你在容器被终止之前执行一些操作，例如进行清理、备份、保存状态等。 在preStop钩子执行期间，容器将继续处理所有传入的请求，但不会再接收新的请求)*
     7.  过了 Grace Period *(默认30秒)* 之后，Kubelet 发送 SIGKILL 信号终止此 Pod 相关进程
