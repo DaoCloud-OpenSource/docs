@@ -74,6 +74,7 @@
   10. kubectl describe pod <pod's name> 显示pod详细信息
   11. --dry-run=client 干进行，只会在客户端执行命令，但不会向Kubernetes API 发送实际的请求
   12. kubectl set image POD/<POD_NAME> <CONTAINER_NAME>=<IMAGE_NAME>:<TAG>  修改 pod 的镜像
+  13. kubectl api-resources 获取全部 api 资源
 
 
 ### Master
