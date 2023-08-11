@@ -31,11 +31,13 @@ x-kubernetes-validations:
 1. `ValidatingAdmissionPolicy` 类型检查现在可以正确处理 CEL 表达式中的 “authorizer” 变量。
 2. `ValidatingAdmissionPolicy` 支持对 `messageExpression` 字段进行类型检查。
 3. 在接受单个请求的过程中，`ValidatingAdmissionPolicy` 准入插件将对每个唯一的授权者表达式执行不超过一次的授权检查。 对相同授权者表达式的所有评估将产生相同的决策。
-    ```yaml
-    # 例子
-    expression: authorizer.path('/healthz').check('GET').allowed()
-    messageExpression: authorizer.path('/healthz').check('GET').reason()
-    ```
+
+   ```yaml
+   # 例子
+   expression: authorizer.path('/healthz').check('GET').allowed()
+   messageExpression: authorizer.path('/healthz').check('GET').reason()
+  ```
+
 4. kube-controller-manager 组件新增 `ValidatingAdmissionPolicy` 控制器，用来对 `ValidatingAdmissionPolicy` 中的 CEL 表达式做类型检查，并将原因保存在状态字段中。
 5. 支持需要权限检查的准入控制用例，通过使用 “authorizer” 变量及其方法来，可以实现以下场景 (包括但不限于):
     - 验证只有具有特定权限的用户才能设置特定字段。
@@ -127,7 +129,7 @@ Kubernetes 1.28 为 Job API 添加了一个新字段，允许用户指定是否�
 
 节点非优雅关闭功能在 v1.28 中移至 GA。如果原始节点意外关闭或可能由于硬件故障或操作系统无响应而最终处于不可恢复状态，则此功能允许有状态工作负载在不同节点上重新启动。目前，此功能需要人为干预才能生效，但我们正在寻找可能的途径来努力使其自动化。当原始节点因故障导致无法优雅关闭时，集群管理员可以通过向原始节点打 `node.kubernetes.io/out-of-service=out-of-service=nodeshutdown:NoExecute` 或 `node.kubernetes.io/out-of-service=out-of-service=hardwarefailure:NoExecute` 污点来触发此功能。
 
-### [存储] KEP-2268: 追溯默认 StorageClass 分配功能 GA
+### [存储] KEP-3333: 追溯默认 StorageClass 分配功能 GA
 
 追溯默认 StorageClass 分配功能在 v1.28 中移至 GA。此功能允许为现有未绑定持久卷的声明追溯分配默认的存储类，从而使更改默认 StorageClass 变得更加容易。
 
