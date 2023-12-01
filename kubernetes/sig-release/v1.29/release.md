@@ -222,7 +222,7 @@ I1113 08:43:37.029524 87144 default_binder.go:53] "Attempting to bind pod to nod
 
 原生支持 Sidecar 容器在 Kubernetes v1.28 中被引入作为 Alpha，v1.29 中升级至 Beta，特性门控 `SidecarContainers` 默认启用。
 
-从 Kubernetes 1.29 开始，如果你的 Pod 包含一个或多个 sidecar 容器（具有始终重启策略的 init 容器），
+从 Kubernetes v1.29 开始，如果你的 Pod 包含一个或多个 sidecar 容器（具有始终重启策略的 init 容器），
 Kubelet 将延迟向这些 Sidecar 容器发送 TERM 信号，直到最后一个主容器完全终止。 Sidecar 容器将以 Pod 规范中定义的相反顺序终止。
 这可确保 Sidecar 容器继续为 Pod 中的其他容器提供服务，直到不再需要它们为止。
 
@@ -266,7 +266,7 @@ Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Updat
 - [Node] 添加对 containerd/kubelet/CRI 的支持以支持每个运行时类的镜像拉取，在 v1.29 中，此功能为 Alpha，需要启用 `RuntimeClassInImageCriApi` 特性门控，默认关闭。
 - [APIMachinery] 已弃用 kube-apiserver 中的 `--cloud-provider` 和 `--cloud-config` CLI 参数。这些参数将在未来版本中删除。
 - [Auth] 具有特性门控 `KMSv2` 和 `KMSv2KDF` 的 KMSv2 功能已升级为 GA。`KMSv1` 特性门控现在默认处于禁用状态。
-- [Auth] 结构化授权配置（Structured Authorization Configuration）在 1.29 中进入 Alpha。增加了 structure configuring authorizers 并向 kube-apiserver 授权链添加多个 webhook 的能力。
+- [Auth] 结构化授权配置（Structured Authorization Configuration）在 v1.29 中进入 Alpha。增加了 structure configuring authorizers 并向 kube-apiserver 授权链添加多个 webhook 的能力。
 - [APIMachinery] Structured Authentication Config 在 v1.29 中为 Alpha。在 kube-apiserver 添加了 `--authentication-config` 标志用于读取 `AuthenticationConfiguration` 文件。 `--authentication-config`标志与现有的 `--oidc-*` 标志互斥。
 - [Auth] 添加了对将 `certificates.k8s.io/v1alpha1` `ClusterTrustBundle` 对象投影到 Pod 中的支持。
 - [APIMachinery] CRD 基于通用表达式语言 (CEL) 的验证规则 GA。
@@ -276,7 +276,7 @@ Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Updat
 - [Apps] KEP-3850: 每个索引的 Job 重试 BackOff 限制已升级至 Beta，并引入 `job_finished_indexes_total` 指标。
 - [网络] `ServiceNodePortStaticSubrange` 特性已升级至 GA。它允许你为 NodePort 服务使用不同的端口分配策略。
 - [网络] 将 PodHostIPs 条件提升为 Beta。该功能旨在提高 Pod 获取节点地址的能力。
-- [APIMachinery] 优先级和公平性功能在 1.29 中达到 GA，`APIPriorityAndFairness` 特性门控 将在 v1.31 中删除。
+- [APIMachinery] 优先级和公平性功能在 v1.29 中达到 GA，`APIPriorityAndFairness` 特性门控 将在 v1.31 中删除。
 - [节点] 为 PreStop 生命周期 hook 添加新的睡眠操作功能在 v1.29 中被引入，现在为 Alpha，需要在 kubelet 和 kube-apiserver 组件启用 `PodLifecycleSleepAction` 特性门控，默认关闭。
 - [CLI]添加了将 Kubernetes 客户端的双向流协议从 SPDY/3.1 过渡到 WebSockets 的新功能，添加新的 Alpha `TranslateStreamCloseWebsocketRequests` 特性门控，允许控制平面接受 WebSockets/V5 升级请求。
   添加新的 Alpha kubectl 环境变量 `KUBECTL_REMOTE_COMMAND_WEBSOCKETS`，该标志在设置时尝试将 WebSockets 协议用于 `kubectl exec`、`kubectl cp` 和 `kubectl attach`。
@@ -319,7 +319,7 @@ Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Updat
 `EventedPLEG` 功能（ 使用事件驱动的 PLEG）在 Kubernetes v1.27 中已经升级为 Beta，但是在 v1.29 测试中发现了严重问题，建议不要启用它！社区正在进行调查和修复，但尚未找到具体原因。
 
 ### in-tree cloud providers 的移除升级至 Beta 状态
-in-tree cloud providers 的移除在 Kubernetes 1.29 状态升级为 Beta，用户需要注意特性门控
+in-tree cloud providers 的移除在 Kubernetes v1.29 状态升级为 Beta，用户需要注意特性门控
 `DisableCloudProviders` 和 `DisableKubeletCloudCredentialProvider` 现在默认为 true，
 这意味着在默认运行时不与任何云提供商（比如 Azure， GCE，vSphere）任何进行内置集成。如果你仍然需要此功能，
 请设置 `DisableCloudProviders` 和 `DisableKubeletCloudCredentialProvider` 特性门控为 false 或者使用外部云控制管理器。
@@ -328,7 +328,7 @@ in-tree cloud providers 的移除在 Kubernetes 1.29 状态升级为 Beta，用�
 和 [迁移复制控制平面以使用云控制器管理器](kubernetes.io/docs/tasks/administer-cluster/controller-manager-leader-migration/)。
 
 ### Kubernetes 旧版软件包仓库 `k8s.gcr.io` 已被冻结
-Kubernetes 旧版软件包仓库已于 2023 年 9 月 13 日被冻结，Kubernetes 1.29 及以后的版本将仅发布软件包到社区拥有的仓库（pkgs.k8s.io）。
+Kubernetes 旧版软件包仓库已于 2023 年 9 月 13 日被冻结，Kubernetes v1.29 及以后的版本将仅发布软件包到社区拥有的仓库（pkgs.k8s.io）。
 已弃用的旧仓库及其内容可能会在未来随时删除，Kubernetes 项目强烈建议尽快迁移到新的社区拥有的仓库!
 
 更多详情以及如何迁移请参考[Kubernetes 旧版软件包仓库将于 2023 年 9 月 13 日被冻结博客](https://kubernetes.io/zh-cn/blog/2023/08/31/legacy-package-repository-deprecation/)
