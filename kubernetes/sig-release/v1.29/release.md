@@ -81,15 +81,16 @@ Service 是公开在一组 Pod 上运行的应用程序的抽象方式。Service
 而无需重新启动 kube-apiserver。
 
 此功能允许集群管理员使用 `ServiceCIDR` 对象动态调整分配给集群的服务 IP 范围的大小，以处理 IP 耗尽或 IP 重新编号等问题，
-在 Kubernetes v1.29 中为 Alpha 版本。
 
 在安装引导期间，此功能会根据 `kube-apiserver` 的 `--service-cluster-ip-range` 命令行参数的值创建一个名为
 `kubernetes` 的默认 `ServiceCIDR` 对象。
 
-用户也可以创建或删除新的 `ServiceCIDR` 对象来管理服务的可用 IP 范围，示例如下：
+如果要使用此功能，用户需要启用 `MultiCIDRServiceAllocator` 特性门控和 `networking.k8s.io/v1alpha1` API，
+并且创建或删除新的 `ServiceCIDR` 对象来管理服务的可用 IP 范围。
 
+示例如下：
 ```shell
-cat <<'EOF' | kubectl apply -f -
+cat <<EOF | kubectl apply -f -
 apiVersion: networking.k8s.io/v1alpha1
 kind: ServiceCIDR
 metadata:
@@ -203,10 +204,15 @@ NodeExpandSecret 功能在 v1.29 中移至 GA。此功能将 `NodeExpandSecret` 
 
 ### [存储] KEP-3751：VolumeAttributesClass Alpha
 
-VolumeAttributesClass Alpha 功能在 v1.29 中引入。此功能对 Kubernetes 持久卷 API 进行扩展，以允许用户在配置后更改卷属性（例如 IOPS 或吞吐量）。
+VolumeAttributesClass 功能在 v1.29 中引入,现在处于 Alpha 阶段，默认不启用。需要在 kube-apiserver、
+kube-controller-manager、external-provisioner 和 external-resizer 组件都启用 `VolumeAttributesClass` 特性门控才能使用此功能。
 
-需要注意的是，在 v1.29 中`·VolumeAttributesClass` 功能可能仅包含 API 更改，其功能尚未实现。实现在 `external-provisioner` 
-和 `external-resizer` 中，将在 Kubernetes v1.29 发布后异步发布。
+此功能对 Kubernetes 持久卷 API 进行扩展，以允许用户在配置后更改卷属性（例如 IOPS 或吞吐量）。
+
+需要注意的是，在 v1.29 中`·VolumeAttributesClass` 功能可能仅包含 API 更改，其功能尚未实现。
+实现在 `external-provisioner` 和 `external-resizer` 中，将在 Kubernetes v1.29 发布后异步发布。
+
+CSI 对应标准版本为 1.9，各个厂商 CSI 实现的控制器插件, 必须支持 `MODIFY_VOLUME` 能力。
 
 ### [Instrumentation] KEP-3077：kube-scheduler 已转换为上下文日志记录
 
@@ -286,7 +292,7 @@ Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Updat
   kubelet 将使用 `PodReadyToStartContainers` 条件从容器运行时创建 Pod sandbox 和网络配置的角度准确地呈现 Pod 的初始化状态。
 - [CLI] 如果子命令不存在，外部插件可以用作内置命令的子命令。此功能处于 Beta 阶段。默认情况下，将 KUBECTL_ENABLE_CMD_SHADOW 环境变量设置为 true。
 - [CLI] kubectl delete 命令中的交互式标志（--interactive/-i），默认可用。`KUBECTL_INTERACTIVE_DELETE` 环境变量已删除。
-- [网络]让 Kubernetes 了解 LoadBalancer 的行为，此功能在 Service 的 `.status` 中添加了新的 `ipMode` 字段，其中 `type` 设置为 `LoadBalancer`。
+- [网络] 让 Kubernetes 了解 LoadBalancer 的行为，此功能在 Service 的 `.status` 中添加了新的 `ipMode` 字段，其中 `type` 设置为 `LoadBalancer`。
    使用新字段需要启用 `LoadBalancerIPMode` 特性门控，现在处于 Alpha 阶段，默认是关闭的。
 
 ## 3. DaoCloud 社区贡献
@@ -324,8 +330,7 @@ in-tree cloud providers 的移除在 Kubernetes v1.29 状态升级为 Beta，用
 这意味着在默认运行时不与任何云提供商（比如 Azure， GCE，vSphere）任何进行内置集成。如果你仍然需要此功能，
 请设置 `DisableCloudProviders` 和 `DisableKubeletCloudCredentialProvider` 特性门控为 false 或者使用外部云控制管理器。
 
-有关如何启用和运行外部云控制器管理器的更多信息，请阅读 [云控制器管理器管理](kubernetes.io/docs/tasks/administer-cluster/running-cloud-controller/) 
-和 [迁移复制控制平面以使用云控制器管理器](kubernetes.io/docs/tasks/administer-cluster/controller-manager-leader-migration/)。
+有关如何启用和运行外部云控制器管理器的更多信息，请阅读 [云控制器管理器管理](kubernetes.io/zh-cn/docs/tasks/administer-cluster/running-cloud-controller/)。
 
 ### Kubernetes 旧版软件包仓库 `k8s.gcr.io` 已被冻结
 Kubernetes 旧版软件包仓库已于 2023 年 9 月 13 日被冻结，Kubernetes v1.29 及以后的版本将仅发布软件包到社区拥有的仓库（pkgs.k8s.io）。
