@@ -100,7 +100,7 @@ spec:
 EOF
 ```
 
-### [存储] KEP-3633： 将 MatchLabelKeys/MismatchLabelKeys 引入 Pod 亲和性和 Pod 反亲和性 Alpha
+### [调度] KEP-3633： 将 MatchLabelKeys/MismatchLabelKeys 引入 Pod 亲和性和 Pod 反亲和性 Alpha
 
 Kubernetes v1.29 中 PodAffinity/PodAntiAffinity 中将引入一项增强功能作为 Alpha 版本。它将提高滚动更新期间计算的准确性。
 此功能向 `PodAffinityTerm` 引入一个补充字段 `MatchLabelKeys`。这使用户能够在现有 `LabelSelector` 之上精细控制 PodAffinity
@@ -258,11 +258,9 @@ kube-apiserver 现在通过 `ServiceAccountTokenPodNodeInfo` 特性门控添加�
 kube-apiserver 现在通过 `ServiceAccountTokenNodeBinding` 特性门控添加了对 Alpha 版本的支持，以允许 `TokenRequests` 直接将令牌绑定到节点，
 并在使用令牌时进行验证（通过 `ServiceAccountTokenNodeBindingValidation` 特性门控），以确保节点名称和 UID 仍然存在。
 
-
 ### [Windows] KEP-1287：Windows 支持 Pod 资源原地升级（In-Place Update）
 
 Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Update）功能，允许在不重新创建 Pod 或重新启动容器的情况下更改资源。
-
 
 ## 2. 其他需要了解的功能
 - [Node] 添加对 containerd/kubelet/CRI 的支持以支持每个运行时类的镜像拉取，在 v1.29 中，此功能为 Alpha，需要启用 `RuntimeClassInImageCriApi` 特性门控，默认关闭。
@@ -271,9 +269,9 @@ Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Updat
 - [Auth] 结构化授权配置（Structured Authorization Configuration）在 1.29 中进入 Alpha。增加了 structure configuring authorizers 并向 kube-apiserver 授权链添加多个 webhook 的能力。
 - [APIMachinery] Structured Authentication Config 在 v1.29 中为 Alpha。在 kube-apiserver 添加了 `--authentication-config` 标志用于读取 `AuthenticationConfiguration` 文件。 `--authentication-config`标志与现有的 `--oidc-*` 标志互斥。
 - [Auth] 添加了对将 `certificates.k8s.io/v1alpha1` `ClusterTrustBundle` 对象投影到 Pod 中的支持。
-- [APIMachinery] CRD 基于通用表达式语言 (CEL) 的验证规则 GA
+- [APIMachinery] CRD 基于通用表达式语言 (CEL) 的验证规则 GA。
 - [APIMachinery] CRD Validation Ratcheting 进入 Alpha2。
-- [Apps] Job API Pod 替换策略支持 Beta,添加 `job_pods_creation_total` 指标，用于跟踪由触发 Pod 创建的事件标记的作业控制器创建的 Pod。
+- [Apps] Job API Pod 替换策略支持 Beta，添加 `job_pods_creation_total` 指标，用于跟踪由触发 Pod 创建的事件标记的作业控制器创建的 Pod。
 - [节点] `DevicePluginCDIDevice`s 功能已升级至 Beta 并在 Kubelet 中默认启用。
 - [Apps] KEP-3850: 每个索引的 Job 重试 BackOff 限制已升级至 Beta，并引入 `job_finished_indexes_total` 指标。
 - [网络] `ServiceNodePortStaticSubrange` 特性已升级至 GA。它允许你为 NodePort 服务使用不同的端口分配策略。
@@ -284,8 +282,12 @@ Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Updat
   添加新的 Alpha kubectl 环境变量 `KUBECTL_REMOTE_COMMAND_WEBSOCKETS`，该标志在设置时尝试将 WebSockets 协议用于 `kubectl exec`、`kubectl cp` 和 `kubectl attach`。
 - [存储] 持久卷 status 包含 `lastPhaseTransitionTime` 字段，该字段保存卷上次转换其阶段的时间戳。功能 `PersistentVolumeLastPhaseTransitionTime` 在 v1.29 升级至 Beta。
 - [APIMachinery] 支持 API 分页 LIST 查询 GA。
-- [节点] 在 Kubernetes v1.29 中，`PodReadyToStartContainers` 升级为 Beta，默认可用。kubelet 在 Pod 的整个生命周期中管理 Pod `condition` 字段中该条件的值。kubelet 将使用 `PodReadyToStartContainers` 条件从容器运行时创建 Pod sandbox 和网络配置的角度准确地呈现 Pod 的初始化状态。
-
+- [节点] 在 Kubernetes v1.29 中，`PodReadyToStartContainers` 升级为 Beta，默认可用。kubelet 在 Pod 的整个生命周期中管理 Pod `condition` 字段中该条件的值。
+  kubelet 将使用 `PodReadyToStartContainers` 条件从容器运行时创建 Pod sandbox 和网络配置的角度准确地呈现 Pod 的初始化状态。
+- [CLI] 如果子命令不存在，外部插件可以用作内置命令的子命令。此功能处于 Beta 阶段。默认情况下，将 KUBECTL_ENABLE_CMD_SHADOW 环境变量设置为 true。
+- [CLI] kubectl delete 命令中的交互式标志（--interactive/-i），默认可用。`KUBECTL_INTERACTIVE_DELETE` 环境变量已删除。
+- [网络]让 Kubernetes 了解 LoadBalancer 的行为，此功能在 Service 的 `.status` 中添加了新的 `ipMode` 字段，其中 `type` 设置为 `LoadBalancer`。
+   使用新字段需要启用 `LoadBalancerIPMode` 特性门控，现在处于 Alpha 阶段，默认是关闭的。
 
 ## 3. DaoCloud 社区贡献
 
@@ -311,6 +313,11 @@ Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Updat
 郭奇峰成为 Calico Big Cat 大使。
 
 ## 4. 升级注意事项
+
+### EventedPLEG 存在严重问题
+
+`EventedPLEG` 功能（ 使用事件驱动的 PLEG）在 Kubernetes v1.27 中已经升级为 Beta，但是在 v1.29 测试中发现了严重问题，建议不要启用它！社区正在进行调查和修复，但尚未找到具体原因。
+
 ### in-tree cloud providers 的移除升级至 Beta 状态
 in-tree cloud providers 的移除在 Kubernetes 1.29 状态升级为 Beta，用户需要注意特性门控
 `DisableCloudProviders` 和 `DisableKubeletCloudCredentialProvider` 现在默认为 true，
@@ -330,8 +337,6 @@ Kubernetes 旧版软件包仓库已于 2023 年 9 月 13 日被冻结，Kubernet
 - 弃用 Node 的 `status.nodeInfo.kubeProxyVersion` 字段，该字段不准确，它是由 kubelet 设置的，kubelet 实际上并不知道 kube-proxy 版本，或者 kube-proxy 是否正在运行。
 - 弃用 `FlowSchema` 和 `PriorityLevelConfiguration` 的 `flowcontrol.apiserver.k8s.io/v1beta2` API version，
   并且 `flowcontrol.apiserver.k8s.io/v1beta3`已升级为 `flowcontrol.apiserver.k8s.io/v1`。如果你的清单或客户端软件使用已弃用的 Beta API 组， 则应升级到 v1.29 之前更改这些。
-
-
 
 
 ## 5. 版本标志
