@@ -333,6 +333,8 @@ Kubernetes 旧版软件包仓库已于 2023 年 9 月 13 日被冻结，Kubernet
 
 更多详情以及如何迁移请参考[Kubernetes 旧版软件包仓库将于 2023 年 9 月 13 日被冻结博客](https://kubernetes.io/zh-cn/blog/2023/08/31/legacy-package-repository-deprecation/)
 
+### 其他需要注意的变化
+
 - 删除网络 `ClusterCIDR` Alpha API, SIG 对此功能存在合理性怀疑，经过几个月的社区讨论，删除仍在 Alpha 中的现有代码。
 - 弃用 Node 的 `status.nodeInfo.kubeProxyVersion` 字段，该字段不准确，它是由 kubelet 设置的，kubelet 实际上并不知道 kube-proxy 版本，或者 kube-proxy 是否正在运行。
 - 弃用 `FlowSchema` 和 `PriorityLevelConfiguration` 的 `flowcontrol.apiserver.k8s.io/v1beta2` API version，
