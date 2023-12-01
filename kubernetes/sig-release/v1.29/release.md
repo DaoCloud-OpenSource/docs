@@ -161,7 +161,6 @@ Kubelet 使用 Prometheus 客户端库以 Prometheus 文本展示格式在 `/met
 - `resource_scrape_error`
   弃用（重命名）指标 `scrape_error`，改为 `resource_scrape_error`
 
-
 ### [Instrumentation] KEP-3466：Kubernetes 组件运行状况 SLIs GA
 
 由 `ComponentSLIs` 特性门控控制并在 `/metrics/slis` 端点提供服务的指标现在是 GA 和无条件启用的。
@@ -209,7 +208,6 @@ VolumeAttributesClass Alpha 功能在 v1.29 中引入。此功能对 Kubernetes 
 需要注意的是，在 v1.29 中`·VolumeAttributesClass` 功能可能仅包含 API 更改，其功能尚未实现。实现在 `external-provisioner` 
 和 `external-resizer` 中，将在 Kubernetes v1.29 发布后异步发布。
 
-
 ### [Instrumentation] KEP-3077：kube-scheduler 已转换为上下文日志记录
 
 Kubernetes v1.24 中引入的上下文日志记录功能现已成功迁移到两个组件（kube-scheduler 和 kube-controller-manager）以及一些目录。
@@ -220,7 +218,6 @@ Kubernetes v1.24 中引入的上下文日志记录功能现已成功迁移到两
 I1113 08:43:37.029524 87144 default_binder.go:53] "Attempting to bind pod to node" logger="Bind.DefaultBinder" pod="kube-system/coredns-69cbfb9798-ms4pq" node="127.0.0.1"
 ```
 
-
 ### [节点] KEP-753： 原生支持 Sidecar 容器 Beta
 
 原生支持 Sidecar 容器在 Kubernetes v1.28 中被引入作为 Alpha，v1.29 中升级至 Beta，特性门控 `SidecarContainers` 默认启用。
@@ -229,14 +226,7 @@ I1113 08:43:37.029524 87144 default_binder.go:53] "Attempting to bind pod to nod
 Kubelet 将延迟向这些 Sidecar 容器发送 TERM 信号，直到最后一个主容器完全终止。 Sidecar 容器将以 Pod 规范中定义的相反顺序终止。
 这可确保 Sidecar 容器继续为 Pod 中的其他容器提供服务，直到不再需要它们为止。
 
-### [节点] KEP-3673：Kubelet 添加节点级限制，限制并行镜像拉取数量 Beta
-
-现在可以在 Kubelet 配置文件中指定 `maxParallelImagePulls` 字段，以控制 Kubelet 可以并行执行的图像拉取数量。这是节点级限制。
-任何超出限制的镜像拉取请求都将被阻止，直到有一个镜像拉取完成。
-
-当 maxParallelImagePulls 设置为非零值时，将启用该功能，可以通过将 maxParallelImagePulls 设置为 0 并重新启动 kubelet 来禁用该功能。
-
-### [节点] KEP-127：启用 Pod 安全标准（Pod Security Standards）的用户命名空间支持
+### [节点] KEP-127：启用 Pod 安全标准（Pod Security Standards）的用户命名空间支持 Alpha
 
 添加了 `UserNamespacesPodSecurityStandards` 特性门控，以启用对 Pod 安全标准的用户命名空间支持。
 启用此功能将修改所有 Pod 安全标准规则以允许设置：`spec[.*].securityContext.[runAsNonRoot,runAsUser]`。
@@ -268,29 +258,59 @@ kube-apiserver 现在通过 `ServiceAccountTokenPodNodeInfo` 特性门控添加�
 kube-apiserver 现在通过 `ServiceAccountTokenNodeBinding` 特性门控添加了对 Alpha 版本的支持，以允许 `TokenRequests` 直接将令牌绑定到节点，
 并在使用令牌时进行验证（通过 `ServiceAccountTokenNodeBindingValidation` 特性门控），以确保节点名称和 UID 仍然存在。
 
-### [Node] KEP-4216：添加对 containerd/kubelet/CRI 的支持以支持每个运行时类的镜像拉取 Alpha
 
-此功能添加了对基于运行时类拉取容器映像的支持。在 v1.29 中，此功能需要启用 `RuntimeClassInImageCriApi` 特性门控，默认关闭。
-
-### [windows] KEP-1287：Windows 支持 Pod 资源原地升级（In-Place Update）
+### [Windows] KEP-1287：Windows 支持 Pod 资源原地升级（In-Place Update）
 
 Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Update）功能，允许在不重新创建 Pod 或重新启动容器的情况下更改资源。
 
 
 ## 2. 其他需要了解的功能
+- [Node] 添加对 containerd/kubelet/CRI 的支持以支持每个运行时类的镜像拉取，在 v1.29 中，此功能为 Alpha，需要启用 `RuntimeClassInImageCriApi` 特性门控，默认关闭。
 - [APIMachinery] 已弃用 kube-apiserver 中的 `--cloud-provider` 和 `--cloud-config` CLI 参数。这些参数将在未来版本中删除。
 - [Auth] 具有特性门控 `KMSv2` 和 `KMSv2KDF` 的 KMSv2 功能已升级为 GA。`KMSv1` 特性门控现在默认处于禁用状态。
 - [Auth] 结构化授权配置（Structured Authorization Configuration）在 1.29 中进入 Alpha。增加了 structure configuring authorizers 并向 kube-apiserver 授权链添加多个 webhook 的能力。
-- [APIMachinery] kube-apiserver：添加 `--authentication-config` 标志用于读取 `AuthenticationConfiguration` 文件。 `--authentication-config`标志与现有的 `--oidc-*` 标志互斥。
+- [APIMachinery] Structured Authentication Config 在 v1.29 中为 Alpha。在 kube-apiserver 添加了 `--authentication-config` 标志用于读取 `AuthenticationConfiguration` 文件。 `--authentication-config`标志与现有的 `--oidc-*` 标志互斥。
 - [Auth] 添加了对将 `certificates.k8s.io/v1alpha1` `ClusterTrustBundle` 对象投影到 Pod 中的支持。
 - [APIMachinery] CRD 基于通用表达式语言 (CEL) 的验证规则 GA
 - [APIMachinery] CRD Validation Ratcheting 进入 Alpha2。
 - [Apps] Job API Pod 替换策略支持 Beta,添加 `job_pods_creation_total` 指标，用于跟踪由触发 Pod 创建的事件标记的作业控制器创建的 Pod。
 - [节点] `DevicePluginCDIDevice`s 功能已升级至 Beta 并在 Kubelet 中默认启用。
 - [Apps] KEP-3850: 每个索引的 Job 重试 BackOff 限制已升级至 Beta，并引入 `job_finished_indexes_total` 指标。
+- [网络] `ServiceNodePortStaticSubrange` 特性已升级至 GA。它允许你为 NodePort 服务使用不同的端口分配策略。
+- [网络] 将 PodHostIPs 条件提升为 Beta。该功能旨在提高 Pod 获取节点地址的能力。
+- [APIMachinery] 优先级和公平性功能在 1.29 中达到 GA，`APIPriorityAndFairness` 特性门控 将在 v1.31 中删除。
+- [节点] 为 PreStop 生命周期 hook 添加新的睡眠操作功能在 v1.29 中被引入，现在为 Alpha，需要在 kubelet 和 kube-apiserver 组件启用 `PodLifecycleSleepAction` 特性门控，默认关闭。
+- [CLI]添加了将 Kubernetes 客户端的双向流协议从 SPDY/3.1 过渡到 WebSockets 的新功能，添加新的 Alpha `TranslateStreamCloseWebsocketRequests` 特性门控，允许控制平面接受 WebSockets/V5 升级请求。
+  添加新的 Alpha kubectl 环境变量 `KUBECTL_REMOTE_COMMAND_WEBSOCKETS`，该标志在设置时尝试将 WebSockets 协议用于 `kubectl exec`、`kubectl cp` 和 `kubectl attach`。
+- [存储] 持久卷 status 包含 `lastPhaseTransitionTime` 字段，该字段保存卷上次转换其阶段的时间戳。功能 `PersistentVolumeLastPhaseTransitionTime` 在 v1.29 升级至 Beta。
+- [APIMachinery] 支持 API 分页 LIST 查询 GA。
+- [节点] 在 Kubernetes v1.29 中，`PodReadyToStartContainers` 升级为 Beta，默认可用。kubelet 在 Pod 的整个生命周期中管理 Pod `condition` 字段中该条件的值。kubelet 将使用 `PodReadyToStartContainers` 条件从容器运行时创建 Pod sandbox 和网络配置的角度准确地呈现 Pod 的初始化状态。
 
 
-## 3. 升级注意事项
+## 3. DaoCloud 社区贡献
+
+本次发布中， DaoCloud 重点贡献了 sig-node，sig-scheduling, sig-storage，sig-instrumentation，sig-network 和 kubeadm 相关内容，具体功能点如下：
+
+- [节点] 修复了 sysctl 进行 Pod 规范验证问题：`hostNetwork` 的 Pod 禁止配置网络命名空间的 sysctl，`hostIPC` 的 Pod 禁止配置 `IPC` 命名空间的sysctl
+- [调度] kube-scheduler `selectedSpread` 插件已被删除，请改用 `podTopologySpread` 插件。
+- [调度] 修复了运行 score 插件时调度程序框架中自 v1.27.0 以来的回归问题。`SkippedScorePlugins` 数量可能大于 `enabledScorePlugins`，
+  因此在初始化切片时 `cap(len(enabledScorePlugins) - len(skippedScorePlugins))` 的值可能是负的，这是不允许的。
+- [调度] 向 `QueueingHint` 添加了返回值以指示错误。如果 `QueueingHint` 返回错误，调度程序会记录该错误并将该事件视为 `QueueAfterBackoff`，以便 Pod 不会卡在不可调度的 Pod 池中。
+- [调度] 在 kube-scheduler 实现 NodeAffinity 插件的调度 hints。
+- [调度] 在 `schedulingGates` 插件中取消注册事件。
+- [存储] 参与设计 `VolumeAttributesClass` API。
+- [Instrumentation] 将 kube-scheduler 完全转化为上下文日志记录。
+- [网络] 将 PodHostIPs 条件提升为 Beta。
+- [Kubeadm] 允许部署比 kubeadm 版本早 3 个版本的 kubelet (N-3)。这与 SIG Architecture 最近所做的更改相一致，该更改扩展了控制平面和 kubelet 之间的支持偏差。
+- [Kubeadm] 修复 `clusterrole` 的无效命名空间字段。
+- [测试] 更新测试框架方法以及添加测试增加测试覆盖率。
+
+在 v1.29 发布过程中，DaoCloud 参与一百多个问题修复和功能研发，作为作者约有 111 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=120)（该版本的两百多位贡献者中有来自 DaoCloud 的 17 位）。
+在 Kubernetes v1.29 的发布周期中，DaoCloud 的多名研发工程师取得了不少成就。其中，Paco 做为首位入选 Kubernetes 指导委员会(Steering Committee)的中国人；
+蔡威成为 CNCF Fall 2023 云原生全球大使，并且是 KCD 深圳站 2023 的组织者和主持人；刘梦姣成为 WG Structured Logging Lead，并且成为 Kubernetes/klog Reviewer；
+郭奇峰成为 Calico Big Cat 大使。
+
+## 4. 升级注意事项
 ### in-tree cloud providers 的移除升级至 Beta 状态
 in-tree cloud providers 的移除在 Kubernetes 1.29 状态升级为 Beta，用户需要注意特性门控
 `DisableCloudProviders` 和 `DisableKubeletCloudCredentialProvider` 现在默认为 true，
@@ -312,27 +332,6 @@ Kubernetes 旧版软件包仓库已于 2023 年 9 月 13 日被冻结，Kubernet
   并且 `flowcontrol.apiserver.k8s.io/v1beta3`已升级为 `flowcontrol.apiserver.k8s.io/v1`。如果你的清单或客户端软件使用已弃用的 Beta API 组， 则应升级到 v1.29 之前更改这些。
 
 
-## 4. DaoCloud 社区贡献
-
-本次发布中， DaoCloud 重点贡献了 sig-node，sig-scheduling, sig-storage，sig-instrumentation 和 kubeadm 相关内容，具体功能点如下：
-
-- [Instrumentation] 将 kube-scheduler 完全转化为上下文日志记录。
-- [kubeadm] 允许部署比 kubeadm 版本早 3 个版本的 kubelet (N-3)。这与 SIG Architecture 最近所做的更改相一致，该更改扩展了控制平面和 kubelet 之间的支持偏差。
-- [kubeadm] 修复 `clusterrole` 的无效命名空间字段。
-- [调度] kube-scheduler `selectedSpread` 插件已被删除，请改用 `podTopologySpread` 插件。
-- [调度] 修复了运行 score 插件时调度程序框架中自 v1.27.0 以来的回归问题。`SkippedScorePlugins` 数量可能大于 `enabledScorePlugins`，
-  因此在初始化切片时 `cap(len(enabledScorePlugins) - len(skippedScorePlugins))` 的值可能是负的，这是不允许的。
-- [调度] 向 `QueueingHint` 添加了返回值以指示错误。如果 `QueueingHint` 返回错误，调度程序会记录该错误并将该事件视为 `QueueAfterBackoff`，以便 Pod 不会卡在不可调度的 Pod 池中。
-- [调度] 在 kube-scheduler 实现 NodeAffinity 插件的调度 hints。
-- [测试] 清理弃用的测试框架方法以及添加测试增加测试覆盖率。
-- [节点] 修复了 sysctl 进行 Pod 规范验证问题：`hostNetwork` 的 Pod 禁止配置网络命名空间的 sysctl，`hostIPC` 的 Pod 禁止配置 `IPC` 命名空间的sysctl 
-- [调度] 在 `schedulingGates` 插件中取消注册事件。
-- [网络] 将 PodHostIPs 条件提升为 Beta。]
-
-在 v1.29 发布过程中，DaoCloud 参与一百多个问题修复和功能研发，作为作者约有 111 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=120)（该版本的两百多位贡献者中有来自 DaoCloud 的 17 位）。
-在 Kubernetes v1.29 的发布周期中，DaoCloud 的多名研发工程师取得了不少成就。其中，Paco 做为首位入选 Kubernetes 指导委员会(Steering Committee)的中国人；
-蔡威成为 CNCF Fall 2023 云原生全球大使，并且是 KCD 深圳站 2023 的组织者和主持人；刘梦姣成为 WG Structured Logging Lead，并且成为 Kubernetes/klog Reviewer；
-郭奇峰成为 Calico Big Cat 大使。
 
 
 ## 5. 版本标志
