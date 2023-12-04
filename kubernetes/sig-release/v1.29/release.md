@@ -332,8 +332,8 @@ in-tree cloud providers 的移除在 Kubernetes v1.29 状态升级为 Beta，用
 
 有关如何启用和运行外部云控制器管理器的更多信息，请阅读 [云控制器管理器管理](kubernetes.io/zh-cn/docs/tasks/administer-cluster/running-cloud-controller/)。
 
-### Kubernetes 旧版软件包仓库 `k8s.gcr.io` 已被冻结
-Kubernetes 旧版软件包仓库已于 2023 年 9 月 13 日被冻结，Kubernetes v1.29 及以后的版本将仅发布软件包到社区拥有的仓库（pkgs.k8s.io）。
+### Kubernetes 旧版软件包仓库已被冻结
+Kubernetes 旧版软件包仓库（apt.kubernetes.io 和 yum.kubernetes.io）已于 2023 年 9 月 13 日被冻结，Kubernetes v1.29 及以后的版本将仅发布软件包到社区拥有的仓库（pkgs.k8s.io）。
 已弃用的旧仓库及其内容可能会在未来随时删除，Kubernetes 项目强烈建议尽快迁移到新的社区拥有的仓库!
 
 更多详情以及如何迁移请参考[Kubernetes 旧版软件包仓库将于 2023 年 9 月 13 日被冻结博客](https://kubernetes.io/zh-cn/blog/2023/08/31/legacy-package-repository-deprecation/)
