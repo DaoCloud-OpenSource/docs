@@ -78,6 +78,10 @@ metadata:
 type: kubernetes.io/service-account-token
 ```
 
+### [Windows] KEP-1287：Windows 支持 Pod 资源原地升级（In-Place Update）
+
+Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Update）功能，允许在不重新创建 Pod 或重新启动容器的情况下更改资源。
+
 ### [网络] KEP-1880：动态扩展 Service 的可用 IP 范围 Alpha
 
 Service 是公开在一组 Pod 上运行的应用程序的抽象方式。Service 可以具有集群范围的虚拟 IP 地址，
@@ -141,14 +145,6 @@ metadata:
         matchLabelKeys: 
         - pod-template-hash
 ```
-
-### [调度] KEP-3902： 将 TaintManager 与 NodeLifecycleController 解耦 Beta
-
-此功能被标记为 Bata 版，但实际上是一个全新的变化。（它跳过 Alpha 版本）
-它将 `TaintManager` 与 `NodeLifecycleController` 解耦，`TaintManager` 执行基于污点的 Pod 驱逐，
-并使它们成为两个独立的控制器：`NodeLifecycleControlle`r 用于向不健康的节点添加污点，`TaintManager` 用于对受到 NoExecute 效果污染的节点执行 Pod 删除。
-
-将基于污点的驱逐实现从 `NodeLifecycleController` 移至单独且独立的污点管理器 `TaintEvictionController` 中，以增强关注点分离和可维护性。
 
 ### [Instrumentation] KEP-727：Kubelet 资源指标 GA
 
@@ -268,9 +264,6 @@ kube-apiserver 现在通过 `ServiceAccountTokenPodNodeInfo` 特性门控添加�
 kube-apiserver 现在通过 `ServiceAccountTokenNodeBinding` 特性门控添加了对 Alpha 版本的支持，以允许 `TokenRequests` 直接将令牌绑定到节点，
 并在使用令牌时进行验证（通过 `ServiceAccountTokenNodeBindingValidation` 特性门控），以确保节点名称和 UID 仍然存在。
 
-### [Windows] KEP-1287：Windows 支持 Pod 资源原地升级（In-Place Update）
-
-Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Update）功能，允许在不重新创建 Pod 或重新启动容器的情况下更改资源。
 
 ## 2. 其他需要了解的功能
 - [Node] 添加对 containerd/kubelet/CRI 的支持以支持每个运行时类的镜像拉取，在 v1.29 中，此功能为 Alpha，需要启用 `RuntimeClassInImageCriApi` 特性门控，默认关闭。
@@ -298,6 +291,9 @@ Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Updat
 - [CLI] kubectl delete 命令中的交互式标志（--interactive/-i），默认可用。`KUBECTL_INTERACTIVE_DELETE` 环境变量已删除。
 - [网络] 让 Kubernetes 了解 LoadBalancer 的行为，此功能在 Service 的 `.status` 中添加了新的 `ipMode` 字段，其中 `type` 设置为 `LoadBalancer`。
    使用新字段需要启用 `LoadBalancerIPMode` 特性门控，现在处于 Alpha 阶段，默认是关闭的。
+- [Apps] 将 TaintManager 与 NodeLifecycleController 解耦，以增强关注点分离和可维护性。此功能被标记为 Bata 版，但实际上是一个全新的变化（它跳过 Alpha 版本）。
+  它将 `TaintManager` 与 `NodeLifecycleController` 解耦，`TaintManager` 执行基于污点的 Pod 驱逐，并使它们成为两个独立的控制器：`NodeLifecycleController` 用于向不健康的节点添加污点，
+  `TaintManager` 用于对受到 NoExecute 效果污染的节点执行 Pod 删除。
 
 ## 3. DaoCloud 社区贡献
 
@@ -335,6 +331,13 @@ in-tree cloud providers 的移除在 Kubernetes v1.29 状态升级为 Beta，用
 请设置 `DisableCloudProviders` 和 `DisableKubeletCloudCredentialProvider` 特性门控为 false 或者使用外部云控制管理器。
 
 有关如何启用和运行外部云控制器管理器的更多信息，请阅读 [云控制器管理器管理](kubernetes.io/zh-cn/docs/tasks/administer-cluster/running-cloud-controller/)。
+
+如果你需要为旧的 in-tree cloud providers 提供云控制器管理器，请参阅以下链接：
+* [Cloud provider AWS](https://github.com/kubernetes/cloud-provider-aws)
+* [Cloud provider Azure](https://github.com/kubernetes-sigs/cloud-provider-azure)
+* [Cloud provider GCE](https://github.com/kubernetes/cloud-provider-gcp)
+* [Cloud provider OpenStack](https://github.com/kubernetes/cloud-provider-openstack)
+* [Cloud provider vSphere](https://github.com/kubernetes/cloud-provider-vsphere)
 
 ### Kubernetes 旧版软件包仓库已被冻结
 
