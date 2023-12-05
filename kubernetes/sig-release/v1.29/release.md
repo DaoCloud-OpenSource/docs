@@ -1,6 +1,10 @@
 # Kubernetes 1.29 发布日志
 
-太平洋时间 2023 年 12 月 5 日，Kubernetes 1.29 正式发布。此版本距离上版本发布时隔 4 个月，是 2023 年的第三个版本。
+太平洋时间 2023 年 12 月 5 日，主题为 Mandala（宇宙）的 Kubernetes 1.29 正式发布。
+
+![logo](kubernetes-1.29.png)
+
+此版本距离上版本发布时隔 4 个月，是 2023 年的第三个版本。
 
 新版本中 release 团队跟踪了 49 个 enhancements。其中 11 个功能升级为稳定版，19 个已有功能进行优化升级为 Beta，另有多达
 19 个 Alpha 级别的全新功能。1.29 版本包含了很多重要功能以及用户体验优化，本文下一小节将详细介绍部分重要功能。
@@ -345,14 +349,7 @@ Kubernetes 旧版软件包仓库（apt.kubernetes.io 和 yum.kubernetes.io）已
 - 弃用 `FlowSchema` 和 `PriorityLevelConfiguration` 的 `flowcontrol.apiserver.k8s.io/v1beta2` API version，
   并且 `flowcontrol.apiserver.k8s.io/v1beta3`已升级为 `flowcontrol.apiserver.k8s.io/v1`。如果你的清单或客户端软件使用已弃用的 Beta API 组， 则应升级到 v1.29 之前更改这些。
 
-
-## 5. 版本标志
-
-本次发布主题为 xxxx <!-- 待 Kubernetes 官方发布主题和 Logo -->
-
-<!-- todo  主题 img  -->
-
-## 6. 历史文档
+## 5. 历史文档
 - [Kubernetes 1.28 震撼发布，Sidecar Containers 迎面而来](https://mp.weixin.qq.com/s/Dr_JpSD9tzfahslZO2bX5A)
 - [近两年功能增加最多！Kubernetes 1.27 正式发布](https://mp.weixin.qq.com/s/maDEiCGzOPSDkH9dUxIxdA)
 - [Kubernetes 正式发布 v1.26，稳定性显著提升](https://mp.weixin.qq.com/s/qwzmeIM4INz-_BK_gbwOxw)
@@ -362,7 +359,7 @@ Kubernetes 旧版软件包仓库（apt.kubernetes.io 和 yum.kubernetes.io）已
 - [Kubernetes 1.22 颠覆你的想象：可启用 Swap，推出 PSP 替换方案，还有……](https://mp.weixin.qq.com/s/9nH2UagDm6TkGhEyoYPgpQ)
 - [Kubernetes 1.21 震撼发布 | PSP 将被废除，BareMetal 得到增强](https://mp.weixin.qq.com/s/amGjvytJatO-5a7Nz4BYPw)
 
-## 7. 参考
+## 6. 参考
 
 1. Kubernetes 1.29 发布团队 <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.29>
 2. Kubernetes 1.29 变更日志 <https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.29.md>
