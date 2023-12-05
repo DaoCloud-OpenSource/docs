@@ -362,6 +362,7 @@ Kubernetes 旧版软件包仓库（apt.kubernetes.io 和 yum.kubernetes.io）已
 
 ## 6. 参考
 
-1. Kubernetes 1.29 发布团队 <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.29>
-2. Kubernetes 1.29 变更日志 <https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.29.md>
-3. Kubernetes 1.29 主题讨论 <https://github.com/kubernetes/sig-release/discussions/2349>
+1. Kubernetes 1.29 增强特性 <https://github.com/kubernetes/enhancements/issues?q=is%3Aopen+is%3Aissue+milestone%3Av1.29>
+2. Kubernetes 1.29 发布团队 <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.29>
+3. Kubernetes 1.29 变更日志 <https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.29.md>
+4. Kubernetes 1.29 主题讨论 <https://github.com/kubernetes/sig-release/discussions/2349>
