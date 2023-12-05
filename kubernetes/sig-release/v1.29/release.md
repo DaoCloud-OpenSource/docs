@@ -309,7 +309,6 @@ Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Updat
   因此在初始化切片时 `cap(len(enabledScorePlugins) - len(skippedScorePlugins))` 的值可能是负的，这是不允许的。
 - [调度] 向 `QueueingHint` 添加了返回值以指示错误。如果 `QueueingHint` 返回错误，调度程序会记录该错误并将该事件视为 `QueueAfterBackoff`，以便 Pod 不会卡在不可调度的 Pod 池中。
 - [调度] 在 kube-scheduler 实现 NodeAffinity 插件的调度 hints。
-- [调度] 在 `schedulingGates` 插件中取消注册事件。
 - [存储] 参与设计 `VolumeAttributesClass` API。
 - [Instrumentation] 将 kube-scheduler 完全转化为上下文日志记录。
 - [网络] 将 PodHostIPs 条件提升为 Beta。
