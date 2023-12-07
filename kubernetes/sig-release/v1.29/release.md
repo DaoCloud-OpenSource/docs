@@ -1,6 +1,6 @@
 # Kubernetes 1.29 发布日志
 
-太平洋时间 2023 年 12 月 5 日，主题为 Mandala（宇宙）的 Kubernetes 1.29 正式发布。
+太平洋时间 2023 年 12 月 13 日，主题为 Mandala（宇宙）的 Kubernetes 1.29 正式发布。
 
 ![logo](kubernetes-1.29.png)
 
@@ -11,7 +11,7 @@
 
 ## 1. 重要功能
 
-### [存储] KEP-2495：PV/PVC `ReadWriteOncePod` 访问模式 GA
+### [存储] KEP-2495：PV/PVC `ReadWriteOncePod` 访问模式（GA）
 
 在 Kubernetes 中，访问模式是定义如何使用持久存储的方式。这些访问模式是持久卷 (PV) 和持久卷声明 (PVC) 规范的一部分。
 `ReadWriteOncePod` 作为第四种访问模式（之前的三种访问模式：ReadWriteOnce、ReadOnlyMany、ReadWriteMany）在
@@ -38,7 +38,7 @@ spec:
 
 通过引入 ReadWriteOncePod 功能，Kubernetes 使得用户能够更好地控制存储资源的访问权限，提高了应用程序在容器化环境中对存储的管理灵活性。
 
-### [网络] KEP-3866：nftables 作为 kube-proxy 后端 Alpha
+### [网络] KEP-3866：nftables 作为 kube-proxy 后端（Alpha）
 
 在 Kubernetes v1.29 中，Kubernetes 使用 nftables 作为 kube-proxy 新的后端，此功能现在是 Alpha 版本。
 iptables 存在无法修复的性能问题，随着规则集大小的增加，性能损耗不断增加。很大程度上由于其无法修复的问题，
@@ -55,7 +55,16 @@ nftables 能完成 iptables 能做的所有事情，而且做得更好。
 需要注意的是，虽然该 `nftables` 模式可能与 `iptables` 模式非常相似，但某些 CNI 插件、NetworkPolicy 实现等可能需要更新才能使用它。
 这可能会带来一定的兼容性问题。
 
-### [Auth/Apps] KEP-2799： 减少基于 Secret 的服务帐户令牌（Service Account Token）Beta
+### [Auth] KEP-3299：KMS v2 增强（GA）
+
+保护 Kubernetes 集群时首先要考虑的事情之一是加密静态的 etcd 数据。 KMS 为供应商提供了一个接口，以便利用存储在外部密钥服务中的密钥来执行此加密。
+
+Kubernetes KMS（Key Management Service）对于 secret 的安全管理和加密至关重要。随着 Kubernetes 1.29 版本的发布，
+具有特性门控 `KMSv2` 和 `KMSv2KDF` 的 KMSv2 功能已升级为 GA，`KMSv1` 特性门控现在默认处于禁用状态。
+
+这已成为一项稳定的功能，专注于改进 KMS 插件框架，这对于安全管理至关重要。这些改进确保 Kubernetes secret 仍然是存储敏感信息的强大且安全的方法。
+
+### [Auth/Apps] KEP-2799： 减少基于 Secret 的服务帐户令牌（Service Account Token）（Beta）
 
 `legacy-service-account-token-cleaner` 控制器作为 kube-controller-manager 的一部分运行，
 `LegacyServiceAccountTokenCleanUp` 特性门控现在可作为 Beta 使用（默认情况下启用）。
@@ -78,11 +87,11 @@ metadata:
 type: kubernetes.io/service-account-token
 ```
 
-### [Windows] KEP-1287：Windows 支持 Pod 资源原地升级（In-Place Update）
+### [Windows] KEP-1287：Windows 支持 Pod 资源原地升级（In-Place Update）（Alpha）
 
 Kubernetes v1.29 中，Windows 支持了 Pod 资源原地升级（In-Place Update）功能，允许在不重新创建 Pod 或重新启动容器的情况下更改资源。
 
-### [网络] KEP-1880：动态扩展 Service 的可用 IP 范围 Alpha
+### [网络] KEP-1880：动态扩展 Service 的可用 IP 范围（Alpha）
 
 Service 是公开在一组 Pod 上运行的应用程序的抽象方式。Service 可以具有集群范围的虚拟 IP 地址，
 该地址是从 `kube-apiserver` 标志中设置的预定义 `CIDR` 分配的。但是，用户可能希望添加、删除或调整为服务分配的现有 IP 范围，
@@ -109,7 +118,7 @@ spec:
 EOF
 ```
 
-### [调度] KEP-3633： 将 MatchLabelKeys/MismatchLabelKeys 引入 Pod 亲和性和 Pod 反亲和性 Alpha
+### [调度] KEP-3633： 将 MatchLabelKeys/MismatchLabelKeys 引入 Pod 亲和性和 Pod 反亲和性（Alpha）
 
 Kubernetes v1.29 中 PodAffinity/PodAntiAffinity 中将引入一项增强功能作为 Alpha 版本。它将提高滚动更新期间计算的准确性。
 此功能向 `PodAffinityTerm` 引入一个补充字段 `MatchLabelKeys`。这使用户能够在现有 `LabelSelector` 之上精细控制 PodAffinity
@@ -146,7 +155,20 @@ metadata:
         - pod-template-hash
 ```
 
-### [Instrumentation] KEP-727：Kubelet 资源指标 GA
+### [调度] QueueingHint 为优化 Pod 调度带来新的可能（Beta）
+
+对于 Kubernetes 项目来说，调度器的吞吐量多年来一直是一个永恒的挑战，SIG Scheduling 一直在努力通过许多增强来提高调度吞吐量。
+
+QueueingHint 功能为优化重新排队效率带来了新的可能性，可以显着减少无用的调度重试。
+
+在 v1.28 中，只有一个 alpha 插件 (DRA) 支持 QueueingHint，
+在 v1.29 中，一些稳定的插件开始实现 QueueingHints。
+
+QueueingHint 从 v1.28 引入以来就是 Beta 状态，直接跳过 Alpha 阶段，默认启用。
+它不面向用户而是面向开发者，可以使用 `SchedulerQueueingHints` 特性门控来决定是否禁用它。
+因为 QueueingHint 改变了调度程序的关键路径并增加了一些内存开销，具体取决于集群的繁忙程度。
+
+### [Instrumentation] KEP-727：Kubelet 资源指标（GA）
 
 Kubelet 使用 Prometheus 客户端库以 Prometheus 文本展示格式在 `/metrics/resource` 公开端点。它提供集群级资源指标 API 所需的指标，
 用以替代 Summary API 提供的指标杂且多的问题。
@@ -162,7 +184,7 @@ Kubelet 使用 Prometheus 客户端库以 Prometheus 文本展示格式在 `/met
 - `resource_scrape_error`
   弃用（重命名）指标 `scrape_error`，改为 `resource_scrape_error`
 
-### [Instrumentation] KEP-3466：Kubernetes 组件运行状况 SLIs GA
+### [Instrumentation] KEP-3466：Kubernetes 组件运行状况 SLIs（GA）
 
 由 `ComponentSLIs` 特性门控控制并在 `/metrics/slis` 端点提供服务的指标现在是 GA 和无条件启用的。
 特性门控将在 1.31 被移除。
@@ -197,12 +219,12 @@ kubernetes_healthchecks_total{name="ping",status="success",type="healthz"} 15
 kubernetes_healthchecks_total{name="ping",status="success",type="readyz"} 15
 ```
 
-### [存储] KEP-3107：NodeExpandSecret 添加到 CSI 持久卷源 GA
+### [存储] KEP-3107：NodeExpandSecret 添加到 CSI 持久卷源（GA）
 
 NodeExpandSecret 功能在 v1.29 中移至 GA。此功能将 `NodeExpandSecret` 添加到 CSI 持久卷源，
 并使 CSI 客户端能够将其作为 `NodeExpandVolume` 请求的一部分发送到 CSI 驱动程序。
 
-### [存储] KEP-3751：VolumeAttributesClass Alpha
+### [存储] KEP-3751：VolumeAttributesClass（Alpha）
 
 VolumeAttributesClass 功能在 v1.29 中引入,现在处于 Alpha 阶段，默认不启用。需要在 kube-apiserver、
 kube-controller-manager、external-provisioner 和 external-resizer 组件都启用 `VolumeAttributesClass` 特性门控才能使用此功能。
@@ -214,7 +236,7 @@ kube-controller-manager、external-provisioner 和 external-resizer 组件都启
 
 CSI 对应标准版本为 1.9，各个厂商 CSI 实现的控制器插件, 必须支持 `MODIFY_VOLUME` 能力。
 
-### [Instrumentation] KEP-3077：kube-scheduler 已转换为上下文日志记录
+### [Instrumentation] KEP-3077：kube-scheduler 已转换为上下文日志记录（Alpha）
 
 Kubernetes v1.24 中引入的上下文日志记录功能现已成功迁移到两个组件（kube-scheduler 和 kube-controller-manager）以及一些目录。
 该功能旨在为 Kubernetes 提供更多有用的日志以更好地进行问题追踪、故障排除。目前该功能处于 Alpha 阶段，如需使用请启用 `ContextualLogging` 特性门控。
@@ -224,7 +246,7 @@ Kubernetes v1.24 中引入的上下文日志记录功能现已成功迁移到两
 I1113 08:43:37.029524 87144 default_binder.go:53] "Attempting to bind pod to node" logger="Bind.DefaultBinder" pod="kube-system/coredns-69cbfb9798-ms4pq" node="127.0.0.1"
 ```
 
-### [节点] KEP-753： 原生支持 Sidecar 容器 Beta
+### [节点] KEP-753： 原生支持 Sidecar 容器 (Beta)
 
 原生支持 Sidecar 容器在 Kubernetes v1.28 中被引入作为 Alpha，v1.29 中升级至 Beta，特性门控 `SidecarContainers` 默认启用。
 
@@ -232,24 +254,24 @@ I1113 08:43:37.029524 87144 default_binder.go:53] "Attempting to bind pod to nod
 Kubelet 将延迟向这些 Sidecar 容器发送 TERM 信号，直到最后一个主容器完全终止。 Sidecar 容器将以 Pod 规范中定义的相反顺序终止。
 这可确保 Sidecar 容器继续为 Pod 中的其他容器提供服务，直到不再需要它们为止。
 
-### [节点] KEP-127：启用 Pod 安全标准（Pod Security Standards）的用户命名空间支持 Alpha
+### [节点] KEP-127：启用 Pod 安全标准（Pod Security Standards）的用户命名空间支持 (Alpha)
 
 添加了 `UserNamespacesPodSecurityStandards` 特性门控，以启用对 Pod 安全标准的用户命名空间支持。
 启用此功能将修改所有 Pod 安全标准规则以允许设置：`spec[.*].securityContext.[runAsNonRoot,runAsUser]`。
 仅当集群中的所有节点都支持用户命名空间功能并启用它时，才应启用此特性门控。
 在未来的 Kubernetes 版本中，特性门控不会升级或默认启用。
 
-### [节点] KEP-4191：Kubelet 支持镜像文件系统（Image Filesystem）被分割 Alpha
+### [节点] KEP-4191：Kubelet 支持镜像文件系统（Image Filesystem）被分割 (Alpha)
 
 Kubelet 支持镜像文件系统（Image Filesystem）被分割在 v1.29 中被引入作为 Alpha，由 特性门控 `KubeletSeparateDiskGC` 控制是否启用，默认不启用。
 Kubelet 可以支持将 ImageFilesystem 分为可写层和只读层，可写层与 Kubelet 位于同一磁盘上，镜像可以位于单独的文件系统上。
 
-### [节点] KEP-4210：添加对 ImageMaximumGCAge 字段的支持 Alpha
+### [节点] KEP-4210：添加对 ImageMaximumGCAge 字段的支持 (Alpha)
 
 将 `ImageMaximumGCAge` 字段添加到 Kubelet 配置中，该字段允许用户设置镜像在被垃圾收集之前未使用的最长期限。
 该字段由特性门控 `ImageMaximumGCAge` 控制，当前为 Alpha，默认不启用。
 
-### [Auth] KEP-4193： 绑定服务帐户令牌增强 Alpha
+### [Auth] KEP-4193： 绑定服务帐户令牌增强 (Alpha)
 
 Kubernetes v1.29 新增了 4 个特性门控来增强绑定服务帐户令牌。
 kube-apiserver 现在通过 `ServiceAccountTokenJTI` 特性门控添加了对 Alpha 版本的支持，
@@ -268,7 +290,6 @@ kube-apiserver 现在通过 `ServiceAccountTokenNodeBinding` 特性门控添加�
 ## 2. 其他需要了解的功能
 - [Node] 添加对 containerd/kubelet/CRI 的支持以支持每个运行时类的镜像拉取，在 v1.29 中，此功能为 Alpha，需要启用 `RuntimeClassInImageCriApi` 特性门控，默认关闭。
 - [APIMachinery] 已弃用 kube-apiserver 中的 `--cloud-provider` 和 `--cloud-config` CLI 参数。这些参数将在未来版本中删除。
-- [Auth] 具有特性门控 `KMSv2` 和 `KMSv2KDF` 的 KMSv2 功能已升级为 GA。`KMSv1` 特性门控现在默认处于禁用状态。
 - [Auth] 结构化授权配置（Structured Authorization Configuration）在 v1.29 中进入 Alpha。增加了 structure configuring authorizers 并向 kube-apiserver 授权链添加多个 webhook 的能力。
 - [APIMachinery] Structured Authentication Config 在 v1.29 中为 Alpha。在 kube-apiserver 添加了 `--authentication-config` 标志用于读取 `AuthenticationConfiguration` 文件。 `--authentication-config`标志与现有的 `--oidc-*` 标志互斥。
 - [Auth] 添加了对将 `certificates.k8s.io/v1alpha1` `ClusterTrustBundle` 对象投影到 Pod 中的支持。
@@ -365,7 +386,7 @@ Kubernetes 旧版软件包仓库（apt.kubernetes.io 和 yum.kubernetes.io）已
 
 ## 6. 参考
 
-1. Kubernetes 1.29 增强特性 <https://github.com/kubernetes/enhancements/issues?q=is%3Aopen+is%3Aissue+milestone%3Av1.29>
+1. Kubernetes 增强特性 <https://kep.k8s.io/>
 2. Kubernetes 1.29 发布团队 <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.29>
 3. Kubernetes 1.29 变更日志 <https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.29.md>
 4. Kubernetes 1.29 主题讨论 <https://github.com/kubernetes/sig-release/discussions/2349>
