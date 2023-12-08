@@ -159,7 +159,7 @@ metadata:
 
 对于 Kubernetes 项目来说，调度器的吞吐量多年来一直是一个永恒的挑战，SIG Scheduling 一直在努力通过许多增强来提高调度吞吐量。
 
-QueueingHint 功能为优化重新排队效率带来了新的可能性，可以显着减少无用的调度重试。
+QueueingHint 功能为优化重新排队效率带来了新的可能性，可以显著减少无用的调度重试。
 
 在 v1.28 中，只有一个 alpha 插件 (DRA) 支持 QueueingHint，
 在 v1.29 中，一些稳定的插件开始实现 QueueingHints。
