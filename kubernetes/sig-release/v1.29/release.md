@@ -11,6 +11,23 @@
 
 ## 1. 重要功能
 
+### [网络] KEP-3866：nftables 作为 kube-proxy 后端（Alpha）
+
+在 Kubernetes v1.29 中，Kubernetes 使用 nftables 作为 kube-proxy 新的后端，此功能现在是 Alpha 版本。
+iptables 存在无法修复的性能问题，随着规则集大小的增加，性能损耗不断增加。很大程度上由于其无法修复的问题，
+内核中 iptables 的开发速度已经放缓，并且大部分已经停止。新功能不会添加到 iptables 中，新功能和性能改进主要进入 nftables。
+nftables 能完成 iptables 能做的所有事情，而且做得更好。
+
+特别是，RedHat 已宣布 iptables 在 RHEL 9 中已弃用，并且可能在几年后的 RHEL 10 中完全删除。Debian 从 Debian 11 (Bullseye)
+中的 `required` 软件包中删除了 iptables。基于上述原因，kube-proxy 引入nftables 作为 kube-proxy 新的后端。
+
+此功能的后续目标是使 nftables 成为 kube-proxy 的默认后端（替代 iptables 和 ipvs）。
+
+管理员必须启用特征门控 `NFTablesProxyMode` 才能使该功能可用，然后必须使用 `--proxy-mode=nftables` 标志运行 kube-proxy。
+
+需要注意的是，虽然该 `nftables` 模式可能与 `iptables` 模式非常相似，但某些 CNI 插件、NetworkPolicy 实现等可能需要更新才能使用它。
+这可能会带来一定的兼容性问题。
+
 ### [存储] KEP-2495：PV/PVC `ReadWriteOncePod` 访问模式（GA）
 
 在 Kubernetes 中，访问模式是定义如何使用持久存储的方式。这些访问模式是持久卷 (PV) 和持久卷声明 (PVC) 规范的一部分。
@@ -38,23 +55,6 @@ spec:
 
 通过引入 ReadWriteOncePod 功能，Kubernetes 使得用户能够更好地控制存储资源的访问权限，提高了应用程序在容器化环境中对存储的管理灵活性。
 
-### [网络] KEP-3866：nftables 作为 kube-proxy 后端（Alpha）
-
-在 Kubernetes v1.29 中，Kubernetes 使用 nftables 作为 kube-proxy 新的后端，此功能现在是 Alpha 版本。
-iptables 存在无法修复的性能问题，随着规则集大小的增加，性能损耗不断增加。很大程度上由于其无法修复的问题，
-内核中 iptables 的开发速度已经放缓，并且大部分已经停止。新功能不会添加到 iptables 中，新功能和性能改进主要进入 nftables。
-nftables 能完成 iptables 能做的所有事情，而且做得更好。
-
-特别是，RedHat 已宣布 iptables 在 RHEL 9 中已弃用，并且可能在几年后的 RHEL 10 中完全删除。Debian 从 Debian 11 (Bullseye) 
-中的 `required` 软件包中删除了 iptables。基于上述原因，kube-proxy 引入nftables 作为 kube-proxy 新的后端。
-
-此功能的后续目标是使 nftables 成为 kube-proxy 的默认后端（替代 iptables 和 ipvs）。
-
-管理员必须启用特征门控 `NFTablesProxyMode` 才能使该功能可用，然后必须使用 `--proxy-mode=nftables` 标志运行 kube-proxy。
-
-需要注意的是，虽然该 `nftables` 模式可能与 `iptables` 模式非常相似，但某些 CNI 插件、NetworkPolicy 实现等可能需要更新才能使用它。
-这可能会带来一定的兼容性问题。
-
 ### [Auth] KEP-3299：KMS v2 增强（GA）
 
 保护 Kubernetes 集群时首先要考虑的事情之一是加密静态的 etcd 数据。 KMS 为供应商提供了一个接口，以便利用存储在外部密钥服务中的密钥来执行此加密。
@@ -63,6 +63,14 @@ Kubernetes KMS（Key Management Service）对于 secret 的安全管理和加密
 具有特性门控 `KMSv2` 和 `KMSv2KDF` 的 KMSv2 功能已升级为 GA，`KMSv1` 特性门控现在默认处于禁用状态。
 
 这已成为一项稳定的功能，专注于改进 KMS 插件框架，这对于安全管理至关重要。这些改进确保 Kubernetes secret 仍然是存储敏感信息的强大且安全的方法。
+
+### [节点] KEP-753： 原生支持 Sidecar 容器 (Beta)
+
+原生支持 Sidecar 容器在 Kubernetes v1.28 中被引入作为 Alpha，v1.29 中升级至 Beta，特性门控 `SidecarContainers` 默认启用。
+
+从 Kubernetes v1.29 开始，如果你的 Pod 包含一个或多个 sidecar 容器（具有始终重启策略的 init 容器），
+Kubelet 将延迟向这些 Sidecar 容器发送 TERM 信号，直到最后一个主容器完全终止。 Sidecar 容器将以 Pod 规范中定义的相反顺序终止。
+这可确保 Sidecar 容器继续为 Pod 中的其他容器提供服务，直到不再需要它们为止。
 
 ### [Auth/Apps] KEP-2799： 减少基于 Secret 的服务帐户令牌（Service Account Token）（Beta）
 
@@ -246,14 +254,6 @@ Kubernetes v1.24 中引入的上下文日志记录功能现已成功迁移到两
 I1113 08:43:37.029524 87144 default_binder.go:53] "Attempting to bind pod to node" logger="Bind.DefaultBinder" pod="kube-system/coredns-69cbfb9798-ms4pq" node="127.0.0.1"
 ```
 
-### [节点] KEP-753： 原生支持 Sidecar 容器 (Beta)
-
-原生支持 Sidecar 容器在 Kubernetes v1.28 中被引入作为 Alpha，v1.29 中升级至 Beta，特性门控 `SidecarContainers` 默认启用。
-
-从 Kubernetes v1.29 开始，如果你的 Pod 包含一个或多个 sidecar 容器（具有始终重启策略的 init 容器），
-Kubelet 将延迟向这些 Sidecar 容器发送 TERM 信号，直到最后一个主容器完全终止。 Sidecar 容器将以 Pod 规范中定义的相反顺序终止。
-这可确保 Sidecar 容器继续为 Pod 中的其他容器提供服务，直到不再需要它们为止。
-
 ### [节点] KEP-127：启用 Pod 安全标准（Pod Security Standards）的用户命名空间支持 (Alpha)
 
 添加了 `UserNamespacesPodSecurityStandards` 特性门控，以启用对 Pod 安全标准的用户命名空间支持。
@@ -342,7 +342,7 @@ kube-apiserver 现在通过 `ServiceAccountTokenNodeBinding` 特性门控添加�
 
 ### EventedPLEG 存在严重问题
 
-`EventedPLEG` 功能（ 使用事件驱动的 PLEG）在 Kubernetes v1.27 中已经升级为 Beta，但是在 v1.29 测试中发现了严重问题，建议不要启用它！社区正在进行调查和修复，但尚未找到具体原因。
+`EventedPLEG` 功能（ 使用事件驱动的 PLEG）在 Kubernetes v1.27 中已经升级为 Beta，但是默认不开启。在 v1.29 测试中发现了严重问题，建议不要启用它！社区正在进行调查和修复，但尚未找到具体原因。
 
 ### in-tree cloud providers 的移除升级至 Beta 状态
 
