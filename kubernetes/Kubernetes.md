@@ -86,7 +86,8 @@
     1. API Server 为 REST 操作提供服务
     2. **所有组件都通过该前端进行交互**
     3. 提供了**资源的唯一入口**，并提供认证、授权、访问控制、API注册和发现等
-   
+       
+
      *RESTful:  REST，全名 Representational State Transfer (表现层状态转移)，他是一种设计风格，一种软件架构风格，而不是标准，只是提供了一组设计原则和约束条件。RESTful 只是转为形容詞，就像那么 RESTful API 就是满足 REST 风格的，以此规范设计的 API。*
 
 2. **Scheduler**
@@ -120,7 +121,7 @@
     - 保存整个集群的状态
     
     - 键值对存储数据库
-  
+    
       **内部：**
     
       - **v2**: Memory
@@ -139,11 +140,11 @@
          - 主机名（hostname
          - 覆盖主机名的参数
          - 特定于某云驱动的逻辑
-  
+    
     2. 负责维护容器的生命周期，同时也负责Volume(CVI)和网络（CNI）的管理
     
          - *CNI（容器网络接口）是一个云原生计算基金会项目，它包含了一些规范和库，用于编写在 Linux 容器中配置网络接口的一系列插件。CNI 只关注容器的网络连接，并在容器被删除时移除所分配的资源。*
-  
+    
     3. **接受Master发出的指令并操作管理对应容器/创建pod**
 
 2. **Kube-proxy**
@@ -155,26 +156,26 @@
     *IPTABLES 是Linux中的代理，IPTABLES + NETFILTER 是Linux的防火墙。*
 
 3. **Pod**
+    
     * 定义：
       1. Pod是K8S里能够被运行的**最小的逻辑单元(原子单元)** - **最小部署单元**
       2. 1个Pod里面可以**运行多个容器**,它们共享UTS+NET +IPC名称空间
       3. 可以把Pod理解成豌豆荚,而同- -Pod内的每个容器是一 颗颗豌豆
       4. 一个Pod里运行多个容器,又叫:边车(SideCar)模式
       5. 一组容器的集合共享网络生命周期是短暂的
-      6. Pod内有自己的 IP address、 Volume、 Containerized Apps
-  
+    6. Pod内有自己的 IP address、 Volume、 Containerized Apps
+      
     * 为什么需要Pod：
     
       * 因为Pod可以搭载多个containers，在运维时可以成组地操作多个containers。
       
-    
     * 重启策略：
     
       * 在配置文件的RestartPolicy中可以修改
         - Always：当容器失效时，由kubelet自动重启该容器。
         - OnFailure：当容器终止运行且退出码不为0时，由kubelet自动重启该容器。
-        - Never：不论容器运行状态如何，kubelet都不会重启该容器。
-  
+        - Never：不论容器运行状态如何，kubelet都不会重启该容器。  
+
 
     * **创建pod：**
     
@@ -193,7 +194,7 @@
           args: ["HOSTNAME", "KUBERNETES_PORT"]
         restartPolicy: OnFailure
       ```
-  
+      
     * **生命周期图**
       
       - 挂起（Pending）：Pod 已被 Kubernetes 系统接受，但有一个或者多个容器镜像尚未创建。等待时间包括调度 Pod 的时间和通过网络下载镜像的时间，这可能需要花点时间。
@@ -203,6 +204,18 @@
       - 未知（Unknown）：因为某些原因无法取得 Pod 的状态，通常是因为与 Pod 所在主机通信失败
         
           ![kubernetes-pod-life-cycle](/kubernetes/images/kubernetes-pod-life-cycle.jpg)
+
+4. **Container Runtime**
+
+   **Worker Node 的运行环境**。安装容器化所需的软件环境确保容器化程序能够跑起来，比如 Docker Engine，即帮助node安装 Docker 运行环境。 
+
+5. **Logging Layer**
+
+   **K8S 的监控状态收集器**。 负责采集 Node 上所有服务的 CPU、内存、磁盘、网络等监控项信息。
+
+6. **Add-Ons** 
+
+   **管理运维 Worker Node 的插件组件**。K8S 系统提供了 Add-On 机制，让用户可以扩展更多定制化功能。
 
 ### NameSpace
 
@@ -221,22 +234,22 @@
 1. **Deployment**
   
     * 定义：
-  
+    
       1. 用于**无状态服务**
       
       2. *无状态服务不会在本地存储持久化数据.多个服务实例对于同一个用户请求的响应结果是完全一致的.这种多服务实例之间是没有依赖关系,比如web应用,在k8s控制器 中动态启停无状态服务的pod并不会对其它的pod产生影响.*
-  
+    
       3. Deployment 为 Pod 和 ReplicaSet 提供了一个声明式定义（declarative）方法，用来替代以前的 ReplicationController 来方便的管理应用。典型的应用场景包括：
       
           - 定义 Deployment 来创建 Pod 和 ReplicaSet
           - 滚动升级和回滚应用
           - 扩容和缩容
           - 暂停和继续 Deployment
-  
+    
     * *RC(Replication Controller)是一种用于保证应用程序副本数量的对象。它通过监视当前的副本数量，并在数量低于预期时创建新的副本，反之删除多余的副本。*
-  
+    
     * *RS(Replica Set)是 RC 的替代者，提供了更灵活的选择器功能。它使用标签选择器来确定要保留的副本数量，并在必要时创建或删除副本。*
-  
+    
     * **创建deployment**
     
       ```
@@ -264,7 +277,7 @@
 2. **Job**
 
     * Job 负责批处理任务，即**仅执行一次的任务**，它保证批处理任务的一个或多个 Pod 成功结束。
-  
+    
     * **创建Job**
       ```
       apiVersion: batch/v1
@@ -285,7 +298,7 @@
 3. **CronJob**
 
     * CronJob 创建基于**时隔重复调度**的 Job。
-  
+    
     * **创建CronJob**
       ```
       apiVersion: batch/v1
@@ -309,11 +322,11 @@
                 restartPolicy: OnFailure
       
       ```
+
   
-  
-  
+
     * **Cron 时间表语法**
-  
+      
       * .spec.schedule 字段是必需的。该字段的值遵循 Cron 语法：
       
       ```
@@ -335,7 +348,7 @@
       1. *DaemonSet* 可以保证集群中所有的或者部分的节点都能够运行同一份 Pod 副本，每当有新的节点被加入到集群时，Pod 就会在目标的节点上启动，如果节点被从集群中剔除，节点上的 Pod 也会被垃圾收集器清除
       
       2. 提供基础服务和守护进程
-  
+    
     * **适用于：当需要每一个node都运行一个进程去做某些任务的时候， 例如集群存储、日志收集和监控等**
     
     * **创建DaemonSet**
@@ -386,13 +399,13 @@
       ```
 
 5. **StatefulSet**
-    
+   
     * StatefulSet是为了解决**有状态服务**的问题（对应Deployments和ReplicaSets是为无状态服务而设计）
     
     * **适用于：数据库等需要持久存储的模块**
     
       *有状态服务需要在本地存储持久化数据,典型的是分布式数据库的应用,分布式节点实例之间有依赖的拓扑关系.比如,主从关系. 如果K8S停止分布式集群中任 一实例pod,就可能会导致数据丢失或者集群的crash.*
-  
+    
     * **创建StatefulSet**
     
       1. 部署local-path-provisioner（用于本地自动部署pv）
@@ -469,9 +482,9 @@
       - **Service Account** ：用来访问 Kubernetes API，由 Kubernetes 自动创建，并且会自动挂载到 Pod 的 `/run/secrets/[kubernetes.io/serviceaccount](http://kubernetes.io/serviceaccount)` 目录中；
       - **Opaque** ：base64 编码格式的 Secret，用来存储密码、密钥等
       - **[kubernetes.io/dockerconfigjson](http://kubernetes.io/dockerconfigjson)** ：用来存储私有 docker registry 的认证信息。
-  
+    
     * **创建secret**
-  
+    
       ```
       apiVersion: v1
       kind: Secret
@@ -487,7 +500,7 @@
     Kubernetes 中的卷有明确的寿命——与封装它的 Pod 相同。所以，卷的生命比 Pod 中的所有容器都长，当这个容器重启时数据仍然得以保存。当然，**当 Pod 不再存在时，卷也将不复存在**。也许更重要的是，Kubernetes 支持多种类型的卷，Pod 可以同时使用任意数量的卷。
   
     **【卷的种类】**
-      
+    
       1. 持久卷：独立于Pod的生命周期
           1. PV： 是集群中的一块存储，可以由管理员事先制备， 或者使用存储类（Storage Class）来动态制备。 持久卷是集群资源，就像节点也是集群资源一样
              ```
@@ -528,7 +541,7 @@
       1. ConfigMap 是一种 API 对象，用来将非机密性的数据保存到键值对中（存储机密数据请使用 Secret ）。使用时， Pods 可以将其用作环境变量、命令行参数或者存储卷中的配置文件。
       
       2. ConfigMap 将你的环境配置信息和 容器镜像 解耦，便于应用配置的修改。
-        
+      
         ```
         kind: ConfigMap
         apiVersion: v1
@@ -546,9 +559,9 @@
 ### HPA (HorizontalPodAutoscaler)
 
   根据CPU利用率，平行扩展和裁剪Pod数量
-  
+
   ex1. 维持扩缩目标中的 Pods 的平均资源利用率在 60% (*利用率是 Pod 的当前资源用量与其请求值之间的比值*)
-  
+
     ```
     type: Resource
     resource:
@@ -557,9 +570,9 @@
         type: Utilization
         averageUtilization: 60
     ```
-  
+
   ex2. 确保所有 Pod 中 application 容器的平均 CPU 用量为 60%
-  
+
     ```
     type: ContainerResource
     containerResource:
@@ -569,7 +582,7 @@
         type: Utilization
         averageUtilization: 60
     ```
-     
+
 ## Pod创建到消亡的过程
 
 1. **用户创建 Pod**
@@ -604,46 +617,46 @@
 ## Kubernetes 对象
 
   操作 Kubernetes 对象 —— 无论是创建、修改或者删除 —— 需要使用 [Kubernetes API](https://kubernetes.io/zh-cn/docs/concepts/overview/kubernetes-api)。 比如，当使用 `kubectl` 命令行接口（CLI）时，CLI 会调用必要的 Kubernetes API； 也可以在程序中使用[客户端库](https://kubernetes.io/zh-cn/docs/reference/using-api/client-libraries/)， 来直接调用 Kubernetes API。
-  
+
   在 Kubernetes 系统中，**Kubernetes 对象**是持久化的实体。 Kubernetes 使用这些实体去表示整个集群的状态。 具体而言，它们描述了如下信息：
-  
+
     - 哪些容器化应用正在运行（以及在哪些节点上运行）
     - 可以被应用使用的资源
     - 关于应用运行时行为的策略，比如重启策略、升级策略以及容错策略
 
 ### 资源对象
 
-  | 类别 | 名称 |
-  | --- | --- |
-  | 资源对象 | Pod、ReplicaSet、ReplicationController、Deployment、StatefulSet、DaemonSet、Job、CronJob、HorizontalPodAutoscaling、Node、Namespace、Service、Ingress、Label、CustomResourceDefinition |
-  | 存储对象 | Volume、PersistentVolume、Secret、ConfigMap |
-  | 策略对象 | SecurityContext、ResourceQuota、LimitRange |
-  | 身份对象 | ServiceAccount、Role、ClusterRole |
+| 类别 | 名称 |
+| --- | --- |
+| 资源对象 | Pod、ReplicaSet、ReplicationController、Deployment、StatefulSet、DaemonSet、Job、CronJob、HorizontalPodAutoscaling、Node、Namespace、Service、Ingress、Label、CustomResourceDefinition |
+| 存储对象 | Volume、PersistentVolume、Secret、ConfigMap |
+| 策略对象 | SecurityContext、ResourceQuota、LimitRange |
+| 身份对象 | ServiceAccount、Role、ClusterRole |
 
 ## yaml文件
 
 ### 属性说明
 
-  | 属性名称 | 介绍 |
-  | --- | --- |
-  | apiVersion | API版本 |
-  | kind | 资源类型 |
-  | metadata | 资源元数据 |
-  | spec | 资源规格 |
-  | replicas | 副本数量 |
-  | selector | 标签选择器 |
-  | template | Pod模板 |
-  | metadata | Pod元数据 |
-  | spec | Pod规格 |
-  | containers | 容器配置 |
+| 属性名称 | 介绍 |
+| --- | --- |
+| apiVersion | API版本 |
+| kind | 资源类型 |
+| metadata | 资源元数据 |
+| spec | 资源规格 |
+| replicas | 副本数量 |
+| selector | 标签选择器 |
+| template | Pod模板 |
+| metadata | Pod元数据 |
+| spec | Pod规格 |
+| containers | 容器配置 |
 
 ### 数据结构
-  
+
   - List
   - Map
 
 ### 常用apiVersion
-  
+
   - **v1**： Kubernetes API的稳定版本，包含很多核心对象：pod、service等。
   - **apps/v1**： 包含一些通用的应用层的api组合，如：Deployments, RollingUpdates, and ReplicaSets。
   - **batch/v1**： 包含与批处理和类似作业的任务相关的对象，如：job、cronjob。
