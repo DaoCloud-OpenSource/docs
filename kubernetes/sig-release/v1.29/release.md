@@ -155,7 +155,7 @@ metadata:
         - pod-template-hash
 ```
 
-### [调度] QueueingHint 为优化 Pod 调度带来新的可能（Beta）
+### [调度] KEP-4247：QueueingHint 为优化 Pod 调度带来新的可能（Beta）
 
 对于 Kubernetes 项目来说，调度器的吞吐量多年来一直是一个永恒的挑战，SIG Scheduling 一直在努力通过许多增强来提高调度吞吐量。
 
