@@ -2,8 +2,6 @@
 
 太平洋时间 2023 年 12 月 13 日，主题为 Mandala（宇宙）的 Kubernetes 1.29 正式发布。
 
-![logo](kubernetes-1.29.png)
-
 此版本距离上版本发布时隔 4 个月，是 2023 年的第三个版本。
 
 新版本中 release 团队跟踪了 49 个 enhancements。其中 11 个功能升级为稳定版，19 个已有功能进行优化升级为 Beta，另有多达
@@ -374,7 +372,25 @@ Kubernetes 旧版软件包仓库（apt.kubernetes.io 和 yum.kubernetes.io）已
 - 弃用 `FlowSchema` 和 `PriorityLevelConfiguration` 的 `flowcontrol.apiserver.k8s.io/v1beta2` API version，
   并且 `flowcontrol.apiserver.k8s.io/v1beta3`已升级为 `flowcontrol.apiserver.k8s.io/v1`。如果你的清单或客户端软件使用已弃用的 Beta API 组， 则应升级到 v1.29 之前更改这些。
 
-## 5. 历史文档
+
+## 5. 版本标志
+
+本次发布的主题是：*Mandala（曼陀罗，宇宙）* ✨
+
+![logo](kubernetes-1.29.png)
+
+与我们一起踏上 Kubernetes v1.29 的宇宙之旅！
+
+这个版本的灵感来自于曼陀罗（Mandala）这一美丽的艺术形式——它是宇宙完美表达的象征。此次发布社区大约有 40 名发布团队成员，得到数百名社区贡献者的支持，他们辛勤工作，将挑战转化为全球数百万人的喜悦。
+曼陀罗主题反映了社区的相互关联，充满活力。每位贡献者都是一个至关重要的部分，他们像曼陀罗艺术中的多样图案一样，为其中添加了独特的能量。Kubernetes 在协作中茁壮成长，回应着曼陀罗创作中的和谐。
+
+发布标志由 [Mario Jason Braganza](https://janusworx.com) 制作（基于曼陀罗艺术，感谢 - [Fibrel Ojalá](https://pixabay.com/users/fibrel-3502541/)），
+象征着 Kubernetes 项目及其所有成员的小宇宙。
+
+秉持曼陀罗变革象征的精神，Kubernetes v1.29 庆祝着我们项目的演变。就像 Kubernetes 宇宙中的星星一样，每个贡献者、用户和支持者都为之照亮道路。我们共同创造了一个可能性的世界。
+
+
+## 6. 历史文档
 - [Kubernetes 1.28 震撼发布，Sidecar Containers 迎面而来](https://mp.weixin.qq.com/s/Dr_JpSD9tzfahslZO2bX5A)
 - [近两年功能增加最多！Kubernetes 1.27 正式发布](https://mp.weixin.qq.com/s/maDEiCGzOPSDkH9dUxIxdA)
 - [Kubernetes 正式发布 v1.26，稳定性显著提升](https://mp.weixin.qq.com/s/qwzmeIM4INz-_BK_gbwOxw)
@@ -384,7 +400,7 @@ Kubernetes 旧版软件包仓库（apt.kubernetes.io 和 yum.kubernetes.io）已
 - [Kubernetes 1.22 颠覆你的想象：可启用 Swap，推出 PSP 替换方案，还有……](https://mp.weixin.qq.com/s/9nH2UagDm6TkGhEyoYPgpQ)
 - [Kubernetes 1.21 震撼发布 | PSP 将被废除，BareMetal 得到增强](https://mp.weixin.qq.com/s/amGjvytJatO-5a7Nz4BYPw)
 
-## 6. 参考
+## 7. 参考
 
 1. Kubernetes 增强特性 <https://kep.k8s.io/>
 2. Kubernetes 1.29 发布团队 <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.29>
