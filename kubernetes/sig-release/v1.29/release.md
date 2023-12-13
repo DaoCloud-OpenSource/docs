@@ -26,7 +26,7 @@ nftables 能完成 iptables 能做的所有事情，而且做得更好。
 需要注意的是，虽然该 `nftables` 模式可能与 `iptables` 模式非常相似，但某些 CNI 插件、NetworkPolicy 实现等可能需要更新才能使用它。
 这可能会带来一定的兼容性问题。
 
-### [存储] KEP-2495：PV/PVC `ReadWriteOncePod` 访问模式（GA）
+### [存储] KEP-2485：PV/PVC `ReadWriteOncePod` 访问模式（GA）
 
 在 Kubernetes 中，访问模式是定义如何使用持久存储的方式。这些访问模式是持久卷 (PV) 和持久卷声明 (PVC) 规范的一部分。
 `ReadWriteOncePod` 作为第四种访问模式（之前的三种访问模式：ReadWriteOnce、ReadOnlyMany、ReadWriteMany）在
