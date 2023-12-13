@@ -161,19 +161,6 @@ metadata:
         - pod-template-hash
 ```
 
-### [调度] KEP-4247：QueueingHint 为优化 Pod 调度带来新的可能（Beta）
-
-对于 Kubernetes 项目来说，调度器的吞吐量多年来一直是一个永恒的挑战，SIG Scheduling 一直在努力通过许多增强来提高调度吞吐量。
-
-QueueingHint 功能为优化重新排队效率带来了新的可能性，可以显著减少无用的调度重试。
-
-在 v1.28 中，只有一个 alpha 插件 (DRA) 支持 QueueingHint，
-在 v1.29 中，一些稳定的插件开始实现 QueueingHints。
-
-QueueingHint 从 v1.28 引入以来就是 Beta 状态，直接跳过 Alpha 阶段，默认启用。
-它不面向用户而是面向开发者，可以使用 `SchedulerQueueingHints` 特性门控来决定是否禁用它。
-因为 QueueingHint 改变了调度程序的关键路径并增加了一些内存开销，具体取决于集群的繁忙程度。
-
 ### [Instrumentation] KEP-727：Kubelet 资源指标（GA）
 
 Kubelet 使用 Prometheus 客户端库以 Prometheus 文本展示格式在 `/metrics/resource` 公开端点。它提供集群级资源指标 API 所需的指标，
@@ -340,6 +327,19 @@ kube-apiserver 现在通过 `ServiceAccountTokenNodeBinding` 特性门控添加�
 ### EventedPLEG 存在严重问题
 
 `EventedPLEG` 功能（ 使用事件驱动的 PLEG）在 Kubernetes v1.27 中已经升级为 Beta，但是默认不开启。在 v1.29 测试中发现了严重问题，建议不要启用它！社区正在进行调查和修复，但尚未找到具体原因。
+
+### SchedulerQueueingHints 特性门控默认设置为禁用状态
+
+对于 Kubernetes 项目来说，调度器的吞吐量多年来一直是一个永恒的挑战，SIG Scheduling 一直在努力通过许多增强来提高调度吞吐量。
+QueueingHint 功能为优化重新排队效率带来了新的可能性，可以显著减少无用的调度重试。
+
+在 v1.28 中，只有一个 alpha 插件 (DRA) 支持 QueueingHint，
+在 v1.29 中，一些稳定的插件开始实现 QueueingHint。
+
+QueueingHint 从 v1.28 引入以来就是 Beta 状态，直接跳过了 Alpha 阶段，默认启用。
+但是在 v1.29 中， `SchedulerQueueingHints` 特性门控默认设置为禁用状态。
+因为启用它之后内存使用量意外增加，并且某些插件实现的 QueueingHint 中发现了回归问题。
+建议在 v1.29 中不要启用它，社区正在紧急修复。
 
 ### in-tree cloud providers 的移除升级至 Beta 状态
 
