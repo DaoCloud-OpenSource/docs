@@ -310,7 +310,6 @@ kube-apiserver 现在通过 `ServiceAccountTokenNodeBinding` 特性门控添加�
 - [调度] 修复了运行 score 插件时调度程序框架中自 v1.27.0 以来的回归问题。`SkippedScorePlugins` 数量可能大于 `enabledScorePlugins`，
   因此在初始化切片时 `cap(len(enabledScorePlugins) - len(skippedScorePlugins))` 的值可能是负的，这是不允许的。
 - [调度] 向 `QueueingHint` 添加了返回值以指示错误。如果 `QueueingHint` 返回错误，调度程序会记录该错误并将该事件视为 `QueueAfterBackoff`，以便 Pod 不会卡在不可调度的 Pod 池中。
-- [调度] 在 kube-scheduler 实现 NodeAffinity 插件的调度 hints。
 - [存储] 参与设计 `VolumeAttributesClass` API。
 - [Instrumentation] 将 kube-scheduler 完全转化为上下文日志记录。
 - [网络] 将 PodHostIPs 条件提升为 Beta。
