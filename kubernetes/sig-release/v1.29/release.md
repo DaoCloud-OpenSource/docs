@@ -331,10 +331,9 @@ kube-apiserver 现在通过 `ServiceAccountTokenNodeBinding` 特性门控添加�
 - [Kubeadm] 修复 `clusterrole` 的无效命名空间字段。
 - [测试] 更新测试框架方法以及添加测试增加测试覆盖率。
 
-在 v1.29 发布过程中，DaoCloud 参与一百多个问题修复和功能研发，作为作者约有 111 个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=120)（该版本的两百多位贡献者中有来自 DaoCloud 的 17 位）。
+在 v1.29 发布过程中，DaoCloud 参与多个问题修复和功能研发，作为作者约有一百多个提交，详情请见[贡献列表](https://www.stackalytics.io/cncf?project_type=cncf-group&release=all&metric=commits&module=github.com/kubernetes/kubernetes&date=120)（该版本的两百多位贡献者中有来自 DaoCloud 的 17 位）。
 在 Kubernetes v1.29 的发布周期中，DaoCloud 的多名研发工程师取得了不少成就。其中，Paco 做为首位入选 Kubernetes 指导委员会(Steering Committee)的中国人；
-蔡威成为 CNCF Fall 2023 云原生全球大使，并且是 KCD 深圳站 2023 的组织者和主持人；刘梦姣成为 WG Structured Logging Lead，并且成为 Kubernetes/klog Reviewer；
-郭奇峰成为 Calico Big Cat 大使。
+蔡威成为 CNCF Fall 2023 云原生全球大使，并且是 KCD 深圳站 2023 的组织者和主持人；刘梦姣成为 WG Structured Logging Lead，并且成为 Kubernetes/klog Reviewer。
 
 ## 4. 升级注意事项
 
