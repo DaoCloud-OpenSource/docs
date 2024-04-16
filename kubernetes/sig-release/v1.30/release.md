@@ -53,7 +53,7 @@ Kubernetes v1.30：Uwubernetes ❤️
 
 在 [KEP-3756 Robust VolumeManager reconstruction after kubelet restart](https://github.com/kubernetes/enhancements/issues/3756) 中，jsafrane 和社区成员提出了对 Kubernetes 的 VolumeManager 的改进提案。该提案和实现允许在 kubelet 启动的时候提供并填充有关现有的卷是如何挂载的信息。换句话说，可以让节点重启或者 kubelet 重启后能够更好、更准确地回收并恢复那些在重启前已经挂载的卷。
 
-> 最早在 v1.25 引入，v1.27 进入 Beta 阶段，在 v1.28 默认启用，现在该提案已经基本可用。
+> 最早在 v1.25 引入，v1.27 进入 Beta 阶段，在 v1.28 默认启用，现在该提案已经稳定可用。
 
 ### 存储 - 阻止在卷恢复期间发生未授权的卷模式转换（仅对 CSI 生效）
 
@@ -61,13 +61,13 @@ Kubernetes v1.30：Uwubernetes ❤️
 
 对于 Kubernetes v1.30，在将快照恢复到 PersistentVolume 时，控制平面将始终会阻止对卷模式进行未经授权的更改。作为集群管理员和运维人员，如果需要在还原和恢复时允许此类更改，则需要通过 RBAC（例如：代表 CSI 的 ServiceAccounts）授予相关的权限。
 
-有关这个功能的更多信息，请参阅[转换快照的卷模式](https://github.com/kubernetes/website/blob/2f32fdc7b0915d47844bbef5b58c31678955d823/docs/concepts/storage/volume-snapshots/#convert-volume-mode)。
+有关这个功能的更多信息，请参阅[转换快照的卷模式](https://kubernetes.io//docs/concepts/storage/volume-snapshots/#convert-volume-mode)。
 
 ### 网络 - 为 Pod 添加 `status.hostIPs` 字段
 
 在 [KEP-2681 # Field `status.hostIPs` added for Pod](https://github.com/kubernetes/enhancements/issues/2681) 中，来自 DaoCloud 的 wzshiming 与社区成员一同提出为 Pod 资源添加 `status.hostIPs` 字段以获取节点在 IPv4 和 IPv6 双栈的情况下的地址。主要目的是为在双栈过渡阶段迁移到 IPv6 时的应用提供更好的平滑迁移体验，毕竟 IP 相关的属性应该同时支持 IPv4 和 IPv6，而非过去 `status.hostIP` 这样只有一个 IP 的状态。
 
-> 最早在 v1.28 引入，在 v1.29 进入 Beta 阶段，现在该提案已经基本可用。
+> 最早在 v1.28 引入，在 v1.29 进入 Beta 阶段，现在该提案已经稳定可用。
 
 ### 调度 - Pod 调度准备就绪现已 GA
 
@@ -79,7 +79,7 @@ Kubernetes v1.30：Uwubernetes ❤️
 
 对于现如今热门的 AI 和机器学习相关的负载而言，也可以允许外部 Operator 和 Controller 在启动工作负载的时候得以更好的进行权重预下载，资源预分配，数据集预加载等操作，宏观视角上甚至能与 DRA 联动实现更多灵活的部署方案和架构设计。
 
-> 最早在 v1.26 引入，v1.27 中进入 Beta 阶段，现在该提案已经基本可用。
+> 最早在 v1.26 引入，v1.27 中进入 Beta 阶段，现在该提案已经稳定可用。
 
 ### CLI - kubectl 交互式删除现已 GA
 
@@ -94,13 +94,14 @@ Kubernetes v1.30：Uwubernetes ❤️
 
 > 最早在 v1.27 引入，v1.29 进入 Beta 阶段，现在在 v1.30 的 kubectl 命令中已经默认支持了。
 
-### 自动伸缩 - 基于容器资源的 Pod 自动伸缩
+### 自动伸缩 - 基于容器资源的 Pod 自动伸缩现已 GA
 
 在 [KEP-1610 Container Resource based Autoscaling](https://github.com/kubernetes/enhancements/issues/1610) 中，arjunrn 和社区成员提出了一种基于容器资源使用的水平自动扩缩容（HPA）机制，以更精细地控制资源的自动扩缩容，核心主要是针对那些容器使用情况不一致或并非总是同步变化的工作负载。
 
 比如作者介绍的 sidecar 模式下的多个服务容器，或者性能敏感型的应用，在这些用例下，如果要为不同容器提供资源配额支持，各个容器可能需要独立配置资源使用，并不能依赖 HPA 控制器的默认行为进行自动伸缩。
 
-> 最早在 v1.19 引入在 v1.27 进入 Beta 阶段，现在该提案已经基本可用。
+> 最早在 v1.19 引入在 v1.27 进入 Beta 阶段，现在该提案已经稳定可用。
+
 ### 安全 - 用于准入控制的 CEL
 
 在过去，自定义策略的执行方式是通过 Admission Webhook 进行的。Admission Webhooks 非常灵活，但与进程内策略执行相比有一些缺点：
@@ -114,7 +115,7 @@ Kubernetes v1.30：Uwubernetes ❤️
 
 CEL 的引入使集群管理员能够制定复杂的规则，这些规则可以根据集群的所需状态和策略评估 API 请求的内容，而无需求助于基于 Webhook 的 Controller。简单来说，现在我们可以在授权层中动态检查 RBAC 权限和请求的资源相关的上下文，并通过表达式进行程序化判断和拓展流程控制而无需生成复杂的 RBAC 策略或者部署单独的 Webhook 服务。
 
-> 最早在 v1.26 引入，v1.28 进入 Beta 阶段，现在已经基本可用。
+> 最早在 v1.26 引入，v1.28 进入 Beta 阶段，现在已经稳定可用。
 
 ## 进入 Beta 阶段的功能
 
@@ -124,7 +125,7 @@ CEL 的引入使集群管理员能够制定复杂的规则，这些规则可以�
 
 因此在 [KEP-2258 Node log query](https://github.com/kubernetes/enhancements/issues/2258) 中由 aravindhp 和社区成员提出了使用 kubelet API 为集群管理员提供无需登录节点调试查看的流式的日志视图。
 
-如果想要使用该功能，需要为该节点启用 `NodeLogQuery` 特性门控，并且为 kubelet 配置 `enableSystemLogHandler` 和 `enableSystemLogQuery` 两个选析，并均设置为 `true`。
+如果想要使用该功能，需要为该节点启用 `NodeLogQuery` 特性门控，并且为 kubelet 配置 `enableSystemLogHandler` 和 `enableSystemLogQuery` 两个选项，并均设置为 `true`。
 
 在不同系统上，NodeLogQuery 有着不一样的行为：
 
@@ -146,9 +147,7 @@ CEL 的引入使集群管理员能够制定复杂的规则，这些规则可以�
 
 ### 网络 - 允许 Kubernetes 感知 LoadBalancer 的行为
 
-`LoadBalancerIPMode` 特性门控现在还处于测试阶段，不过已经默认启用了。这样的功能允许为 `type` 为 `LoadBalancer` 服务的 `.status.loadBalancer.ingress.ipMode` 进行配置。
-
- 仅在 `.status.loadBalancer.ingress.ip` 字段配置的情况下，`.status.loadBalancer.ingress.ipMode` 字段才会生效，配置后将会指定和配置 LoadBalancer IP 的行为方式。
+`LoadBalancerIPMode` 特性门控现在还处于测试阶段，不过已经默认启用了。这样的功能仅在 `.status.loadBalancer.ingress.ip` 字段已经配置的情况下，允许为 `type` 为 `LoadBalancer` 的服务配置 `.status.loadBalancer.ingress.ipMode` 字段，配置后将会指定和配置 LoadBalancer IP 的行为方式。
 
 ## 进入 Alpha 阶段的功能
 
