@@ -51,7 +51,7 @@ Kubernetes v1.30：Uwubernetes ❤️
 上述的更新并不都会在下面提及，如果对其感兴趣，请移步至具体的 KEP 页面了解进展和详情。
 ### 存储 - `kubelet` 重启后稳定重建 VolumeManager 现已 GA
 
-在 [KEP-3756 Robust VolumeManager reconstruction after kubelet restart](https://github.com/kubernetes/enhancements/issues/3756) 中，jsafrane 和社区成员提出了对 Kubernetes 的 VolumeManager 的改进提案。该提案和实现允许在 kubelet 启动的时候提供并填充有关现有的卷是如何挂载的信息。换句话说，可以让节点重启或者 kubelet 重启后得一更好地且更准确地回收和恢复已经挂载的卷。
+在 [KEP-3756 Robust VolumeManager reconstruction after kubelet restart](https://github.com/kubernetes/enhancements/issues/3756) 中，jsafrane 和社区成员提出了对 Kubernetes 的 VolumeManager 的改进提案。该提案和实现允许在 kubelet 启动的时候提供并填充有关现有的卷是如何挂载的信息。换句话说，可以让节点重启或者 kubelet 重启后能够更好、更准确地回收并恢复那些在重启前已经挂载的卷。
 
 > 最早在 v1.25 引入，v1.27 进入 Beta 阶段，在 v1.28 默认启用，现在该提案已经基本可用。
 
