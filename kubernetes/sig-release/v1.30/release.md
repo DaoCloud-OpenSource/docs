@@ -49,13 +49,14 @@ Kubernetes v1.30：Uwubernetes ❤️
 - [聚合资源 API 发现](https://kep.k8s.io/3352)
 
 上述的更新并不都会在下面提及，如果对其感兴趣，请移步至具体的 KEP 页面了解进展和详情。
-### 存储 - `kubelet` 重启后稳定重建 VolumeManager 现已 GA
+
+### 存储 - `kubelet` 重启后稳定重建 VolumeManager 现已正式发布
 
 在 [KEP-3756 Robust VolumeManager reconstruction after kubelet restart](https://github.com/kubernetes/enhancements/issues/3756) 中，jsafrane 和社区成员提出了对 Kubernetes 的 VolumeManager 的改进提案。该提案和实现允许在 kubelet 启动的时候提供并填充有关现有的卷是如何挂载的信息。换句话说，可以让节点重启或者 kubelet 重启后能够更好、更准确地回收并恢复那些在重启前已经挂载的卷。
 
-> 最早在 v1.25 引入，v1.27 进入 Beta 阶段，在 v1.28 默认启用，现在该提案已经稳定可用。
+> 最早在 v1.25 引入，v1.27 进入 Beta 阶段，在 v1.28 默认启用，现在该提案已正式发布。
 
-### 存储 - 阻止在卷恢复期间发生未授权的卷模式转换（仅对 CSI 生效）
+### 存储 - 阻止在卷恢复期间发生未授权的卷模式转换现已正式发布（仅对 CSI 生效）
 
 在 [KEP3141 Prevent unauthorised volume mode conversion during volume restore](https://github.com/kubernetes/enhancements/issues/3141) 中，RaunakShah 和社区成员提出的一种用来**减轻用户在从现有 PVC 创建 VolumeSnapshot 时对卷模式的更改带来的漏洞**的机制。
 
@@ -63,13 +64,13 @@ Kubernetes v1.30：Uwubernetes ❤️
 
 有关这个功能的更多信息，请参阅[转换快照的卷模式](https://kubernetes.io//docs/concepts/storage/volume-snapshots/#convert-volume-mode)。
 
-### 网络 - 为 Pod 添加 `status.hostIPs` 字段
+### 网络 - 为 Pod 添加 `status.hostIPs` 字段现已正式发布
 
 在 [KEP-2681 # Field `status.hostIPs` added for Pod](https://github.com/kubernetes/enhancements/issues/2681) 中，来自 DaoCloud 的 wzshiming 与社区成员一同提出为 Pod 资源添加 `status.hostIPs` 字段以获取节点在 IPv4 和 IPv6 双栈的情况下的地址。主要目的是为在双栈过渡阶段迁移到 IPv6 时的应用提供更好的平滑迁移体验，毕竟 IP 相关的属性应该同时支持 IPv4 和 IPv6，而非过去 `status.hostIP` 这样只有一个 IP 的状态。
 
-> 最早在 v1.28 引入，在 v1.29 进入 Beta 阶段，现在该提案已经稳定可用。
+> 最早在 v1.28 引入，在 v1.29 进入 Beta 阶段，现在该提案已正式发布。
 
-### 调度 - Pod 调度准备就绪现已 GA
+### 调度 - Pod 调度准备就绪正式发布
 
 在 [KEP-3521 Pod Scheduling Readiness](https://github.com/kubernetes/enhancements/issues/3521) 中由 Huang-Wei 和社区成员提出的，通过增加一个 Pod 是否准备好被调度的机制来实现「如果前置依赖不满足，那么 Pod 就无需被调度，也就不会消耗资源，有且仅有在诸如存储，关联资源创建并准备就绪这样的条件满足的时候，才会由 kubelet 和 kube-scheduler 进行处理」的能力。
 
@@ -79,9 +80,9 @@ Kubernetes v1.30：Uwubernetes ❤️
 
 对于现如今热门的 AI 和机器学习相关的负载而言，也可以允许外部 Operator 和 Controller 在启动工作负载的时候得以更好的进行权重预下载，资源预分配，数据集预加载等操作，宏观视角上甚至能与 DRA 联动实现更多灵活的部署方案和架构设计。
 
-> 最早在 v1.26 引入，v1.27 中进入 Beta 阶段，现在该提案已经稳定可用。
+> 最早在 v1.26 引入，v1.27 中进入 Beta 阶段，现在该提案已正式发布。
 
-### CLI - kubectl 交互式删除现已 GA
+### CLI - kubectl 交互式删除正式发布
 
 很多人都使用 `kubectl` 对集群进行更改，其中的 `kubectl delete` 子命令是破坏性且不可逆的命令，然而，在各种情况下，如果用户输入的命令不准确、内容和参数错误、仓促操作时都会导致集群资源误删，甚至无法还原到先前的状态的问题。
 
@@ -94,13 +95,13 @@ Kubernetes v1.30：Uwubernetes ❤️
 
 > 最早在 v1.27 引入，v1.29 进入 Beta 阶段，现在在 v1.30 的 kubectl 命令中已经默认支持了。
 
-### 自动伸缩 - 基于容器资源的 Pod 自动伸缩现已 GA
+### 自动伸缩 - 基于容器资源的 Pod 自动伸缩正式发布
 
 在 [KEP-1610 Container Resource based Autoscaling](https://github.com/kubernetes/enhancements/issues/1610) 中，arjunrn 和社区成员提出了一种基于容器资源使用的水平自动扩缩容（HPA）机制，以更精细地控制资源的自动扩缩容，核心主要是针对那些容器使用情况不一致或并非总是同步变化的工作负载。
 
 比如作者介绍的 sidecar 模式下的多个服务容器，或者性能敏感型的应用，在这些用例下，如果要为不同容器提供资源配额支持，各个容器可能需要独立配置资源使用，并不能依赖 HPA 控制器的默认行为进行自动伸缩。
 
-> 最早在 v1.19 引入在 v1.27 进入 Beta 阶段，现在该提案已经稳定可用。
+> 最早在 v1.19 引入在 v1.27 进入 Beta 阶段，现在该提案已正式发布。
 
 ### 安全 - 用于准入控制的 CEL
 
@@ -115,7 +116,7 @@ Kubernetes v1.30：Uwubernetes ❤️
 
 CEL 的引入使集群管理员能够制定复杂的规则，这些规则可以根据集群的所需状态和策略评估 API 请求的内容，而无需求助于基于 Webhook 的 Controller。简单来说，现在我们可以在授权层中动态检查 RBAC 权限和请求的资源相关的上下文，并通过表达式进行程序化判断和拓展流程控制而无需生成复杂的 RBAC 策略或者部署单独的 Webhook 服务。
 
-> 最早在 v1.26 引入，v1.28 进入 Beta 阶段，现在已经稳定可用。
+> 最早在 v1.26 引入，v1.28 进入 Beta 阶段，现在已正式发布。
 
 ## 进入 Beta 阶段的功能
 
