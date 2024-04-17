@@ -48,7 +48,7 @@ Kubernetes v1.30：Uwubernetes ❤️
 - [为 Pod 添加 `status.hostIPs` 字段](https://kep.k8s.io/2681)
 - [聚合资源 API 发现](https://kep.k8s.io/3352)
 
-上述的更新并不都会在下面提及，如果对其感兴趣，请移步至具体的 KEP 页面了解进展和详情。
+这是有关 GA 和 Stable 的更新总览，下文择取了部分特性详述。如果对其他特性感兴趣，请移步至具体的 KEP 页面了解进展和详情。
 
 ### 存储 - `kubelet` 重启后稳定重建 VolumeManager 现已正式发布
 
