@@ -75,7 +75,7 @@ GA 全称 General Availability，即正式发布。Kubernetes 的进阶路线通
 
 在 [KEP-3521 Pod Scheduling Readiness](https://github.com/kubernetes/enhancements/issues/3521) 中由 Huang-Wei 和社区成员提出的，通过增加一个 Pod 是否准备好被调度的机制来实现「如果前置依赖不满足，那么 Pod 就无需被调度，也就不会消耗资源，有且仅有在诸如存储，关联资源创建并准备就绪这样的条件满足的时候，才会由 kubelet 和 kube-scheduler 进行处理」的能力。
 
-这样的机制是通过指定（或删除）Pod 定义中的 `.spec.schedulingGates` 配置来实现的。因此，自 Kubernetes v1.30 开始，通过指定（或删除）Pod 定义中的 `.spec.schedulingGates` ，就可以实现对 Pod 何时准备好进行调度的控制。当期望对 Pod 进行调度时，对于管理和编排 CRD 的 Operator 和 Controller 而言，只需要在满足条件并准备就绪后移除 `.spec.schedulingGates` 配置即可。
+这样的机制是通过指定（或删除）Pod 定义中的 `.spec.schedulingGates` 配置来实现的。因此，自 Kubernetes v1.26 (1.26 Alpha, 1.27 Beta, 1.30 GA) 开始，通过指定（或删除）Pod 定义中的 `.spec.schedulingGates` ，就可以实现对 Pod 何时准备好进行调度的控制。当期望对 Pod 进行调度时，对于管理和编排 CRD 的 Operator 和 Controller 而言，只需要在满足条件并准备就绪后移除 `.spec.schedulingGates` 配置即可。
 
 换句话说，这样的 KEP 和能力使得对 Pod 的调度有了被动事件更新的能力，允许外部在不需要侵入式修改调度器和增加额外的控制器逻辑和调度器的情况下，对 Pod 的生命周期中的「调度」有了更强的掌控力。
 
