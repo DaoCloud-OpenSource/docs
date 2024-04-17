@@ -28,6 +28,8 @@ Kubernetes v1.30：Uwubernetes ❤️
 
 ## GA 和稳定的功能
 
+GA 全称 General Availability，即正式发布。Kubernetes 的进阶路线通常是 Alpha、Beta、Stable、GA 这四个阶段。
+
 ### 更新总览
 
 - [基于容器资源的 Pod 自动伸缩](https://kep.k8s.io/1610)
