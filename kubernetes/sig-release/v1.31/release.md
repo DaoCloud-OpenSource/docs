@@ -167,7 +167,7 @@ spec:
 - [KEP-4569 对 cgroup v1 的支持移至维护模式, 弃用路径与当初的 Dockershim 基本相似](https://kep.k8s.io/4569)
 - [KEP-4004 弃用 v1.Node 的 `status.nodeInfo.kubeProxyVersion` 字段](https://kep.k8s.io/4004)
 - [GODEBUG 和对 SHA-1 证书的支持将 在 2025 年上半年发布的 go 1.24 版本中完全消失, 如果你依赖 SHA-1 证书，请开始放弃使用它们](https://github.com/kubernetes/kubernetes/issues/125689)
-- 删除 kubelet --keep-terminated-pod-volumes 命令行标志
+- 删除 kubelet `--keep-terminated-pod-volumes` 命令行标志
 - 删除 CephFS、Ceph RBD 卷插件
 - kube-scheduler 中非 CSI 卷限制插件的弃用 (AzureDiskLimits、CinderLimits、EBSLimits 及 GCEPDLimits), 如果已在调度器配置中显式使用已弃用的插件, 请用 NodeVolumeLimits 插件替换它们
 - 删除云驱动集成的树内支持的最后剩余部分。 这并不意味着你无法与某云驱动集成，只是你现在必须使用推荐的外部集成方法。 一些集成组件是 Kubernetes 项目的一部分，其余集成组件则是第三方软件
