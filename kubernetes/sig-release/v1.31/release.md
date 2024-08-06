@@ -176,7 +176,7 @@ spec:
 
 在 v1.31 的发布周期中，[范宝发（carlory）](https://github.com/carlory)成为了 Kubeadm Reviewer，他同时也是 SIG-Storage 和 CSI Reviewer。
 
-2024年8月21日, 香港将举办为期三天的盛会, 以下是我司 Kubernetes 社区相关的几个主题：
+2024 年 8 月 21 日, 香港将举办为期三天的 [KubeCon + CloudNativeCon + Open Source Summit + AI_dev China 2024](https://events.linuxfoundation.org/kubecon-cloudnativecon-open-source-summit-ai-dev-china/) 盛会, 以下是我司 Kubernetes 社区相关的几个主题：
 
 - 【Kubernetes 子项目 KWOK】主论坛演讲： 世明 KWOK 主题
 - 【Kubernetes 子项目 Kubespray】Kubespray大放异彩：在Kubernetes中为LLM和RAG部署裸金属服务 - Kay Yan, DaoCloud & Alan Leung, Equinix
