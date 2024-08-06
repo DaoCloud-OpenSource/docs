@@ -31,7 +31,7 @@ GA 全称 General Availability，即正式发布。Kubernetes 的进阶路线通
 - [KEP-3762 持久卷的最新阶段转换时间功能, 记录 PersistentVolume 最后一次转换到不同阶段的时间戳](https://kep.k8s.io/3762)
 - [KEP-2305 监控指标动态基数强制限制功能, 限制标签允许值的数量来缓解基数爆炸, 和缓解内存问题](https://kep.k8s.io/2305)
 - [KEP-3836 提高 Kube-proxy 服务的入口连接的可靠性](https://kep.k8s.io/3836)
-- [KEP-4009 设备插件的API添加对 CDI 设备的支持, 允许设备插件提供方使用 CDI 定义容器化环境所需的修改](https://kep.k8s.io/4009)
+- [KEP-4009 设备插件的 API 添加对 CDI 设备的支持, 允许设备插件提供方使用 CDI 定义容器化环境所需的修改](https://kep.k8s.io/4009)
 - [KEP-0024 AppArmor 支持](https://kep.k8s.io/24)
 - [KEP-3017 PDB 添加对不健康的 Pod 驱逐策略的支持, 通过用户提供的配置信息, 来防止被保护的应用程序受到不可用和服务中断](https://kep.k8s.io/3017)
 - [KEP-3329 Job 添加指定处理失败 Pod 的策略的支持, 以终止或重试作业](https://kep.k8s.io/3329)
