@@ -165,7 +165,7 @@ spec:
 ## 删除和废弃
 
 - [KEP-4569 对 cgroup v1 的支持移至维护模式, 弃用路径与当初的 Dockershim 基本相似](https://kep.k8s.io/4569)
-- [KEP-4004 弃用 v1.Node 的 status.nodeInfo.kubeProxyVersion 字段](https://kep.k8s.io/4004)
+- [KEP-4004 弃用 v1.Node 的 `status.nodeInfo.kubeProxyVersion` 字段](https://kep.k8s.io/4004)
 - [GODEBUG 和对 SHA-1 证书的支持将 在 2025 年上半年发布的 go1.24 中完全消失, 如果你依赖 SHA-1 证书，请开始放弃使用它们](https://github.com/kubernetes/kubernetes/issues/125689)
 - 删除 kubelet --keep-terminated-pod-volumes 命令行标志
 - 删除 CephFS、Ceph RBD 卷插件
