@@ -47,7 +47,7 @@ Beta 阶段的功能是指那些已经经过 Alpha 阶段的功能, 且在 Beta 
 - [KEP-2644 始终遵守 PersistentVolume 回收策略, 防止 PersistentVolume 删除后, 存储系统中的数据卷依然存在的情况](https://kep.k8s.io/2644)
 - [KEP-3633 将 MatchLabelKeys 和 MismatchLabelKeys 引入 PodAffinity 和 PodAntiAffinity, 能够在现有 LabelSelector 之上精细控制 Pod 预期共存 (PodAffinity) 或不共存 (PodAntiAffinity) 的范围](https://kep.k8s.io/3633)
 - [KEP-3866 Kube-proxy 基于 nftables（Linux Kernel 社区对 iptables 的替代）实现了新的后端，旨在解决 iptables 现存的性能问题](https://kep.k8s.io/3866)
-- [KEP-4358 自定义资源字段选择器, 允许为自定义资源类型设置预定义的字段选择配置, 户端可以使用前面预设的字段选择器来过滤资源](https://kep.k8s.io/4358)
+- [KEP-4358 自定义资源字段选择器, 允许为自定义资源类型设置预定义的字段选择配置, 客户端可以使用前面预设的字段选择器来过滤资源](https://kep.k8s.io/4358)
 - [KEP-4420 当生成的名称与现有资源名称冲突时，Kube-apiserver 会自动重试使用 generateName 的创建请求，最多重试 7 次](https://kep.k8s.io/4420)
 - [KEP-4444 服务流量分配, 在 Service 中实现了一个新字段，作为底层实现在制定路由决策时要考虑的偏好或提示](https://kep.k8s.io/4444)
 - [KEP-4006 将 Kubernetes 客户端的双向流协议从 SPDY/3.1 转换为 WebSockets](https://kep.k8s.io/4006)
