@@ -118,7 +118,7 @@ DRA 相关的 API 定义在 v1alpha3 对 API 进行了彻底的改造。因此�
 - 每个请求支持多个设备（“全部” 和固定数量）。
 - 支持容器从 `Claim` 的某个请求中选择设备，而不是选择 `Claim` 公开的所有设备。
 - 支持具有结构化参数的网络连接设备。
-- 重命名 ResourceSlice 为 ResourcePool, 引入了池的概念。
+- 重命名 `ResourceSlice` 为 `ResourcePool`, 引入了池的概念。
 
 社区提供了一个示例 DRA 驱动程序，它旨在演示如何构造 DRA 资源驱动程序并将其包装在 helm 图表中的最佳实践。开发人员可以对其进行分叉和修改，以开始编写自己的驱动程序。仓库地址为 https://github.com/kubernetes-sigs/dra-example-driver。
 
