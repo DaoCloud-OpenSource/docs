@@ -69,7 +69,7 @@ Beta 阶段的功能是指那些已经经过 Alpha 阶段的功能, 且在 Beta 
 
 ### KEP-2644 始终遵守 PersistentVolume 回收策略
 
-当 PersistentVolume 的状态为 Bound 时, 若 PersistentVolume 先于 PersistentVolumeClaim 被删除, 依然会根据 PersistentVolume 的回收策略来处理 PersistentVolume。在 Kubernetes 1.31 版本中, 当 PersistentVolume 的回收策略为 Delete 时, 也会删除存储系统中的数据卷。
+当 PersistentVolume 的状态为 `Bound` 时, 若 PersistentVolume 先于 PersistentVolumeClaim 被删除, 依然会根据 PersistentVolume 的回收策略来处理 PersistentVolume。在 Kubernetes 1.31 版本中, 当 PersistentVolume 的回收策略为 `Delete` 时, 也会删除存储系统中的数据卷。
 
 这里需要注意的是：
 
