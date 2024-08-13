@@ -155,7 +155,7 @@ spec:
 - 卷作为只读 （ro） 和非可执行文件 （noexec） 挂载
 - 不支持容器的子路径挂载 （`spec.containers[*].volumeMounts.subpath`）
 - 字段 `spec.securityContext.fsGroupChangePolicy` 对此卷类型没有影响
-- 若启用了特性门控 ImageVolume 和  AlwaysPullImages 准入插件, 那么 image 卷的拉取策略将受 AlwaysPullImages 准入插件的影响
+- 若启用了特性门控 `ImageVolume` 和 AlwaysPullImages 准入插件, 那么 image 卷的拉取策略将受 AlwaysPullImages 准入插件的影响
 
 更多关于只读卷的信息, 请参考 [Kubernetes 文档](https://kubernetes.io/docs/concepts/storage/volumes/#image)
 
