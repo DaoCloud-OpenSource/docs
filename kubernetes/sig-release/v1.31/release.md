@@ -79,7 +79,7 @@ Beta 阶段的功能是指那些已经经过 Alpha 阶段的功能, 且在 Beta 
 
 更多关于 PersistentVolume 删除保护的信息, 请参考 [Kubernetes 文档](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolume-deletion-protection-finalizer)。
 
-## KEP-4622 向 kubelet 添加一个配置选项
+## KEP-4622 支持 Kubelet 配置节点最大的 NUMA nodes 数量
 
 `--max-allowable-numa-nodes` 是一个新的 kubelet 配置选项，用于配置 TopologyManager 中的 `maxAllowableNUMANodes` 的值。默认情况下，`maxAllowableNUMANodes` 的值为 8。这个值是在 4 年前作为权宜之计添加的，用于缓解在尝试枚举可能的 NUMA 关联并生成其提示时发生的状态爆炸。
 
@@ -128,7 +128,7 @@ DRA 相关的 API 定义在 v1alpha3 对 API 进行了彻底的改造。因此�
 
 > 早在 2014 年, 社区就有人提出了类似想法, 但直到 2024 年, 借着 AI 的需求才正式加入到 Kubernetes 中。 相关讨论见 [Kubernetes Issue #831](https://issue.k8s.io/831)
 
-需要在 kube-apiserver 和 kubelet 上启用特性门控 ImageVolume 才能正常运行, 并且容器运行时支持该功能（如 CRI-O ≥ v1.31, 则可以创建如下所示的示例 pod.yaml：
+需要在 kube-apiserver 和 kubelet 上启用特性门控 ImageVolume 才能正常运行, 并且容器运行时支持该功能（如 CRI-O ≥ v1.31, 则可以创建如下所示的示例 `pod.yaml`：
 
 ```yaml
 apiVersion: v1
