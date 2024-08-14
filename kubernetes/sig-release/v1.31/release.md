@@ -10,7 +10,7 @@
 
 ## 发布主题和 Logo
 
-Kubernetes v1.31：的发布主题是“Elli”。
+Kubernetes v1.31 的发布主题是“Elli”。
 
 ![](./kubernetes-1.31.png)
 
