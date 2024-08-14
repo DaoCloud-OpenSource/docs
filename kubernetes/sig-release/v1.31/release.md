@@ -21,7 +21,7 @@ Kubernetes v1.31 的 Elli 就是为了庆祝这种美好的精神！让我们为
 
 ## GA 和稳定的功能
 
-GA 全称 General Availability，即正式发布。Kubernetes 的进阶路线通常是 Alpha、Beta、Stable (即 GA)、Deprecation/Removal, 这四个阶段。
+GA 全称 General Availability，即正式发布。Kubernetes 的进阶路线通常是 Alpha、Beta、Stable (即 GA)、Deprecation/Removal 这四个阶段。
 
 - [KEP-3762 持久卷的最新阶段转换时间功能, 记录 PersistentVolume 最后一次转换到不同阶段的时间戳](https://kep.k8s.io/3762)
 - [KEP-2305 监控指标动态基数强制限制功能, 限制标签允许值的数量来缓解基数爆炸, 和缓解内存问题](https://kep.k8s.io/2305)
