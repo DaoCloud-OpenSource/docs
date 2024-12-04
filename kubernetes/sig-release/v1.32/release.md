@@ -36,7 +36,15 @@ GA 全称 General Availability，即正式发布。Kubernetes 的进阶路线通
 
 ## 进入 Beta 阶段的功能
 
-Beta 阶段的功能是指那些已经经过 Alpha 阶段的功能, 且在 Beta 阶段中添加了更多的测试和验证, 通常情况下是默认启用的。
+Beta 阶段的功能是指那些已经经过 Alpha 阶段的功能, 且在 Beta 阶段中添加了更多的测试和验证, 通常情况下是默认启用的。下文择取了部分特性详述。如果对其他特性感兴趣，请移步至具体的 KEP 页面了解进展和详情。
+
+### KEP-1790 卷扩容失败恢复
+
+用户可以将 PersistentVolumeClaim (PVC) 扩展至底层存储提供程序可能不支持的大小。在这种情况下, 通常扩展控制器会永远尝试扩展卷并不断失败。我们希望让用户更容易从扩展失败中恢复，以便用户可以使用可能成功的值重试卷扩展。为了实现恢复，此增强功能放宽了 PVC 对象的 API 验证，以允许减少请求的大小。
+
+允许用户减小大小的问题是, 恶意用户可以使用此功能来滥用配额系统。他们可以通过快速膨胀然后收缩 PVC 来实现这一点。一般来说，CSI 和树内卷插件都被设计为永远不会对底层卷执行实际收缩，但它可以欺骗配额系统，让其相信用户使用的存储空间比他/她实际使用的存储空间少。为了解决这个问题, 虽然允许用户减少 PVC 的大小（前提是请求的大小 > pvc.Status.Capacity ），但配额计算将使用 max(pvc.Spec.Capacity, pvc.Status.AllocatedResources) 并减少 pvc.Status.AllocatedResources 仅在先前发布的扩展因某种终端故障而失败后由 resize-controller 完成。
+
+### 更新总览
 
 - [KEP-3157 Informer 可以获取数据流来启动缓存](https://kep.k8s.io/3157)
 - [KEP-4601 鉴权属性将扩展为包括列表、监视和删除集合中的字段选择器和标签选择器。这将允许鉴权者在做出鉴权决定时使用这些选择器](https://kep.k8s.io/4601)
@@ -50,38 +58,10 @@ Beta 阶段的功能是指那些已经经过 Alpha 阶段的功能, 且在 Beta 
 - [KEP-4368 支持 Job 的 ManagedBy 字段](https://kep.k8s.io/4368)
 - [KEP-3331 添加结构化身份验证配置](https://kep.k8s.io/3331)
 
-这是有关 Beta 的更新总览，下文择取了部分特性详述。如果对其他特性感兴趣，请移步至具体的 KEP 页面了解进展和详情。
-
-### KEP-1790 卷扩容失败恢复
-
-用户可以将 PersistentVolumeClaim (PVC) 扩展至底层存储提供程序可能不支持的大小。在这种情况下, 通常扩展控制器会永远尝试扩展卷并不断失败。我们希望让用户更容易从扩展失败中恢复，以便用户可以使用可能成功的值重试卷扩展。为了实现恢复，此增强功能放宽了 PVC 对象的 API 验证，以允许减少请求的大小。
-
-允许用户减小大小的问题是, 恶意用户可以使用此功能来滥用配额系统。他们可以通过快速膨胀然后收缩 PVC 来实现这一点。一般来说，CSI 和树内卷插件都被设计为永远不会对底层卷执行实际收缩，但它可以欺骗配额系统，让其相信用户使用的存储空间比他/她实际使用的存储空间少。为了解决这个问题, 虽然允许用户减少 PVC 的大小（前提是请求的大小 > pvc.Status.Capacity ），但配额计算将使用 max(pvc.Spec.Capacity, pvc.Status.AllocatedResources) 并减少 pvc.Status.AllocatedResources 仅在先前发布的扩展因某种终端故障而失败后由 resize-controller 完成。
-
 ## 进入 Alpha 阶段的功能
 
-Alpha 阶段的功能是指那些刚刚被引入的功能，这些功能是默认关闭的，需要用户手动开启。
+Alpha 阶段的功能是指那些刚刚被引入的功能，这些功能是默认关闭的，需要用户手动开启。下文择取了部分特性详述, 如果对其他特性感兴趣，请移步至具体的 KEP 页面了解进展和详情。
 
-- [KEP-3962 添加了使用 CEL 表达式声明的更改准入策略，作为更改准入 Webhook 的替代方案](https://kep.k8s.io/3962)
-- [KEP-4427 dnsConfig.searches 支持对 DNS 搜索字符串进行宽松验证, 允许包含 “.” 和 “_” 字符](https://kep.k8s.io/4427)
-- [KEP-4832 提高调度吞吐量, 当 Pod 需要通过异步 API 调用发出抢占时](https://kep.k8s.io/4832)
-- [KEP-3288 拆分容器的 stdout 和 stderr 日志流](https://kep.k8s.io/3288)
-- [KEP-2837 允许在 Pod 级别设置资源请求和限制](https://kep.k8s.io/2837)
-- [KEP-4680 将资源运行状况状态添加到设备插件和 DRA 的 Pod 状态](https://kep.k8s.io/4680)
-- [KEP-4800 引入新的 CPU 管理器静态策略选项，该选项尽最大努力通过 L3（最后一级）缓存来对齐 CPU 资源](https://kep.k8s.io/4800)
-- [KEP-4817 在 ResourceClaim.Status 中添加驱动程序拥有的字段以及可能的标准化网络接口数据](https://kep.k8s.io/4817)
-- [KEP-4827 为所有核心组件实现 statusz 端点来公开有关组件基本信息、运行状况和关键指标的标准化实时数据](https://kep.k8s.io/4827)
-- [KEP-4828 为所有核心组件实现 flagz 端点来公开有关组件的命令行标志的配置参数](https://kep.k8s.io/4828)
-- [KEP-2862 为 Node 资源新增若干子资源类型，为 kubelet 提供更细粒度的 API 接口鉴权](https://kep.k8s.io/2862)
-- [KEP-4818 PreStop Hook 的睡眠操作允许零值](https://kep.k8s.io/4818)
-- [KEP-740  提供服务帐户令牌与外部签名进行集成方法, 易于更新令牌和提供安全性](https://kep.k8s.io/740)
-- [KEP-4885 使用 CPUManager、MemoryManager 和拓扑管理器添加对 Windows 节点的 CPU 和内存亲和性支持](https://kep.k8s.io/4885)
-- [KEP-3926 引入一个新的 DeleteOption，即使我们无法检索其数据，也可以删除对应的资源](https://kep.k8s.io/3926)
-- [KEP-4222 添加 CBOR 数据格式作为 JSON 的有效替代方案](https://kep.k8s.io/4222)
-- [KEP-4540 引入了新的 CPUManager 策略选项 strict-cpu-reservation，确保 reservedSystemCPUs 严格保留用于系统守护程序或中断处理，并且不会被 QoS 类为 Burstable 和 BestEffort 的 Pod 使用](https://kep.k8s.io/4540)
-- [KEP-4802  初步支持 Windows 节点的体面关闭功能](https://kep.k8s.io/4802)
-
-这是有关 Alpha 的更新总览，下文择取了部分特性详述。如果对其他特性感兴趣，请移步至具体的 KEP 页面了解进展和详情。
 
 ### KEP-3962 使用 CEL 表达式声明的更改准入策略
 
@@ -180,6 +160,27 @@ DRA 是 Kubernetes 资源管理系统的关键组件，这些增强旨在提高�
 
 - [KEP-4680 将资源运行状况状态添加到设备插件和 DRA 的 Pod 状态](https://kep.k8s.io/4680)
 - [KEP-4817 在 ResourceClaim.Status 中添加驱动程序拥有的字段以及可能的标准化网络接口数据](https://kep.k8s.io/4817)
+
+### 更新总览
+
+- [KEP-3962 添加了使用 CEL 表达式声明的更改准入策略，作为更改准入 Webhook 的替代方案](https://kep.k8s.io/3962)
+- [KEP-4427 dnsConfig.searches 支持对 DNS 搜索字符串进行宽松验证, 允许包含 “.” 和 “_” 字符](https://kep.k8s.io/4427)
+- [KEP-4832 提高调度吞吐量, 当 Pod 需要通过异步 API 调用发出抢占时](https://kep.k8s.io/4832)
+- [KEP-3288 拆分容器的 stdout 和 stderr 日志流](https://kep.k8s.io/3288)
+- [KEP-2837 允许在 Pod 级别设置资源请求和限制](https://kep.k8s.io/2837)
+- [KEP-4680 将资源运行状况状态添加到设备插件和 DRA 的 Pod 状态](https://kep.k8s.io/4680)
+- [KEP-4800 引入新的 CPU 管理器静态策略选项，该选项尽最大努力通过 L3（最后一级）缓存来对齐 CPU 资源](https://kep.k8s.io/4800)
+- [KEP-4817 在 ResourceClaim.Status 中添加驱动程序拥有的字段以及可能的标准化网络接口数据](https://kep.k8s.io/4817)
+- [KEP-4827 为所有核心组件实现 statusz 端点来公开有关组件基本信息、运行状况和关键指标的标准化实时数据](https://kep.k8s.io/4827)
+- [KEP-4828 为所有核心组件实现 flagz 端点来公开有关组件的命令行标志的配置参数](https://kep.k8s.io/4828)
+- [KEP-2862 为 Node 资源新增若干子资源类型，为 kubelet 提供更细粒度的 API 接口鉴权](https://kep.k8s.io/2862)
+- [KEP-4818 PreStop Hook 的睡眠操作允许零值](https://kep.k8s.io/4818)
+- [KEP-740  提供服务帐户令牌与外部签名进行集成方法, 易于更新令牌和提供安全性](https://kep.k8s.io/740)
+- [KEP-4885 使用 CPUManager、MemoryManager 和拓扑管理器添加对 Windows 节点的 CPU 和内存亲和性支持](https://kep.k8s.io/4885)
+- [KEP-3926 引入一个新的 DeleteOption，即使我们无法检索其数据，也可以删除对应的资源](https://kep.k8s.io/3926)
+- [KEP-4222 添加 CBOR 数据格式作为 JSON 的有效替代方案](https://kep.k8s.io/4222)
+- [KEP-4540 引入了新的 CPUManager 策略选项 strict-cpu-reservation，确保 reservedSystemCPUs 严格保留用于系统守护程序或中断处理，并且不会被 QoS 类为 Burstable 和 BestEffort 的 Pod 使用](https://kep.k8s.io/4540)
+- [KEP-4802  初步支持 Windows 节点的体面关闭功能](https://kep.k8s.io/4802)
 
 ## 删除和废弃功能
 
