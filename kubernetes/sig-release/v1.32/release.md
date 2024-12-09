@@ -1,6 +1,6 @@
-# Kubernetes 1.32
+# Kubernetes 1.32 还在写 Webhook? 你已经 OUT 了！
 
-太平洋时间 2024 年 12 月 11 日，主题为 {release-name} 的 Kubernetes v1.32 正式发布。
+太平洋时间 2024 年 12 月 11 日，主题为 佩涅洛佩 (Penelope) 的 Kubernetes v1.32 正式发布。
 
 此版本距离上版本发布时隔 4 个月，是 2024 年的第三个版本。
 
@@ -10,11 +10,11 @@
 
 ## 发布主题和 Logo
 
-Kubernetes v1.32 的发布主题是 {release-name}。
+Kubernetes v1.32 的发布主题是 佩涅洛佩 (Penelope)。
 
-![](./kubernetes-1.32.png)
+![](./k8s-1.32.png)
 
-Kubernetes v1.32's {release-story}
+如果将 Kubernetes 理解为古希腊语中的 “领航员”，在这次发布中，我们从这个起源出发，回顾了过去十年 Kubernetes 的发展和我们所取得的成就：每一个版本迭代就像一次旅程，就像《奥德赛》中的佩涅洛佩一样，她织布了十年之久 -- 每天晚上拆掉白天所织的部分 -- 每个版本都会增添新功能并去除旧功能，但在这里更加明确的目标是不断改进 Kubernetes。随着 v1.32 成为 Kubernetes 十周年的最后一个版本，我们想要向那些成为全球 Kubernetes 队伍一部分的人致敬，他们在云原生海域中漂泊，经历危险和挑战：愿我们继续共同编织 Kubernetes 的未来。
 
 ## GA 和稳定的功能
 
@@ -189,10 +189,6 @@ DRA 是 Kubernetes 资源管理系统的关键组件，这些增强旨在提高�
 增强特性 KEP-3063 ("classic DRA") 在 Kubernetes 1.26 中引入了动态资源分配（DRA）。然而，在 Kubernetes v1.32 中，这种 DRA 的实现方法将发生重大变化。与原来实现相关的代码将被删除，只留下 KEP-4381 作为"新"的基础特性。改变现有方法的决定源于其与集群自动伸缩的不兼容性，因为资源可用性是不透明的，这使得 Cluster Autoscaler 和控制器的决策变得复杂。
 
 新增的结构化参数模型替换了原有特性。这次移除将使 Kubernetes 能够更可预测地处理新的硬件需求和资源声明，避免了与 kube-apiserver 之间复杂的来回 API 调用。
-
-### gitRepo 卷类型弃用说明
-
-[gitRepo](https://kubernetes.io/docs/concepts/storage/volumes/#gitrepo) 卷类型虽然已经被标记为弃用, 但是在现有版本中仍然可以使用。考虑到 `gitRepo` 类型的卷, 存在严重的[安全漏洞](https://nvd.nist.gov/vuln/detail/CVE-2024-10220), 社区计划将在未来的版本中移除相关实现。因此, 在 Kubernetes v1.32 的发布中, 社区再次向用户发出警告, 建议用户尽快进行迁移。
 
 ### API 移除
 
