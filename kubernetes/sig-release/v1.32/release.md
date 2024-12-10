@@ -196,7 +196,7 @@ DRA 是 Kubernetes 资源管理系统的关键组件，这些增强旨在提高�
 
 ## DaoCloud 社区贡献
 
-2024 年 11 月 12 至 15 日期间, [KubeCon + CloudNativeCon North America 2024](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/) 如约举办, 以下是本年度我们获得的一些荣誉：
+在 2024 年 11 月的 [KubeCon + CloudNativeCon North America 2024](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/) 上， DaoCloud 团队荣获一下荣誉：
 
 - CNCF 大使 - 蔡威 (再次当选)、要海峰
 - CNCF 文档奖 - 要海峰
