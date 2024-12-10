@@ -1,6 +1,6 @@
 # Kubernetes 1.32 还在写 Webhook? 你已经 OUT 了！
 
-太平洋时间 2024 年 12 月 11 日，主题为 佩涅洛佩 (Penelope) 的 Kubernetes v1.32 正式发布。
+太平洋时间 2024 年 12 月 11 日，主题为 佩涅洛佩 Penelope 的 Kubernetes v1.32 正式发布。
 
 此版本距离上版本发布时隔 4 个月，是 2024 年的第三个版本。
 
@@ -10,7 +10,7 @@
 
 ## 发布主题和 Logo
 
-Kubernetes v1.32 的发布主题是 佩涅洛佩 (Penelope)。
+Kubernetes v1.32 的发布主题是 佩涅洛佩 Penelope。
 
 ![](./k8s-1.32.png)
 
@@ -20,19 +20,19 @@ Kubernetes v1.32 的发布主题是 佩涅洛佩 (Penelope)。
 
 GA 全称 General Availability，即正式发布。Kubernetes 的进阶路线通常是 Alpha、Beta、Stable (即 GA)、Deprecation/Removal 这四个阶段。
 
-- [KEP-3221 结构化鉴权配置, 可包含多个 webhook 的鉴权链。该链中的鉴权项可以具有明确定义的参数，这些参数可以按特定顺序验证请求，从而提供细粒度的控制](https://kep.k8s.io/3221)
-- [KEP-4193 改进绑定的服务帐户令牌, 自动将 Pod 关联的节点的 name 和 uid （通过 spec.nodeName ）嵌入到生成的令牌中, 并允许用户获取专门与 Node 对象生命周期相关的令牌](https://kep.k8s.io/4193)
-- [KEP-4358 自定义资源字段选择器, 允许为自定义资源类型设置预定义的字段选择配置，客户端可以使用以前预设的字段选择器来过滤资源](https://kep.k8s.io/4358)
-- [KEP-4420 当生成的名称与现有资源名称冲突时，kube-apiserver 会自动重试使用 generateName 的创建请求，最多重试 7 次](https://kep.k8s.io/4420)
-- [KEP-1860 为云提供商提供了一种禁用 kube-proxy 配置 LoadBalancer IP 行为的方法](https://kep.k8s.io/1860)
-- [KEP-2681 为 Pod 添加 `status.hostIPs` 字段](https://kep.k8s.io/2681)
-- [KEP-4292 在 kubectl debug 命令中的预定义配置文件之上添加了新的自定义配置文件功能, 使kubectl debug pod/node 或临时容器规范可配置](https://kep.k8s.io/4292)
-- [KEP-4292 内存管理器是 kubelet 生态系统中的一个新组件，旨在向 QoS 类为 Guaranteed 的 Pod 提供多 NUMA 保证的内存分配](https://kep.k8s.io/1769)
-- [KEP-1967 支持调整内存卷的大小以匹配 Pod 可分配内存](https://kep.k8s.io/1967)
-- [KEP-3545 优化拓扑管理器中的多 NUMA 对齐，在计算包含多个 NUMA 节点的“最佳提示”时，会考虑 NUMA 节点之间的相对距离](https://kep.k8s.io/3545)
-- [KEP-4026 为从 CronJob 派生的 Job 对象添加新注解 “batch.kubernetes.io/cronjob-scheduled-timestamp”](https://kep.k8s.io/4026)
-- [KEP-4017 为 StatefulSet 和 Job 创建的 Pod 新增标签，用来标记自身索引](https://kep.k8s.io/4017)
+- [KEP-1769 内存管理器是 kubelet 生态系统中的一个新组件，旨在向 QoS 类为 Guaranteed 的 Pod 提供多 NUMA 保证的内存分配](https://kep.k8s.io/1769)
 - [KEP-1847 为 StatefulSet 提供了自动删除 PVC 的方法](https://kep.k8s.io/1847)
+- [KEP-1860 为云提供商提供了一种禁用 kube-proxy 配置 LoadBalancer IP 行为的方法](https://kep.k8s.io/1860)
+- [KEP-1967 支持调整内存卷的大小以匹配 Pod 可分配内存](https://kep.k8s.io/1967)
+- [KEP-2681 为 Pod 添加 `status.hostIPs` 字段](https://kep.k8s.io/2681)
+- [KEP-3221 结构化鉴权配置, 可包含多个 webhook 的鉴权链。该链中的鉴权项可以具有明确定义的参数，这些参数可以按特定顺序验证请求，从而提供细粒度的控制](https://kep.k8s.io/3221)
+- [KEP-3545 优化拓扑管理器中的多 NUMA 对齐，在计算包含多个 NUMA 节点的“最佳提示”时，会考虑 NUMA 节点之间的相对距离](https://kep.k8s.io/3545)
+- [KEP-4017 为 StatefulSet 和 Job 创建的 Pod 新增标签，用来标记自身索引](https://kep.k8s.io/4017)
+- [KEP-4026 为从 CronJob 派生的 Job 对象添加新注解 “batch.kubernetes.io/cronjob-scheduled-timestamp”](https://kep.k8s.io/4026)
+- [KEP-4193 改进绑定的服务帐户令牌, 自动将 Pod 关联的节点的 name 和 uid （通过 spec.nodeName ）嵌入到生成的令牌中, 并允许用户获取专门与 Node 对象生命周期相关的令牌](https://kep.k8s.io/4193)
+- [KEP-4420 当生成的名称与现有资源名称冲突时，kube-apiserver 会自动重试使用 generateName 的创建请求，最多重试 7 次](https://kep.k8s.io/4420)
+- [KEP-4292 在 kubectl debug 命令中的预定义配置文件之上添加了新的自定义配置文件功能, 使kubectl debug pod/node 或临时容器规范可配置](https://kep.k8s.io/4292)
+- [KEP-4358 自定义资源字段选择器, 允许为自定义资源类型设置预定义的字段选择配置，客户端可以使用以前预设的字段选择器来过滤资源](https://kep.k8s.io/4358)
 
 ## 进入 Beta 阶段的功能
 
@@ -46,17 +46,17 @@ Beta 阶段的功能是指那些已经经过 Alpha 阶段的功能, 且在 Beta 
 
 ### 更新总览
 
-- [KEP-3157 Informer 可以获取数据流来启动缓存](https://kep.k8s.io/3157)
-- [KEP-4601 鉴权属性将扩展为包括列表、监视和删除集合中的字段选择器和标签选择器。这将允许鉴权者在做出鉴权决定时使用这些选择器](https://kep.k8s.io/4601)
-- [KEP-4633 仅允许对配置的端点进行匿名身份验证](https://kep.k8s.io/4633)
-- [KEP-1790 允许用户通过减少请求的容量大小, 从卷扩容失败中恢复](https://kep.k8s.io/1790)
-- [KEP-3476 提供了一组新的 API, 支持一致的组快照，该快照允许在同一时间点从多个卷拍摄快照，以实现写入顺序一致性](https://kep.k8s.io/3476)
 - [KEP-1710 通过使用正确的 SELinux 标签挂载卷而不是递归更改卷上的每个文件来加速容器启动](https://kep.k8s.io/1710)
-- [KEP-4247 调度器通过将 QueueingHint 引入 EventsToRegister，调度队列根据 QueueingHint 的结果对 Pod 重新排队, 有助于减少无用的调度重试，从而提高调度吞吐量](https://kep.k8s.io/4247)
-- [KEP-4369 环境变量中允许使用特殊字符](https://kep.k8s.io/4369)
-- [KEP-4381 借助结构化参数，kube-scheduler 和 Cluster Autoscaler 可以自行处理和模拟声明分配，而无需依赖第三方驱动程序](https://kep.k8s.io/4381)
-- [KEP-4368 支持 Job 的 ManagedBy 字段](https://kep.k8s.io/4368)
+- [KEP-1790 允许用户通过减少请求的容量大小, 从卷扩容失败中恢复](https://kep.k8s.io/1790)
+- [KEP-3157 Informer 可以获取数据流来启动缓存](https://kep.k8s.io/3157)
 - [KEP-3331 添加结构化身份验证配置](https://kep.k8s.io/3331)
+- [KEP-3476 提供了一组新的 API, 支持一致的组快照，该快照允许在同一时间点从多个卷拍摄快照，以实现写入顺序一致性](https://kep.k8s.io/3476)
+- [KEP-4247 调度器通过将 QueueingHint 引入 EventsToRegister，调度队列根据 QueueingHint 的结果对 Pod 重新排队, 有助于减少无用的调度重试，从而提高调度吞吐量](https://kep.k8s.io/4247)
+- [KEP-4601 鉴权属性将扩展为包括列表、监视和删除集合中的字段选择器和标签选择器。这将允许鉴权者在做出鉴权决定时使用这些选择器](https://kep.k8s.io/4601)
+- [KEP-4369 环境变量中允许使用特殊字符](https://kep.k8s.io/4369)
+- [KEP-4368 支持 Job 的 ManagedBy 字段](https://kep.k8s.io/4368)
+- [KEP-4381 借助结构化参数，kube-scheduler 和 Cluster Autoscaler 可以自行处理和模拟声明分配，而无需依赖第三方驱动程序](https://kep.k8s.io/4381)
+- [KEP-4633 仅允许对配置的端点进行匿名身份验证](https://kep.k8s.io/4633)
 
 ## 进入 Alpha 阶段的功能
 
@@ -154,7 +154,7 @@ spec:
 
 ### 更多 DRA 增强特性 🔥
 
-DRA 是 Kubernetes 资源管理系统的关键组件，这些增强旨在提高对需要专用硬件（如 GPU、FPGA 和网络适配器） 的工作负载进行资源分配的灵活性和效率。此次发布引入了多项改进，包括在 Pod 状态中添加资源健康状态。
+Dynamic Resource Allocation (DRA) 是 Kubernetes 资源管理系统的关键组件，这些增强旨在提高对需要专用硬件（如 GPU、FPGA 和网络适配器） 的工作负载进行资源分配的灵活性和效率。此次发布引入了多项改进，包括在 Pod 状态中添加资源健康状态。
 
 相关 KEP 包括：
 
@@ -163,24 +163,27 @@ DRA 是 Kubernetes 资源管理系统的关键组件，这些增强旨在提高�
 
 ### 更新总览
 
-- [KEP-3962 添加了使用 CEL 表达式声明的更改准入策略，作为更改准入 Webhook 的替代方案](https://kep.k8s.io/3962)
-- [KEP-4427 dnsConfig.searches 支持对 DNS 搜索字符串进行宽松验证, 允许包含 “.” 和 “_” 字符](https://kep.k8s.io/4427)
-- [KEP-4832 提高调度吞吐量, 当 Pod 需要通过异步 API 调用发出抢占时](https://kep.k8s.io/4832)
-- [KEP-3288 拆分容器的 stdout 和 stderr 日志流](https://kep.k8s.io/3288)
+- [KEP-740  提供服务帐户令牌与外部签名进行集成方法, 易于更新令牌和提供安全性](https://kep.k8s.io/740)
 - [KEP-2837 允许在 Pod 级别设置资源请求和限制](https://kep.k8s.io/2837)
+- [KEP-2862 为 Node 资源新增若干子资源类型，为 kubelet 提供更细粒度的 API 接口鉴权](https://kep.k8s.io/2862)
+- [KEP-3288 拆分容器的 stdout 和 stderr 日志流](https://kep.k8s.io/3288)
+- [KEP-3926 引入一个新的 DeleteOption，即使我们无法检索其数据，也可以删除对应的资源](https://kep.k8s.io/3926)
+- [KEP-3962 添加了使用 CEL 表达式声明的更改准入策略，作为更改准入 Webhook 的替代方案](https://kep.k8s.io/3962)
+
+
+- [KEP-4222 添加 CBOR 数据格式作为 JSON 的有效替代方案](https://kep.k8s.io/4222)
+- [KEP-4427 dnsConfig.searches 支持对 DNS 搜索字符串进行宽松验证, 允许包含 “.” 和 “_” 字符](https://kep.k8s.io/4427)
+- [KEP-4540 引入了新的 CPUManager 策略选项 strict-cpu-reservation，确保 reservedSystemCPUs 严格保留用于系统守护程序或中断处理，并且不会被 QoS 类为 Burstable 和 BestEffort 的 Pod 使用](https://kep.k8s.io/4540)
 - [KEP-4680 将资源运行状况状态添加到设备插件和 DRA 的 Pod 状态](https://kep.k8s.io/4680)
+
 - [KEP-4800 引入新的 CPU 管理器静态策略选项，该选项尽最大努力通过 L3（最后一级）缓存来对齐 CPU 资源](https://kep.k8s.io/4800)
+- [KEP-4802  初步支持 Windows 节点的体面关闭功能](https://kep.k8s.io/4802)
 - [KEP-4817 在 ResourceClaim.Status 中添加驱动程序拥有的字段以及可能的标准化网络接口数据](https://kep.k8s.io/4817)
+- [KEP-4818 PreStop Hook 的睡眠操作允许零值](https://kep.k8s.io/4818)
 - [KEP-4827 为所有核心组件实现 statusz 端点来公开有关组件基本信息、运行状况和关键指标的标准化实时数据](https://kep.k8s.io/4827)
 - [KEP-4828 为所有核心组件实现 flagz 端点来公开有关组件的命令行标志的配置参数](https://kep.k8s.io/4828)
-- [KEP-2862 为 Node 资源新增若干子资源类型，为 kubelet 提供更细粒度的 API 接口鉴权](https://kep.k8s.io/2862)
-- [KEP-4818 PreStop Hook 的睡眠操作允许零值](https://kep.k8s.io/4818)
-- [KEP-740  提供服务帐户令牌与外部签名进行集成方法, 易于更新令牌和提供安全性](https://kep.k8s.io/740)
+- [KEP-4832 提高调度吞吐量, 当 Pod 需要通过异步 API 调用发出抢占时](https://kep.k8s.io/4832)
 - [KEP-4885 使用 CPUManager、MemoryManager 和拓扑管理器添加对 Windows 节点的 CPU 和内存亲和性支持](https://kep.k8s.io/4885)
-- [KEP-3926 引入一个新的 DeleteOption，即使我们无法检索其数据，也可以删除对应的资源](https://kep.k8s.io/3926)
-- [KEP-4222 添加 CBOR 数据格式作为 JSON 的有效替代方案](https://kep.k8s.io/4222)
-- [KEP-4540 引入了新的 CPUManager 策略选项 strict-cpu-reservation，确保 reservedSystemCPUs 严格保留用于系统守护程序或中断处理，并且不会被 QoS 类为 Burstable 和 BestEffort 的 Pod 使用](https://kep.k8s.io/4540)
-- [KEP-4802  初步支持 Windows 节点的体面关闭功能](https://kep.k8s.io/4802)
 
 ## 删除和废弃功能
 
@@ -198,11 +201,11 @@ DRA 是 Kubernetes 资源管理系统的关键组件，这些增强旨在提高�
 
 在 2024 年 11 月的 [KubeCon + CloudNativeCon North America 2024](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/) 上， DaoCloud 团队荣获一下荣誉：
 
-- CNCF 大使 - 蔡威 (再次当选)、要海峰
+- CNCF 大使 - 陈齐彦、蔡威 (再次当选)、要海峰
 - CNCF 文档奖 - 要海峰
-- Kubernetes Contributor Awards (SIG Storage 和 SIG Cluster Lifecyle) - 范宝发
+- [Kubernetes Contributor Awards](https://www.kubernetes.dev/community/awards/2024/) (SIG Storage 和 SIG Cluster Lifecyle) - 范宝发
 
-成长故事分享：[从社区小白到 CNCF 大使](https://mp.weixin.qq.com/s/tdO2QhvE800TKy5RY7FCWw)
+要海峰的成长故事分享：[从社区小白到 CNCF 大使](https://mp.weixin.qq.com/s/tdO2QhvE800TKy5RY7FCWw)
 
 ## 发行说明
 
