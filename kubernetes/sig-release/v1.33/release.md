@@ -24,7 +24,7 @@ GA 全称 General Availability，即正式发布。Kubernetes 的进阶路线通
 
 启动完成的条件是启动探测成功（或者未定义启动探测）并且 postStart 处理程序完成。 此条件用 ContainerStatus 类型的字段 Started 表示。 有关选择此信号的注意事项，请参阅 “Pod 启动完成条件” 部分。
 
-字段 restartPolicy 仅在 init 容器上被接受。现在唯一支持的值是 “Always”。不会定义其他值。此外，该字段可为空，因此默认值为“无值”。容器的 restartPolicy 的其他值将不被接受，容器将遵循当前实现的逻辑。
+字段 restartPolicy 仅在 init 容器上被接受。现在唯一支持的值是 “Always”。不会定义其他值。此外，该字段可为空，因此默认值为“空”。容器的 restartPolicy 的其他值将不被接受，容器将遵循当前实现的逻辑。
 
 Sidecar 容器不会阻止 Pod 完成 - 如果所有常规容器都已完成，Sidecar 容器将被终止。 在 sidecar 启动阶段，重启行为将类似于 init 容器。如果 Pod restartPolicy 为 Never，则启动期间失败的 sidecar 容器将不会重新启动，整个 Pod 将失败。如果 Pod restartPolicy 为 Always 或 OnFailure，则会重新启动。一旦 sidecar 容器启动（postStart 完成且启动探测成功），即使 Pod restartPolicy 为 Never 或 OnFailure，这些容器也会重新启动。此外，即使在 Pod 终止期间，sidecar 容器也会重新启动。
 
