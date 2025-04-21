@@ -142,7 +142,7 @@ EndpointSlices API 自 v1.21 起已稳定，实际上取代了原有的 Endpoint
 
 ## 移除对 Windows Pod 的主机网络支持
 
-Windows Pod 网络旨在通过允许容器使用节点的网络命名空间来实现与 Linux 的特性对等， 并提供更高的集群密度。最初的实现作为 Alpha 版本在 v1.26 中引入，但由于遇到了未预期的 containerd 行为，且存在替代方案，Kubernetes 项目决定撤回相关的 KEP。 并在 v1.33 中完全移除对该特性的支持。
+Windows Pod 网络旨在通过允许容器使用节点的网络命名空间来实现与 Linux 的特性对等，并提供更高的集群密度。最初的实现作为 Alpha 版本在 v1.26 中引入，但由于遇到了未预期的 containerd 行为，且存在替代方案，Kubernetes 项目决定撤回相关的 KEP。并在 v1.33 中完全移除对该特性的支持。
 
 ## DaoCloud 社区贡献
 
