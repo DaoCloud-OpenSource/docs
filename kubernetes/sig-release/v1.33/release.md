@@ -35,7 +35,7 @@ Sidecar 容器不会阻止 Pod 完成 - 如果所有常规容器都已完成，S
 - Sidecar 容器的 PostStart 和 PreStop 生命周期处理程序
 - 所有探针（启动、就绪、活跃）
 
-Sidecar 的就绪探测将有助于确定整个 Pod 的就绪情况。
+Sidecar 的就绪探针将有助于确定整个 Pod 的就绪情况。
 
 ### KEP-2644 始终遵循 PersistentVolume 回收策略
 
