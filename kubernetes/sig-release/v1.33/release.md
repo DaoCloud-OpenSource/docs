@@ -60,7 +60,7 @@ kube-proxy 的 nftables 后端现在是稳定的，增加了一个新的实现�
 - [KEP-3850 扩展了 Job API 以支持索引作业，其中退避限制是每个索引，并且尽管某些索引失败，作业仍可继续执行](https://kep.k8s.io/3850)
 - [KEP-3857 递归的只读挂载](https://kep.k8s.io/3857)
 - [KEP-3866 Kube-proxy 基于 nftables（Linux Kernel 社区对 iptables 的替代）实现了新的后端，旨在解决 iptables 现存的性能问题](https://kep.k8s.io/3866)
-- [KEP-3998 Job 添加自定义的 Job 成功策略的支持, 一旦 Job 满足成功策略, 其余的 Pod 将被终止](https://kep.k8s.io/3998)
+- [KEP-3998 Job 添加自定义的 Job 成功策略的支持，一旦 Job 满足成功策略, 其余的 Pod 将被终止](https://kep.k8s.io/3998)
 - [KEP-4004 弃用 v1.Node 的 `status.nodeInfo.kubeProxyVersion` 字段](https://kep.k8s.io/4004)
 - [KEP-4008 允许特殊的 CRD 校验失败，如果出现了在未经修改的字段上发生的校验失败，即便是校验不通过，也允许对 CRD 资源的更新，并会将修改应用到资源上](https://kep.k8s.io/4008)
 - [KEP-4193 改进绑定的服务帐户令牌, 自动将 Pod 关联的节点的 name 和 uid （通过 spec.nodeName ）嵌入到生成的令牌中, 并允许用户获取专门与 Node 对象生命周期相关的令牌](https://kep.k8s.io/4193)
