@@ -43,7 +43,7 @@ Sidecar 的就绪探针将有助于确定整个 Pod 的就绪情况。
 
 ### KEP-3866 Kube-proxy 基于 nftables 的实现
 
-kube-proxy 的 nftables 后端现在是稳定的，增加了一个新的实现，显著提高了 Kubernetes 集群中服务实现的性能和可扩展性。出于兼容性原因，iptables 在 Linux 节点上仍然是默认值。如果您想尝试一下，请查看官方的迁移指南。
+kube-proxy 的 nftables 后端现在是稳定的，增加了一个新的实现，显著提高了 Kubernetes 集群中服务实现的性能和可扩展性。出于兼容性原因，iptables 在 Linux 节点上仍然是默认值。如果您想尝试一下，请查看[Kubernetes 官方的迁移指南](......)。
 
 ### 更新总览
 
