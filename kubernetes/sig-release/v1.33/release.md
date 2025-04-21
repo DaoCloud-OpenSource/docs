@@ -20,7 +20,7 @@ GA 全称 General Availability，即正式发布。Kubernetes 的进阶路线通
 
 ### KEP-753 原生支持 Sidecar 容器
 
-它为 init 容器引入了 restartPolicy 字段，并使用这个字段来指示 init 容器是 sidecar 容器。 Kubelet 将按照 restartPolicy=Always 的顺序与其他 init 容器一起启动 init 容器，但它不会等待其完成，而是等待容器启动完成。
+它为 init 容器引入了 restartPolicy 字段，并使用这个字段来指示 init 容器是 sidecar 容器。 kubelet 将按照 restartPolicy=Always 的顺序与其他 init 容器一起启动 init 容器，但它不会等待其完成，而是等待容器启动完成。
 
 启动完成的条件是启动探测成功（或者未定义启动探测）并且 postStart 处理程序完成。此条件用 ContainerStatus 类型的字段 Started 表示。 有关选择此信号的注意事项，请参阅 “Pod 启动完成条件” 部分。
 
