@@ -32,7 +32,7 @@ x-kubernetes-validations:
 2. `ValidatingAdmissionPolicy` 支持对 `messageExpression` 字段进行类型检查。
 3. 在接受单个请求的过程中，`ValidatingAdmissionPolicy` 准入插件将对每个唯一的授权者表达式执行不超过一次的授权检查。 对相同授权者表达式的所有评估将产生相同的决策。
 
-   ```yaml
+  ```yaml
    # 例子
    expression: authorizer.path('/healthz').check('GET').allowed()
    messageExpression: authorizer.path('/healthz').check('GET').reason()
