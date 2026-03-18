@@ -95,6 +95,19 @@ Based on current changelog and release-note draft signals, operators should proa
 3. `gitRepo` volume plugin disablement: the `git-repo` plugin is disabled by default and cannot be re-enabled in the current release-note direction.
 4. API/client-go behavior shifts: multiple API machinery and informer behavior improvements are targeting correctness and performance, but may expose assumptions in custom controllers.
 
+## AI-Infra Action List
+
+For AI platform / AI-Infra teams running GPU-heavy or mixed workloads, this is a practical pre-upgrade checklist:
+
+1. Runtime baseline audit: confirm cluster-wide `containerd`, `runc/crun`, and cgroup mode; mark nodes that will require runtime upgrades before GA rollout.
+2. Scheduler plugin compatibility test: run canary tests for custom scheduler plugins against v1.36 changes around `PreBind` and `PostFilterResult`.
+3. DRA readiness check: validate DRA-related CRDs/controllers and ensure existing accelerator workflows are compatible with current DRA direction.
+4. Storage recovery drills: test snapshot/restore paths for model-serving and training stateful workloads, especially if adopting VolumeGroupSnapshot-related features.
+5. Admission policy migration plan: review mutating webhook usage and identify candidates to move to `MutatingAdmissionPolicy` where it improves reliability.
+6. API client regression scan: run integration tests for operators/controllers that rely on client-go informer behavior and protobuf serialization assumptions.
+7. Network data hygiene: scan Service/Ingress and IP/CIDR inputs for non-canonical formats to avoid surprises as validation tightens.
+8. Progressive rollout strategy: use staged environments (`dev` -> `staging` -> small production slice) with explicit rollback gates and SLO checks for training/inference paths.
+
 ## What Is Still Pending Before Final Release Blog
 
 Because this is a pre-GA draft, re-check these items right before publication:
