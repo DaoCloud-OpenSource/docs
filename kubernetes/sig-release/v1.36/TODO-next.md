@@ -1,8 +1,14 @@
-# TODO For Next Steps (Not Executed In This PR)
+# TODO For Next Steps
 
-This file is only for planning step 2 and step 3 after step 1 research.
+This file tracks follow-up actions after step 1 research.
 
 ## Step 2: English Blog Draft
+
+Status: completed in this branch.
+
+Output:
+
+- `kubernetes/sig-release/v1.36/release.en.md`
 
 1. Re-check upstream status on writing day:
 - final release date confirmation
@@ -21,6 +27,8 @@ This file is only for planning step 2 and step 3 after step 1 research.
 
 ## Step 3: Chinese Blog Draft
 
+Status: pending.
+
 1. Translate with localization (not literal conversion):
 - keep technical meaning exact
 - adapt wording to domestic/private-cloud reader focus
@@ -34,4 +42,3 @@ This file is only for planning step 2 and step 3 after step 1 research.
 3. Final consistency checks:
 - terminology consistency (EN/CN names)
 - KEP links and release date consistency with EN version
-
