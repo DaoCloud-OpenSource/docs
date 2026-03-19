@@ -21,6 +21,18 @@ This file is only for planning step 2 and step 3 after step 1 research.
 
 ## Step 3: Chinese Blog Draft
 
+Status: completed in this branch.
+
+Output:
+
+- `kubernetes/sig-release/v1.36/release.md`
+
+Also added:
+
+- `AI-Infra` action-list sections in both drafts:
+- `kubernetes/sig-release/v1.36/release.en.md`
+- `kubernetes/sig-release/v1.36/release.md`
+
 1. Translate with localization (not literal conversion):
 - keep technical meaning exact
 - adapt wording to domestic/private-cloud reader focus
@@ -34,4 +46,3 @@ This file is only for planning step 2 and step 3 after step 1 research.
 3. Final consistency checks:
 - terminology consistency (EN/CN names)
 - KEP links and release date consistency with EN version
-
