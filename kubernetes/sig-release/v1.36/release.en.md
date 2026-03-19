@@ -1,128 +1,150 @@
-# Kubernetes v1.36 Preview: Key Changes to Watch Before GA
+# Kubernetes v1.36 English Draft (Writing-Day Recheck: 2026-03-19)
 
-As of **March 18, 2026 (code freeze day)**, Kubernetes v1.36 is in the final phase before release.
-This post summarizes the highest-signal changes for operators and platform teams, based on upstream release tracking, release-note drafts, and enhancement status.
+This draft is refreshed with upstream status rechecked on **March 19, 2026 (UTC+8)**.
 
-> Status note: this is a pre-GA preview draft. The final upstream release is currently scheduled for **April 22, 2026**.
+## Writing-Day Upstream Status Recheck
 
-## Release Timeline (v1.36)
+### 1) Final release date confirmation
 
-- Release cycle start: January 12, 2026
-- Enhancements freeze: February 11, 2026 (AoE)
-- Code/Test freeze: March 18, 2026 (AoE)
-- Docs freeze: April 8, 2026 (AoE)
-- Planned GA date: April 22, 2026
+Current official release-cycle source still shows:
 
-Reference: [SIG Release v1.36 README](https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/README.md)
+- planned v1.36 GA release date: **Wednesday, April 22, 2026**
+- source: `kubernetes/sig-release` release-1.36 README
+- upstream file revision checked: `sha e674160cb986b4244d1fdcafe6d499ee536626bf`
 
-## At a Glance
+Reference: <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/README.md>
 
-From the current tracked v1.36 enhancement set (milestone `v1.36`):
+### 2) Final release blog / theme / logo links
 
-- 78 tracked items
-- 18 stable/GA targets
-- 25 beta targets
-- 31 alpha targets
+As of this recheck:
 
-Most active areas include SIG Node, SIG Scheduling, SIG API Machinery, SIG Auth, and SIG Storage.
+- no final v1.36 release blog post is published in `kubernetes/website` blog post folder for 2026
+- no final v1.36 logo assets are published in `kubernetes/sig-release/releases/release-1.36/logo` (only `.gitkeep`)
+- there is still an open WIP mid-cycle/release PR: <https://github.com/kubernetes/website/pull/54866>
 
-## High-Impact Changes To Watch
+Therefore, final official blog/theme/logo links are **not available yet**.
 
-### 1) API Machinery and Control Plane Maturity
+### 3) Final CHANGELOG-1.36.md and release-notes changes
 
-#### Mutating Admission Policies move to GA
+### CHANGELOG-1.36.md (upstream status)
 
-`MutatingAdmissionPolicy` is one of the most visible graduation items for v1.36 and is now expected to be enabled by default in the current release-note drafts.
+Current changelog still contains pre-GA entries:
 
-- KEP: [#3962](https://github.com/kubernetes/enhancements/issues/3962)
+- `v1.36.0-alpha.1`
+- `v1.36.0-alpha.2`
+- no final `v1.36.0` GA section yet
+- upstream file revision checked: `sha 37cd7afb115a346467ab778cd9a3104140c65c7a`
 
-#### Kubernetes API protobuf cleanup continues
+Reference: <https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.36.md>
 
-The removal of historical `gogo protobuf` dependency patterns is a large ecosystem-facing cleanup effort with compatibility implications for projects relying on internal serialization assumptions.
+### release-notes-draft.md (upstream status)
 
-- KEP: [#5589](https://github.com/kubernetes/enhancements/issues/5589)
+Current draft still has expected pre-GA structure:
 
-### 2) Storage and DRA Momentum
+- `Urgent Upgrade Notes`
+- `Deprecation`
+- `API Change`
+- `Feature`
+- `Bug or Regression`
+- upstream file revision checked: `sha d8abece0a18ba0c65eda46bea130b499cc9fe3b1`
 
-Storage and Dynamic Resource Allocation (DRA) continue to be a strong theme in 1.36.
+Reference: <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/release-notes/release-notes-draft.md>
 
-#### Volume Group Snapshot targeting GA
+## Executive Summary
 
-A major data-protection and stateful workload capability to snapshot a set of volumes consistently.
+Kubernetes v1.36 is in late-cycle pre-GA state. The strongest current signal is not a finalized marketing narrative yet, but the technical direction:
 
-- KEP: [#3476](https://github.com/kubernetes/enhancements/issues/3476)
+1. policy and API machinery maturity continues (notably `MutatingAdmissionPolicy` and protobuf cleanup)
+2. storage/DRA capabilities keep moving toward production use
+3. node/scheduler changes require plugin and controller compatibility validation before upgrade
+4. deprecation/removal items (`gitRepo` plugin, flex-volume integration path in kubeadm) need explicit operator attention
 
-#### Mutable CSI node allocatable targeting GA
+## Major Highlights By Stage
 
-Allows CSI drivers to update attach limits dynamically, reducing scheduling mismatch from static assumptions.
+### GA / Stable Highlights (verified)
 
-- KEP: [#4876](https://github.com/kubernetes/enhancements/issues/4876)
+- [KEP-3962 Mutating Admission Policies](https://github.com/kubernetes/enhancements/issues/3962)
+- [KEP-5589 Remove gogo protobuf dependency for Kubernetes API types](https://github.com/kubernetes/enhancements/issues/5589)
+- [KEP-3476 VolumeGroupSnapshot](https://github.com/kubernetes/enhancements/issues/3476)
+- [KEP-4876 Mutable CSINode Allocatable Property](https://github.com/kubernetes/enhancements/issues/4876)
+- [KEP-5538 CSI driver SA token via secrets field](https://github.com/kubernetes/enhancements/issues/5538)
+- [KEP-2258 Node log query](https://github.com/kubernetes/enhancements/issues/2258)
+- [KEP-127 User Namespaces in pods](https://github.com/kubernetes/enhancements/issues/127)
 
-#### CSI token delivery via secrets field targeting GA
+### Beta Highlights (verified)
 
-Adds an optional secure path for service-account token delivery to CSI drivers.
+- [KEP-4006 Transition from SPDY to WebSockets](https://github.com/kubernetes/enhancements/issues/4006)
+- [KEP-5311 Relaxed validation for Services names](https://github.com/kubernetes/enhancements/issues/5311)
+- [KEP-5284 Constrained Impersonation](https://github.com/kubernetes/enhancements/issues/5284)
+- [KEP-4680 Resource Health Status](https://github.com/kubernetes/enhancements/issues/4680)
+- [KEP-4858 IP/CIDR validation improvements](https://github.com/kubernetes/enhancements/issues/4858): currently `stage/beta`, but does **not** currently show milestone `v1.36` on its issue metadata
 
-- KEP: [#5538](https://github.com/kubernetes/enhancements/issues/5538)
+### Alpha Highlights (verified)
 
-### 3) Node and Scheduling Evolution
+- [KEP-5866 Server-side Sharded List and Watch](https://github.com/kubernetes/enhancements/issues/5866)
+- [KEP-5882 Deployment Pod Replacement Policy](https://github.com/kubernetes/enhancements/issues/5882)
+- [KEP-5729 DRA: ResourceClaim Support for Workloads](https://github.com/kubernetes/enhancements/issues/5729)
 
-#### Node log query targeting GA
+## Upgrade / Deprecation Risk Notes
 
-Improves built-in operational debugging workflow directly from Kubernetes APIs.
+From current changelog and release-notes draft signals, prioritize these upgrade checks:
 
-- KEP: [#2258](https://github.com/kubernetes/enhancements/issues/2258)
-
-#### User namespaces and node-side hardening efforts continue
-
-The v1.36 set includes additional node/runtime work across resource managers, authorization hardening, and scheduling behavior.
-
-- Example KEP: [#127](https://github.com/kubernetes/enhancements/issues/127)
-
-### 4) Network and Validation Safety
-
-#### IP/CIDR validation improvements heading to Beta
-
-Upstream highlight discussions call out tighter canonical validation for IP/CIDR formats to reduce ambiguity and security risk.
-
-- KEP: [#4858](https://github.com/kubernetes/enhancements/issues/4858)
-
-## Upgrade and Compatibility Notes (Important)
-
-Based on current changelog and release-note draft signals, operators should proactively validate the following before production upgrades:
-
-1. Scheduler plugin interfaces: recent changes around `PreBind` parallelization and `PostFilterResult` require plugin implementers to review integration behavior.
-2. kubeadm + flex-volume support removal: integrated flex-volume support in kubeadm has been removed; environments still relying on this path should plan migration or custom handling.
-3. `gitRepo` volume plugin disablement: the `git-repo` plugin is disabled by default and cannot be re-enabled in the current release-note direction.
-4. API/client-go behavior shifts: multiple API machinery and informer behavior improvements are targeting correctness and performance, but may expose assumptions in custom controllers.
+1. Scheduler plugin compatibility: interface/behavior updates around `PreBind` and `PostFilter`-related mechanics require retesting for custom scheduler plugins.
+2. kubeadm + flex-volume path changes: integrated flex-volume support behavior in kubeadm has changed; clusters still relying on legacy paths need migration/custom handling.
+3. `gitRepo` volume plugin direction: current release-note direction indicates disabled-by-default behavior without re-enable path.
+4. API/client-go behavior shifts: informer and API machinery correctness/performance changes may surface hidden assumptions in custom controllers/operators.
 
 ## AI-Infra Action List
 
-For AI platform / AI-Infra teams running GPU-heavy or mixed workloads, this is a practical pre-upgrade checklist:
+For AI platform / AI-Infra teams (GPU and mixed training/inference workloads), use this execution checklist:
 
-1. Runtime baseline audit: confirm cluster-wide `containerd`, `runc/crun`, and cgroup mode; mark nodes that will require runtime upgrades before GA rollout.
-2. Scheduler plugin compatibility test: run canary tests for custom scheduler plugins against v1.36 changes around `PreBind` and `PostFilterResult`.
-3. DRA readiness check: validate DRA-related CRDs/controllers and ensure existing accelerator workflows are compatible with current DRA direction.
-4. Storage recovery drills: test snapshot/restore paths for model-serving and training stateful workloads, especially if adopting VolumeGroupSnapshot-related features.
-5. Admission policy migration plan: review mutating webhook usage and identify candidates to move to `MutatingAdmissionPolicy` where it improves reliability.
-6. API client regression scan: run integration tests for operators/controllers that rely on client-go informer behavior and protobuf serialization assumptions.
-7. Network data hygiene: scan Service/Ingress and IP/CIDR inputs for non-canonical formats to avoid surprises as validation tightens.
-8. Progressive rollout strategy: use staged environments (`dev` -> `staging` -> small production slice) with explicit rollback gates and SLO checks for training/inference paths.
+1. Runtime baseline audit: verify `containerd`, `runc/crun`, and cgroup mode by node pool.
+2. Scheduler canary validation: test custom scheduling behavior against v1.36 changes with representative AI workloads.
+3. DRA readiness review: confirm CRDs/controllers/device plugins are aligned with current DRA direction.
+4. Storage recovery drill: validate snapshot/restore workflows for model-serving and training-state volumes.
+5. Admission policy migration review: identify mutating webhook rules that can migrate to `MutatingAdmissionPolicy`.
+6. Controller regression sweep: run tests for client-go informer and API behavior assumptions.
+7. Network data hygiene: clean non-canonical IP/CIDR entries before stricter validation bites.
+8. Progressive rollout gates: enforce staged rollout with explicit rollback and AI SLO checks.
 
-## What Is Still Pending Before Final Release Blog
+## Final Validation Before Publish
 
-Because this is a pre-GA draft, re-check these items right before publication:
+### KEP stage and target release still unchanged?
 
-- Final release theme and logo assets
-- Final `CHANGELOG-1.36.md` GA section
-- Final release-note wording for breaking/urgent items
-- Any late-cycle known-issue disclosures
+Rechecked on writing day for referenced KEPs:
+
+- `3962`: `stage/stable`, milestone `v1.36`
+- `5589`: `stage/stable`, milestone `v1.36`
+- `3476`: `stage/stable`, milestone `v1.36`
+- `4876`: `stage/stable`, milestone `v1.36`
+- `5538`: `stage/stable`, milestone `v1.36`
+- `2258`: `stage/stable`, milestone `v1.36`
+- `127`: `stage/stable`, milestone `v1.36`
+- `4858`: `stage/beta`, milestone `null`
+- `4006`: `stage/beta`, milestone `v1.36`
+- `5311`: `stage/beta`, milestone `v1.36`
+- `5284`: `stage/beta`, milestone `v1.36`
+- `4680`: `stage/beta`, milestone `v1.36`
+- `5866`: `stage/alpha`, milestone `v1.36`
+- `5882`: `stage/alpha`, milestone `v1.36`
+- `5729`: `stage/alpha`, milestone `v1.36`
+
+### Any newly disclosed known issue?
+
+Writing-day queries found **no** v1.36 known-issue ticket in `kubernetes/kubernetes` for:
+
+- title search: `"known issue"` + `1.36`
+- label/milestone search: `label:kind/known-issue milestone:v1.36`
+
+This should still be rechecked again right before final publication.
 
 ## References
 
-- [Kubernetes v1.36 release cycle overview](https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/README.md)
-- [Kubernetes v1.36 release team](https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/release-team.md)
-- [Kubernetes v1.36 tracking links](https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/links.md)
-- [Kubernetes v1.36 milestone](https://github.com/kubernetes/kubernetes/milestone/69)
-- [Kubernetes v1.36 changelog draft](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.36.md)
-- [Kubernetes v1.36 release notes draft](https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/release-notes/release-notes-draft.md)
-- [v1.36 release highlights discussion](https://github.com/kubernetes/sig-release/discussions/2958)
+- <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/README.md>
+- <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/release-team.md>
+- <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/links.md>
+- <https://github.com/kubernetes/kubernetes/milestone/69>
+- <https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.36.md>
+- <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/release-notes/release-notes-draft.md>
+- <https://github.com/kubernetes/sig-release/discussions/2958>
+- <https://github.com/kubernetes/website/pull/54866>

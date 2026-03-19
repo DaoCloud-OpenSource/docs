@@ -5,6 +5,7 @@ This file tracks follow-up actions after step 1 research.
 ## Step 2: English Blog Draft
 
 Status: completed in this branch.
+Latest recheck: completed on 2026-03-19 (writing-day upstream validation refreshed).
 
 Output:
 
