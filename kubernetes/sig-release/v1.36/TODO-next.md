@@ -1,15 +1,8 @@
-# TODO For Next Steps
+# TODO For Next Steps (Not Executed In This PR)
 
-This file tracks follow-up actions after step 1 research.
+This file is only for planning step 2 and step 3 after step 1 research.
 
 ## Step 2: English Blog Draft
-
-Status: completed in this branch.
-Latest recheck: completed on 2026-03-19 (writing-day upstream validation refreshed).
-
-Output:
-
-- `kubernetes/sig-release/v1.36/release.en.md`
 
 1. Re-check upstream status on writing day:
 - final release date confirmation
