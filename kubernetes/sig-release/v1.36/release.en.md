@@ -85,6 +85,50 @@ Kubernetes v1.36 is in late-cycle pre-GA state. The strongest current signal is 
 - [KEP-5882 Deployment Pod Replacement Policy](https://github.com/kubernetes/enhancements/issues/5882)
 - [KEP-5729 DRA: ResourceClaim Support for Workloads](https://github.com/kubernetes/enhancements/issues/5729)
 
+## Highlights Reported In `kubernetes/sig-release#2958`
+
+`kubernetes/sig-release` discussion [#2958](https://github.com/kubernetes/sig-release/discussions/2958) contains cross-SIG release highlights. The features below were explicitly called out there and rechecked against current enhancement metadata on **March 23, 2026 (UTC+8)**.
+
+### KEP-4858: IP/CIDR Validation Improvements (Beta)
+
+This change tightens validation so non-canonical IP/CIDR forms are rejected more consistently, reducing ambiguity between API input, controller logic, and network policy behavior. For operators, the main impact is configuration hygiene: legacy or loosely formatted addresses that previously slipped through can become upgrade blockers once stricter validation gates are enforced.
+
+### KEP-3476: VolumeGroupSnapshot (GA target in v1.36)
+
+Volume group snapshots extend snapshot semantics from single PVCs to related volume sets, which matters for applications that must preserve write-order consistency across multiple disks. This is particularly useful for coordinated backup/recovery workflows where training checkpoints, metadata, and model state must be captured as one logical unit.
+
+### KEP-5538: Service Account Tokens For CSI Via `secrets` Field (GA target in v1.36)
+
+This feature standardizes how CSI drivers receive scoped service account tokens through the `secrets` field path, reducing ad hoc credential wiring and helping operators align with short-lived token best practices. In production, it simplifies credential rotation and strengthens least-privilege boundaries between storage plugins and workloads.
+
+### KEP-4876: Mutable `CSINode` Allocatable (GA target in v1.36)
+
+Allowing mutable allocatable values in `CSINode` lets storage capacity signals track runtime reality instead of static startup assumptions. The practical outcome is better scheduling decisions for attach-limited environments and fewer false placements caused by stale volume-attachment limits.
+
+### KEP-1710: SELinux Relabeling With Mount Options For Non-RWOP Volumes (GA target in v1.36)
+
+This work improves SELinux labeling behavior for non-RWOP volume scenarios by using mount-option-based handling, lowering relabel overhead and reducing contention for shared-volume use cases. Clusters with strict SELinux enforcement can get more predictable startup behavior while keeping confinement guarantees intact.
+
+### KEP-5040: `gitRepo` Volume Plugin Disabled In v1.36
+
+`gitRepo` has long-standing security and maintenance concerns, and v1.36 continues the removal path by disabling it. Teams that still rely on `gitRepo` must migrate to safer patterns such as init containers, CSI-backed content distribution, or build-time artifact packaging before production rollout.
+
+### KEP-3104: `kubectl` User Preferences (`kuberc`) (Beta target in v1.36)
+
+The `kuberc` effort separates user preferences from cluster connection data and expands CLI behavior customization, including credential-plugin-related workflows. This improves UX consistency for platform teams that manage many contexts and helps make local `kubectl` behavior more explicit and reviewable.
+
+### KEP-5547: Workload APIs For Job Controller (Alpha target in v1.36)
+
+This alpha introduces workload-oriented API direction around Job execution, aiming to better express workload intent and improve controller integration patterns. For early adopters, it is primarily an experimentation track to validate API shape and controller semantics rather than an immediate production default.
+
+### KEP-5440: Mutable Container Resources In Suspended Jobs (Beta target in v1.36)
+
+Promoting this capability to beta allows resource requests/limits adjustments while Jobs are suspended, enabling safer queue-time tuning before execution begins. It is useful in batch/AI pipelines where capacity planning often changes between submission and actual start time.
+
+### Scalability Signal: Tested Resource Size Raised From 800MB To 1.5GB
+
+SIG Scalability also called out the increase in tested resource size envelope (from 800MB to 1.5GB) under ongoing scalability work. While not itself a user-facing API feature, it signals stronger confidence in control-plane handling of larger object payload scenarios and helps frame risk for large-cluster operators.
+
 ## Upgrade / Deprecation Risk Notes
 
 From current changelog and release-notes draft signals, prioritize these upgrade checks:
@@ -128,6 +172,11 @@ Rechecked on writing day for referenced KEPs:
 - `5866`: `stage/alpha`, milestone `v1.36`
 - `5882`: `stage/alpha`, milestone `v1.36`
 - `5729`: `stage/alpha`, milestone `v1.36`
+- `1710`: `stage/stable`, milestone `v1.36`
+- `5040`: `stage/beta`, milestone `v1.36`
+- `3104`: `stage/beta`, milestone `v1.36`
+- `5547`: `stage/alpha`, milestone `v1.36`
+- `5440`: `stage/beta`, milestone `v1.36`
 
 ### Any newly disclosed known issue?
 
