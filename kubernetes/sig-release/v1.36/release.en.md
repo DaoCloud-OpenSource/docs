@@ -129,6 +129,30 @@ Promoting this capability to beta allows resource requests/limits adjustments wh
 
 SIG Scalability also called out the increase in tested resource size envelope (from 800MB to 1.5GB) under ongoing scalability work. While not itself a user-facing API feature, it signals stronger confidence in control-plane handling of larger object payload scenarios and helps frame risk for large-cluster operators.
 
+### Additional Reply Highlights (March 24, 2026 update)
+
+Discussion replies added additional highlights beyond the original top-level comments:
+
+#### KEP-5707: Deprecate `Service.spec.externalIPs` (deprecation process starts in v1.36)
+
+SIG Network called out that v1.36 starts the deprecation path for `Service.spec.externalIPs` by introducing warnings on usage. This is an early but important operator signal: teams should begin inventory and migration planning now to avoid being forced into late-cycle changes once stronger restrictions arrive in later releases.
+
+#### KEP-3157: Watch List / Streaming Initial List (highlighted by SIG API Machinery)
+
+This capability allows informer initialization to obtain initial state through a streaming watch path rather than LIST chunking, which reduces API server memory pressure and improves large-cluster bootstrap behavior. For platform teams, the main value is lower read amplification during controller startup and relist-heavy periods.
+
+#### KEP-4988: Snapshottable API Server Cache (highlighted by SIG API Machinery)
+
+This work enables point-in-time snapshots from the watch cache so paginated LIST requests can be served from cache more often instead of falling back to etcd. Combined with recent cache-read improvements, it supports a multi-release API read-path optimization direction for better scalability and latency stability.
+
+#### KEP-5073: Declarative Validation of Native Types (highlighted by SIG API Machinery)
+
+This feature applies CEL-based declarative validation to built-in Kubernetes types through `validation-gen`, reducing the maintenance burden of handwritten validation logic in Go. The practical impact is improved consistency and reviewability of validation rules across native APIs.
+
+#### KEP-5793: Manifest-Based Admission Control Config (Alpha in v1.36)
+
+This alpha introduces startup-time manifest configuration for admission webhooks/policies in kube-apiserver, ensuring selected policies are active before request handling begins. It is especially relevant for platform security baselines where bootstrap enforcement guarantees matter.
+
 ## Upgrade / Deprecation Risk Notes
 
 From current changelog and release-notes draft signals, prioritize these upgrade checks:
@@ -177,6 +201,13 @@ Rechecked on writing day for referenced KEPs:
 - `3104`: `stage/beta`, milestone `v1.36`
 - `5547`: `stage/alpha`, milestone `v1.36`
 - `5440`: `stage/beta`, milestone `v1.36`
+- `5707`: `stage/none`, milestone `null`
+- `3157`: `stage/beta`, milestone `null`
+- `4988`: `stage/beta`, milestone `null`
+- `5073`: `stage/beta`, milestone `v1.36`
+- `5793`: `stage/alpha`, milestone `v1.36`
+
+Note: the March 24, 2026 reply in discussion `#2958` frames `3157`, `4988`, and `5073` as stable-graduation highlights, but current enhancement issue labels still show `stage/beta` for these three items.
 
 ### Any newly disclosed known issue?
 
