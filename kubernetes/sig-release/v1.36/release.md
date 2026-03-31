@@ -1,6 +1,6 @@
 # Kubernetes v1.36 正式发布稿（精简版草案）
 
-> 写作基线：截至 2026-03-30 的上游公开信息与 `kubernetes/sig-release#2958` 讨论内容。v1.36 计划发布时间为 2026-04-22（周三），正式发布当天请以 CHANGELOG 和 release notes 为准。
+> 写作基线：截至 2026-03-31 的上游公开信息与 `kubernetes/sig-release#2958` 讨论内容。v1.36 计划发布时间为 2026-04-22（周三），正式发布当天请以 CHANGELOG 和 release notes 为准。
 
 本文结构按“前瞻精简 + highlights 展开”组织：
 - 前瞻里已经提到的内容，在这里做升级必读级别的精简提示。
@@ -77,7 +77,41 @@ HPA 在 object/external metrics 场景支持从 0 到非 0 的伸缩能力，为
 
 SIG Scheduling 在 #2958 中将 WAS 作为当前重点方向，关联 KEP 包括 5832、5732、5729、5710、5547、4671。该方向的核心目标是让调度器更理解“工作负载级”约束（如 PodGroup、拓扑与抢占协同），对 AI/批处理集群的价值尤其明显。
 
-## 四、建议的升级动作
+## 四、kubernetes/website PR 跟踪结论（截至 2026-03-31）
+
+基于以下两个查询进行逐条核对（open + closed）：
+
+- `is:pr is:open blog 1.36`
+- `is:pr blog 1.36 is:closed`
+
+### 1) Open PR 中与 v1.36 直接相关的博客信号
+
+- [#55151](https://github.com/kubernetes/website/pull/55151)：v1.36 announcement blog（WIP），当前为发布总稿框架稿。
+- [#54755](https://github.com/kubernetes/website/pull/54755)：KEP-5073，Declarative Validation v1.36 更新博客（GA 方向）。
+- [#54567](https://github.com/kubernetes/website/pull/54567)：DRA 1.36 汇总博客，覆盖了 prioritized list、extended resource、partitionable devices、device taints、binding conditions 等，以及 workload/native resource/visibility 等新增方向。
+- [#54370](https://github.com/kubernetes/website/pull/54370)：User Namespaces GA 博客。
+- [#54792](https://github.com/kubernetes/website/pull/54792)：Stale controller mitigation（KEP-5647）博客。
+- [#54786](https://github.com/kubernetes/website/pull/54786)：Server-side sharded list and watch（KEP-5866）博客（WIP）。
+- [#54779](https://github.com/kubernetes/website/pull/54779)：标题为 1.37 breaking changes，但正文明确用于指导 1.36 集群提前做 SELinux 兼容准备，可作为 1.36 升级风险预告材料。
+
+### 2) Closed PR 的处理状态
+
+- [#55150](https://github.com/kubernetes/website/pull/55150)：早期 release announcement 汇总 PR，已关闭；对应主题由 [#55151](https://github.com/kubernetes/website/pull/55151) 延续。
+- [#54430](https://github.com/kubernetes/website/pull/54430)：EvictionRequest API 博客占位稿（WIP）关闭。
+- [#54542](https://github.com/kubernetes/website/pull/54542)：HPA fallback external metrics 博客占位稿（WIP）关闭。
+- [#45268](https://github.com/kubernetes/website/pull/45268)：Deployment Pod Replacement Policy 占位稿关闭。
+- [#55016](https://github.com/kubernetes/website/pull/55016)、[#55104](https://github.com/kubernetes/website/pull/55104)：`main -> dev-1.36` 分支同步 PR，属于发布分支维护，不是单独功能博客。
+
+### 3) 可纳入正式 release 文稿的“网站侧新增主题”
+
+结合上述 open PR，除 `#2958` 外，v1.36 还可重点补充以下网站侧主题：
+
+- KEP-5073（Declarative Validation GA）技术深挖；
+- DRA 1.36 打包更新（多项稳定化 + 新能力并行）；
+- User Namespaces GA 落地实践；
+- KEP-5647（controller staleness mitigation）与 KEP-5866（server-side sharded list/watch）的控制面可扩展性改进。
+
+## 五、建议的升级动作
 
 1. 全量扫描清单与集群对象，完成 `externalIPs`、`gitRepo` 使用点盘点和迁移计划。
 2. 对入口层做维护状态审计，尽快推进 Ingress NGINX 迁移路线。
@@ -97,3 +131,5 @@ SIG Scheduling 在 #2958 中将 WAS 作为当前重点方向，关联 KEP 包括
 - <https://kep.k8s.io/3962>
 - <https://kep.k8s.io/740>
 - <https://kep.k8s.io/3476>
+- <https://github.com/kubernetes/website/pulls?q=is%3Apr+is%3Aopen+blog++1.36>
+- <https://github.com/kubernetes/website/pulls?q=is%3Apr+blog++1.36+is%3Aclosed>
