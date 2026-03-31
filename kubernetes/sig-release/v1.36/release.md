@@ -1,127 +1,99 @@
-# Kubernetes v1.36 预览：GA 前值得关注的关键变化
+# Kubernetes v1.36 正式发布稿（精简版草案）
 
-截至 **2026 年 3 月 18 日（代码冻结日）**，Kubernetes v1.36 已进入发布前的最后阶段。
-本文基于上游发布节奏、发布说明草案与增强特性追踪信息，总结对平台团队最有影响的变化。
+> 写作基线：截至 2026-03-30 的上游公开信息与 `kubernetes/sig-release#2958` 讨论内容。v1.36 计划发布时间为 2026-04-22（周三），正式发布当天请以 CHANGELOG 和 release notes 为准。
 
-> 说明：当前为预览稿。上游计划的 v1.36 GA 发布时间为 **2026 年 4 月 22 日**。
+本文结构按“前瞻精简 + highlights 展开”组织：
+- 前瞻里已经提到的内容，在这里做升级必读级别的精简提示。
+- `#2958` 讨论中的重点功能作为正文主线，提供相对完整说明。
 
-## 发布时间线（v1.36）
+## 一、升级必读（来自 prerelease，精简版）
 
-- 发布周期开始：2026-01-12
-- 增强特性冻结：2026-02-11（AoE）
-- 代码/测试冻结：2026-03-18（AoE）
-- 文档冻结：2026-04-08（AoE）
-- 计划 GA：2026-04-22
+### 1) 弃用与移除
 
-参考：<https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/README.md>
+- `Service.spec.externalIPs`：v1.36 开始弃用并给出告警，计划 v1.43 移除。建议迁移到 `LoadBalancer`、`NodePort` 或 `Gateway API`。（KEP-5707）
+- `gitRepo` 卷驱动：v1.36 起永久禁用且不可重新启用。建议改为 `initContainer`、镜像构建阶段打包或外部 `git-sync`。（KEP-5040）
 
-## 版本速览
+### 2) 生态风险提示
 
-基于当前 `v1.36` 里程碑追踪到的增强特性：
+- Ingress NGINX 已在 2026 年 3 月退役，不再提供后续修复和安全更新。现网可继续运行，但建议尽快完成迁移方案评估。
 
-- 78 个 tracked 条目
-- 18 个稳定版（Stable/GA）目标
-- 25 个 Beta 目标
-- 31 个 Alpha 目标
+## 二、Highlights Discussion 重点功能（展开版）
 
-活跃方向集中在 SIG Node、SIG Scheduling、SIG API Machinery、SIG Auth、SIG Storage。
+### 重点一：Mutating Admission Policies 升级到 GA（KEP-3962）
 
-## 高影响变化
+过去很多团队依赖 mutating webhook 做策略注入、默认值补全和安全控制，但 webhook 体系本身有明显运维成本：需要额外部署与证书管理、故障会放大 API 请求路径风险、升级和排障链路也更长。对于多集群平台，这类“外置准入逻辑”通常是稳定性薄弱点之一。
 
-### 1) API Machinery 与控制面演进
+v1.36 中，基于 CEL 的 Mutating Admission Policies 进入 GA，意味着“声明式、进程内”的变更准入能力进入稳定阶段。它与已 GA 的 Validating Admission Policy 形成闭环，让集群在“校验 + 变更”两个环节都能减少对外部 webhook 的硬依赖。对平台团队来说，最直接价值是把一部分高频、可声明化的准入逻辑收敛到 apiserver 内部能力，降低控制面外围组件复杂度。
 
-#### Mutating Admission Policies 进入 GA
+落地上建议采用分层迁移：先从无副作用、纯字段变换的 webhook 规则迁入 CEL；再评估是否继续保留少量复杂 webhook（例如强依赖外部系统查询或复杂状态编排的场景）。这样可以在不牺牲策略能力的前提下，逐步换取更可控的稳定性与变更成本。
 
-`MutatingAdmissionPolicy` 是 v1.36 中可见度很高的毕业项，当前草案方向是默认启用。
+### 重点二：ServiceAccount Token 外部签名升级到 GA（KEP-740）
 
-- KEP：<https://github.com/kubernetes/enhancements/issues/3962>
+传统模式下，kube-apiserver 直接持有 ServiceAccount token 签名密钥，密钥生命周期与控制面节点绑定较深。对有合规要求或集中密钥管理要求的组织，这会带来审计、轮换、权限隔离上的治理压力。
 
-#### Kubernetes API protobuf 清理持续推进
+KEP-740 在 v1.36 的稳定化价值，在于把签名能力标准化地委托给外部系统（如 HSM、云 KMS），让 Kubernetes 与企业既有密钥治理体系对齐。它并不只是“换个签名位置”，而是把密钥保护边界、轮换流程和审计责任从单集群节点层面提升到统一安全基础设施层面。
 
-历史 `gogo protobuf` 依赖的进一步移除，对依赖内部序列化细节的生态组件有兼容性影响。
+实施时建议重点关注三件事：第一，签名链路延迟和可用性对认证路径的影响；第二，外部签名服务故障时的降级和恢复流程；第三，密钥轮换演练与审计证据闭环。做完这三项验证，外部签名才能真正转化为生产收益而不仅是架构升级。
 
-- KEP：<https://github.com/kubernetes/enhancements/issues/5589>
+### 重点三：Volume Group Snapshot 面向 GA（KEP-3476）
 
-### 2) 存储与 DRA 持续加强
+单卷快照难以覆盖多卷应用的一致性恢复诉求：当数据库数据卷、日志卷、元数据卷之间存在写入顺序关系时，分别快照往往无法保证同一恢复点。对训练平台、状态型中间件和复杂事务应用，这个问题在故障恢复时尤为明显。
 
-#### Volume Group Snapshot 目标 GA
+Volume Group Snapshot 的核心价值，是把“多个相关卷”作为一个逻辑组进行快照与恢复，目标是提供 crash-consistent 的恢复点。它依赖 CSI 侧的一组扩展 API，能力边界清晰，也更利于存储厂商和平台团队在统一接口下协作。
 
-对有状态业务（包括训练/推理状态）而言，组快照能力是关键增强。
+从平台实践看，这项能力最适合进入“备份恢复演练”而不仅是功能开关验证：建议把它纳入 RTO/RPO 目标校验，针对典型多卷工作负载做周期性恢复演练。只有把恢复链路跑通并量化结果，才能真正发挥该特性的业务价值。
 
-- KEP：<https://github.com/kubernetes/enhancements/issues/3476>
+## 三、其他 Highlights（每项一段）
 
-#### 可变 CSI Node 可分配上限（Mutable CSINode Allocatable）目标 GA
+### 1) 细粒度 Kubelet API 鉴权（KEP-2862，Stable）
 
-CSI 驱动可动态调整可附加卷上限，降低静态容量信息导致的调度偏差。
+该能力允许按请求类型（如 exec、logs、metrics、port-forward）进行更细粒度授权，而不是把 kubelet 端点访问作为粗粒度权限整体放开。它的实际意义是让节点侧接口更接近最小权限模型，降低“拿到一种权限即可过度访问”的风险。
 
-- KEP：<https://github.com/kubernetes/enhancements/issues/4876>
+### 2) DRA AdminAccess for ResourceClaims（KEP-5018，Stable）
 
-#### CSI 通过 secrets 字段接收 SA token 目标 GA
+该特性支持以特权模式创建 ResourceClaim，用于在设备已被占用时执行管理类任务（如健康检查、状态查看）。对共享加速器环境而言，这有助于把“运维可见性”与“业务占用路径”解耦，减少排障时对业务负载的干扰。
 
-为 CSI 驱动提供可选的更稳妥令牌传递路径。
+### 3) Constrained Impersonation（KEP-5284，Beta）
 
-- KEP：<https://github.com/kubernetes/enhancements/issues/5538>
+它允许发起模拟（impersonation）的一方主动将自身可用权限进一步收敛到子集，避免直接获得目标身份的完整权限视图。对多租户平台和审计敏感场景，这让模拟机制更适合纳入日常运维而非仅限特权操作。
 
-### 3) 节点与调度能力演进
+### 4) IP/CIDR Validation Improvements（KEP-4858，Beta）
 
-#### Node log query 目标 GA
+该改动收紧了非规范和歧义 IP/CIDR 写法的接受范围，减少不同实现间解释不一致引发的安全与互通问题。升级前建议先做配置巡检，清理历史遗留的“可解析但不规范”地址写法，避免在发布窗口触发阻塞。
 
-提升原生排障效率，减少节点日志查询链路的操作复杂度。
+### 5) statusz / flagz（KEP-4827、KEP-4828，Beta）
 
-- KEP：<https://github.com/kubernetes/enhancements/issues/2258>
+核心组件的 `/statusz` 与 `/flagz` 能力升级到 beta 且默认启用，使组件运行状态和关键配置暴露方式更一致。对平台可观测体系来说，这提升了控制面日常巡检和基线核对效率。
 
-#### 用户命名空间与节点侧能力继续推进
+### 6) Mixed Version Proxy（KEP-4020，Beta）
 
-v1.36 中节点/运行时、授权与调度相关变更多，建议将节点能力与插件兼容性一起验证。
+该能力在版本偏斜场景下把请求转发到可处理该资源的 API Server，并提供更完整的聚合发现视图。它对“滚动升级中偶发 404/发现不一致”的缓解价值较高，适合作为升级窗口稳定性增强项来评估。
 
-- 参考 KEP：<https://github.com/kubernetes/enhancements/issues/127>
+### 7) HPA Scale to Zero（KEP-2021，Alpha）
 
-### 4) 网络与校验收敛
+HPA 在 object/external metrics 场景支持从 0 到非 0 的伸缩能力，为事件驱动和低频工作负载提供更激进的成本优化空间。由于仍处于 Alpha，建议仅在边界可控场景试点，并明确冷启动与指标时效的观测基线。
 
-#### IP/CIDR 校验改进进入 Beta
+### 8) Workload Aware Scheduling（WAS）相关方向（SIG Scheduling）
 
-上游 highlights 已强调更严格的 canonical 校验方向，用于降低歧义与安全风险。
+SIG Scheduling 在 #2958 中将 WAS 作为当前重点方向，关联 KEP 包括 5832、5732、5729、5710、5547、4671。该方向的核心目标是让调度器更理解“工作负载级”约束（如 PodGroup、拓扑与抢占协同），对 AI/批处理集群的价值尤其明显。
 
-- KEP：<https://github.com/kubernetes/enhancements/issues/4858>
+## 四、建议的升级动作
 
-## 升级与兼容性注意事项
-
-结合当前 changelog 与 release notes 草案，生产升级前建议重点确认：
-
-1. 调度器插件接口：`PreBind` 并行化、`PostFilterResult` 等变化，需自研插件逐项回归。
-2. kubeadm 与 flex-volume：kubeadm 已移除集成 flex-volume 支持，仍依赖该路径的环境需提前迁移或自定义方案。
-3. `gitRepo` 卷插件：当前方向为默认禁用且不可重新启用。
-4. API/client-go 行为变化：informer 与 API machinery 的正确性/性能改动较多，需对自研 controller/operator 做回归测试。
-
-## AI-Infra 行动清单
-
-面向 AI 平台 / AI-Infra 团队（GPU、大规模训练与推理混合负载），建议按以下清单推进：
-
-1. 运行时基线盘点：统一核对 `containerd`、`runc/crun`、cgroup 模式，标记需要先升级运行时的节点池。
-2. 调度插件兼容性验证：针对自定义调度插件执行 v1.36 canary，用真实训练/推理任务验证 `PreBind` 与 `PostFilter` 相关逻辑。
-3. DRA 能力体检：检查 DRA 相关 CRD/控制器与设备插件，确认现有加速器资源编排流程可平滑过渡。
-4. 存储恢复演练：对训练检查点、模型仓库、推理状态卷执行快照与恢复演练，验证恢复时间与一致性目标。
-5. 准入策略迁移评估：梳理现有 mutating webhooks，评估可迁移到 `MutatingAdmissionPolicy` 的策略，降低 webhook 运行风险。
-6. 控制器回归测试：重点覆盖依赖 client-go informer 行为和 protobuf 序列化假设的控制器。
-7. 网络数据规范化：提前清理非规范 IP/CIDR 配置，避免校验收紧后触发发布窗口风险。
-8. 分阶段发布策略：采用 `dev -> staging -> 小流量生产` 的渐进升级，设置训练/推理 SLO 与回滚闸门。
-
-## 正式发布前仍需确认
-
-由于当前是预览稿，正式发布前建议再核对：
-
-- 最终主题与 logo 资产
-- `CHANGELOG-1.36.md` 的 GA 最终内容
-- 发布说明中对破坏性变更/升级注意事项的最终措辞
-- 是否出现晚期已知问题（known issues）
+1. 全量扫描清单与集群对象，完成 `externalIPs`、`gitRepo` 使用点盘点和迁移计划。
+2. 对入口层做维护状态审计，尽快推进 Ingress NGINX 迁移路线。
+3. 以 staging 为主验证准入策略、API Machinery 与调度相关改动，再逐步推进生产。
+4. 对多卷状态型业务执行组快照恢复演练，量化 RTO/RPO 并形成发布闸门。
+5. 升级当天对照最终 `CHANGELOG-1.36.md` 与 release notes 做差异复核。
 
 ## 参考链接
 
+- <https://kubernetes.io/blog/2026/03/30/kubernetes-v1-36-sneak-peek/>
+- <https://github.com/kubernetes/sig-release/discussions/2958>
 - <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/README.md>
-- <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/release-team.md>
-- <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/links.md>
-- <https://github.com/kubernetes/kubernetes/milestone/69>
 - <https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.36.md>
 - <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/release-notes/release-notes-draft.md>
-- <https://github.com/kubernetes/sig-release/discussions/2958>
-
+- <https://kep.k8s.io/5707>
+- <https://kep.k8s.io/5040>
+- <https://kep.k8s.io/3962>
+- <https://kep.k8s.io/740>
+- <https://kep.k8s.io/3476>
