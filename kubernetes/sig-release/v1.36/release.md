@@ -1,6 +1,6 @@
 # Kubernetes v1.36 正式发布稿（精简版草案）
 
-> 写作基线：截至 2026-03-30 的上游公开信息与 `kubernetes/sig-release#2958` 讨论内容。v1.36 计划发布时间为 2026-04-22（周三），正式发布当天请以 CHANGELOG 和 release notes 为准。
+> 写作基线：截至 2026-03-31 的上游公开信息与 `kubernetes/sig-release#2958` 讨论内容。v1.36 计划发布时间为 2026-04-22（周三），正式发布当天请以 CHANGELOG 和 release notes 为准。
 
 本文结构按“前瞻精简 + highlights 展开”组织：
 - 前瞻里已经提到的内容，在这里做升级必读级别的精简提示。
@@ -97,3 +97,5 @@ SIG Scheduling 在 #2958 中将 WAS 作为当前重点方向，关联 KEP 包括
 - <https://kep.k8s.io/3962>
 - <https://kep.k8s.io/740>
 - <https://kep.k8s.io/3476>
+- <https://github.com/kubernetes/website/pulls?q=is%3Apr+is%3Aopen+blog++1.36>
+- <https://github.com/kubernetes/website/pulls?q=is%3Apr+blog++1.36+is%3Aclosed>
