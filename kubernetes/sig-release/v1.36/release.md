@@ -77,6 +77,28 @@ HPA 在 object/external metrics 场景支持从 0 到非 0 的伸缩能力，为
 
 SIG Scheduling 在 #2958 中将 WAS 作为当前重点方向，关联 KEP 包括 5832、5732、5729、5710、5547、4671。该方向的核心目标是让调度器更理解“工作负载级”约束（如 PodGroup、拓扑与抢占协同），对 AI/批处理集群的价值尤其明显。
 
+### 9) Declarative Validation（KEP-5073，GA 方向）
+
+除 Mutating Admission Policy 外，Declarative Validation 的 GA 方向也值得作为 v1.36 重点叙事：它把“声明式校验”能力推进到更稳定阶段，帮助平台将部分分散在 webhook 或自定义控制器中的校验逻辑收敛到统一的 API 语义层。
+
+### 10) DRA 1.36 打包更新（稳定化 + 新能力并行）
+
+DRA 在 v1.36 的信号不是单点特性，而是多项能力并行推进：包括 prioritized list、extended resource、partitionable devices、device taints、binding conditions，以及 workload / native resource / visibility 等方向。对 AI 和异构算力平台，更建议将其作为一组“资源编排能力跃迁”来评估。
+
+### 11) User Namespaces（GA）落地实践
+
+User Namespaces 进入 GA 后，容器内用户与宿主机用户隔离的工程可用性更强，适合在多租户场景中与 RuntimeClass、seccomp、SELinux/AppArmor 等机制配套落地，形成“默认最小权限 + 分层隔离”的节点安全基线。
+
+### 12) 控制面可扩展性改进（KEP-5647、KEP-5866）
+
+controller staleness mitigation 与 server-side sharded list/watch 组合起来，分别针对控制器端陈旧状态影响与 apiserver 大规模 list/watch 压力做优化。两者的共同价值是把“控制面在大集群下的稳定性”从经验调优转向可机制化改进。
+
+### 13) SELinux 兼容准备（升级风险前置）
+
+虽然相关 breaking changes 主题常被放在后续版本窗口讨论，但其核心动作需要在 v1.36 周期前置完成：尽早盘点现有工作负载的 SELinux 相关假设与策略依赖，避免升级窗口内集中暴露兼容性问题。
+
+> 说明：EvictionRequest API、HPA fallback external metrics、Deployment Pod Replacement Policy 相关稿件当前仍以占位探索为主，暂不作为本版 release 主线展开。
+
 ## 四、建议的升级动作
 
 1. 全量扫描清单与集群对象，完成 `externalIPs`、`gitRepo` 使用点盘点和迁移计划。
@@ -85,7 +107,7 @@ SIG Scheduling 在 #2958 中将 WAS 作为当前重点方向，关联 KEP 包括
 4. 对多卷状态型业务执行组快照恢复演练，量化 RTO/RPO 并形成发布闸门。
 5. 升级当天对照最终 `CHANGELOG-1.36.md` 与 release notes 做差异复核。
 
-## 参考链接
+## 五、参考链接
 
 - <https://kubernetes.io/blog/2026/03/30/kubernetes-v1-36-sneak-peek/>
 - <https://github.com/kubernetes/sig-release/discussions/2958>
@@ -97,5 +119,3 @@ SIG Scheduling 在 #2958 中将 WAS 作为当前重点方向，关联 KEP 包括
 - <https://kep.k8s.io/3962>
 - <https://kep.k8s.io/740>
 - <https://kep.k8s.io/3476>
-- <https://github.com/kubernetes/website/pulls?q=is%3Apr+is%3Aopen+blog++1.36>
-- <https://github.com/kubernetes/website/pulls?q=is%3Apr+blog++1.36+is%3Aclosed>
