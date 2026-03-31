@@ -1,127 +1,97 @@
-# Kubernetes v1.36 预览：GA 前值得关注的关键变化
+# Kubernetes v1.36 正式发布稿（精简版草案）
 
-截至 **2026 年 3 月 18 日（代码冻结日）**，Kubernetes v1.36 已进入发布前的最后阶段。
-本文基于上游发布节奏、发布说明草案与增强特性追踪信息，总结对平台团队最有影响的变化。
+> 本文为正式发布用稿草案，基于截至 **2026-03-30** 的上游公开信息整理。Kubernetes v1.36 计划于 **2026-04-22（周三）** 发布，GA 当日请以官方 CHANGELOG 与 release notes 为准。
 
-> 说明：当前为预览稿。上游计划的 v1.36 GA 发布时间为 **2026 年 4 月 22 日**。
+Kubernetes v1.36 的主线很清晰：一方面继续推进高风险能力的退场与迁移，另一方面在安全、可扩展性和资源利用效率上做实质增强。
 
-## 发布时间线（v1.36）
+## 本版最需要关注的三件事
 
-- 发布周期开始：2026-01-12
-- 增强特性冻结：2026-02-11（AoE）
-- 代码/测试冻结：2026-03-18（AoE）
-- 文档冻结：2026-04-08（AoE）
-- 计划 GA：2026-04-22
+1. 明确迁移路径：`Service.spec.externalIPs` 启动弃用，`gitRepo` 卷驱动在 v1.36 永久禁用。
+2. 强化安全基线：ServiceAccount Token 外部签名、细粒度 Kubelet API 鉴权等能力进入稳定阶段。
+3. 面向大规模集群：API Machinery、调度与可观测性方向有一批面向规模化场景的新能力或升级。
 
-参考：<https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/README.md>
+## 升级前必须处理的弃用与移除
 
-## 版本速览
+### `Service.spec.externalIPs` 开始弃用
 
-基于当前 `v1.36` 里程碑追踪到的增强特性：
+- v1.36 起开始出现弃用告警，计划在 v1.43 移除。
+- 原因是长期存在安全风险（如 CVE-2020-8554 相关攻击面）。
+- 建议迁移到 `LoadBalancer`、`NodePort` 或 `Gateway API`。
 
-- 78 个 tracked 条目
-- 18 个稳定版（Stable/GA）目标
-- 25 个 Beta 目标
-- 31 个 Alpha 目标
+参考：<https://kep.k8s.io/5707>
 
-活跃方向集中在 SIG Node、SIG Scheduling、SIG API Machinery、SIG Auth、SIG Storage。
+### `gitRepo` 卷驱动永久禁用
 
-## 高影响变化
+- 自 v1.11 起已弃用。
+- v1.36 起禁用且不可重新启用。
+- 建议迁移为 `initContainer` 拉取、镜像构建期打包，或使用外部 `git-sync`。
 
-### 1) API Machinery 与控制面演进
+参考：<https://kep.k8s.io/5040>
 
-#### Mutating Admission Policies 进入 GA
+### Ingress NGINX 已退役（生态风险提示）
 
-`MutatingAdmissionPolicy` 是 v1.36 中可见度很高的毕业项，当前草案方向是默认启用。
+- Ingress NGINX 在 2026 年 3 月退役，不再提供后续修复与安全更新。
+- 现有部署不会立刻失效，但建议尽快迁移到 Gateway API 或其他受维护方案。
 
-- KEP：<https://github.com/kubernetes/enhancements/issues/3962>
+参考：<https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/>
 
-#### Kubernetes API protobuf 清理持续推进
+## v1.36 核心增强（重点节选）
 
-历史 `gogo protobuf` 依赖的进一步移除，对依赖内部序列化细节的生态组件有兼容性影响。
+### 安全与鉴权
 
-- KEP：<https://github.com/kubernetes/enhancements/issues/5589>
+- **KEP-740（Stable）**：ServiceAccount Token 支持外部签名（KMS/HSM）。
+- **KEP-2862（Stable）**：Kubelet API 细粒度鉴权，支持按请求类型做最小权限控制。
+- **KEP-5018（Stable）**：DRA ResourceClaim 支持 AdminAccess，便于设备运维与巡检。
+- **KEP-5284（Beta）**：Constrained Impersonation，支持“受约束的自我降权式模拟”。
 
-### 2) 存储与 DRA 持续加强
+### API Machinery
 
-#### Volume Group Snapshot 目标 GA
+- **KEP-3962（Stable）**：Mutating Admission Policy（CEL）升级到 GA。
+- **KEP-5073（Stable）**：原生类型声明式校验能力增强（validation-gen + CEL）。
+- **KEP-5589（Stable）**：完成 gogo protobuf 依赖移除。
+- **KEP-4020（Beta）**：Mixed Version Proxy（默认开启）改善升级期跨版本请求路由。
+- **KEP-5793（Alpha）**：Manifest-Based Admission Control Config。
+- **KEP-5866（Alpha）**：Server-side Sharded List/Watch。
+- **KEP-5647（Alpha）**：Stale Controller Mitigation。
 
-对有状态业务（包括训练/推理状态）而言，组快照能力是关键增强。
+### 存储与节点侧能力
 
-- KEP：<https://github.com/kubernetes/enhancements/issues/3476>
+- **KEP-3476（GA 目标）**：Volume Group Snapshot，提升多卷一致性快照与恢复能力。
+- **KEP-5538（GA 目标）**：CSI 通过 `secrets` 字段接收 SA token。
+- **KEP-4876（GA 目标）**：Mutable `CSINode` Allocatable，提升 attach 限制动态感知。
+- **KEP-1710（GA 目标）**：SELinux relabeling 挂载优化，降低启动延迟。
+- **KEP-5055（Beta）**：DRA 设备污点/容忍，避免设备被误用。
+- **KEP-4815**：DRA 可分区设备，支持单加速器多逻辑单元共享。
 
-#### 可变 CSI Node 可分配上限（Mutable CSINode Allocatable）目标 GA
+### 网络与可扩缩
 
-CSI 驱动可动态调整可附加卷上限，降低静态容量信息导致的调度偏差。
+- **KEP-4858（Beta）**：IP/CIDR 校验收紧，拒绝非规范和歧义格式。
+- **SIG Scalability 信号**：官方可支持资源大小测试上限由 800MB 提升至 1.5GB。
 
-- KEP：<https://github.com/kubernetes/enhancements/issues/4876>
+## 来自 #2958 的新增更新（截至 2026-03-30）
 
-#### CSI 通过 secrets 字段接收 SA token 目标 GA
+相比 3 月中旬的早期快照，`kubernetes/sig-release#2958` 在 3 月下旬新增了多项重点：
 
-为 CSI 驱动提供可选的更稳妥令牌传递路径。
+- **SIG Auth（3/26）**：补充了 KEP-740、KEP-2862、KEP-5018 的稳定化信息。
+- **SIG Autoscaling（3/30）**：新增 KEP-2021（HPA scale to zero，Alpha）亮点。
+- **SIG Scheduling（3/30）**：强调 Workload Aware Scheduling（WAS）为当前重点方向，涵盖 KEP-5832、5732、5729、5710、5547、4671。
+- **SIG Instrumentation（3/30）**：KEP-4827/4828 升级到 Beta（默认启用），并新增 KEP-5808（Prometheus Native Histogram，Alpha）。
+- **SIG API Machinery（3/30）**：新增一组稳定化与 Alpha 能力说明，重点包括 KEP-3962、5073、5589、4020、5793、5866、5647。
 
-- KEP：<https://github.com/kubernetes/enhancements/issues/5538>
+参考：<https://github.com/kubernetes/sig-release/discussions/2958>
 
-### 3) 节点与调度能力演进
+## 升级检查清单（建议）
 
-#### Node log query 目标 GA
-
-提升原生排障效率，减少节点日志查询链路的操作复杂度。
-
-- KEP：<https://github.com/kubernetes/enhancements/issues/2258>
-
-#### 用户命名空间与节点侧能力继续推进
-
-v1.36 中节点/运行时、授权与调度相关变更多，建议将节点能力与插件兼容性一起验证。
-
-- 参考 KEP：<https://github.com/kubernetes/enhancements/issues/127>
-
-### 4) 网络与校验收敛
-
-#### IP/CIDR 校验改进进入 Beta
-
-上游 highlights 已强调更严格的 canonical 校验方向，用于降低歧义与安全风险。
-
-- KEP：<https://github.com/kubernetes/enhancements/issues/4858>
-
-## 升级与兼容性注意事项
-
-结合当前 changelog 与 release notes 草案，生产升级前建议重点确认：
-
-1. 调度器插件接口：`PreBind` 并行化、`PostFilterResult` 等变化，需自研插件逐项回归。
-2. kubeadm 与 flex-volume：kubeadm 已移除集成 flex-volume 支持，仍依赖该路径的环境需提前迁移或自定义方案。
-3. `gitRepo` 卷插件：当前方向为默认禁用且不可重新启用。
-4. API/client-go 行为变化：informer 与 API machinery 的正确性/性能改动较多，需对自研 controller/operator 做回归测试。
-
-## AI-Infra 行动清单
-
-面向 AI 平台 / AI-Infra 团队（GPU、大规模训练与推理混合负载），建议按以下清单推进：
-
-1. 运行时基线盘点：统一核对 `containerd`、`runc/crun`、cgroup 模式，标记需要先升级运行时的节点池。
-2. 调度插件兼容性验证：针对自定义调度插件执行 v1.36 canary，用真实训练/推理任务验证 `PreBind` 与 `PostFilter` 相关逻辑。
-3. DRA 能力体检：检查 DRA 相关 CRD/控制器与设备插件，确认现有加速器资源编排流程可平滑过渡。
-4. 存储恢复演练：对训练检查点、模型仓库、推理状态卷执行快照与恢复演练，验证恢复时间与一致性目标。
-5. 准入策略迁移评估：梳理现有 mutating webhooks，评估可迁移到 `MutatingAdmissionPolicy` 的策略，降低 webhook 运行风险。
-6. 控制器回归测试：重点覆盖依赖 client-go informer 行为和 protobuf 序列化假设的控制器。
-7. 网络数据规范化：提前清理非规范 IP/CIDR 配置，避免校验收紧后触发发布窗口风险。
-8. 分阶段发布策略：采用 `dev -> staging -> 小流量生产` 的渐进升级，设置训练/推理 SLO 与回滚闸门。
-
-## 正式发布前仍需确认
-
-由于当前是预览稿，正式发布前建议再核对：
-
-- 最终主题与 logo 资产
-- `CHANGELOG-1.36.md` 的 GA 最终内容
-- 发布说明中对破坏性变更/升级注意事项的最终措辞
-- 是否出现晚期已知问题（known issues）
+1. 扫描并替换 `externalIPs` 与 `gitRepo` 相关配置。
+2. 盘点 Ingress 入口能力，制定 Ingress NGINX 迁移计划。
+3. 在 staging 环境验证 API Machinery 与调度相关变更（尤其是自研 controller / scheduler 插件）。
+4. 对 CSI/DRA 工作负载做回归，重点验证快照恢复、资源编排和设备分配路径。
+5. 升级当日对照 `CHANGELOG-1.36.md` 与 release notes 做最终差异核验。
 
 ## 参考链接
 
+- <https://kubernetes.io/blog/2026/03/30/kubernetes-v1-36-sneak-peek/>
+- <https://github.com/kubernetes/sig-release/discussions/2958>
 - <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/README.md>
-- <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/release-team.md>
-- <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/links.md>
-- <https://github.com/kubernetes/kubernetes/milestone/69>
 - <https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.36.md>
 - <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/release-notes/release-notes-draft.md>
-- <https://github.com/kubernetes/sig-release/discussions/2958>
-
