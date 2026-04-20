@@ -1,10 +1,15 @@
 # Kubernetes v1.36 正式发布稿（精简版草案）
 
-> 写作基线：截至 2026-04-07 的上游公开信息与 `kubernetes/sig-release#2958` 讨论内容。v1.36 计划发布时间为 2026-04-22（周三），正式发布当天请以 CHANGELOG 和 release notes 为准。
+> 写作基线：截至 2026-04-20 的上游公开信息与 `kubernetes/sig-release#2958` 讨论内容。v1.36 计划发布时间为 2026-04-22（周三），正式发布当天请以 CHANGELOG 和 release notes 为准。
 
 本文结构按“前瞻精简 + highlights 展开”组织：
 - 前瞻里已经提到的内容，在这里做升级必读级别的精简提示。
 - `#2958` 讨论中的重点功能作为正文主线，提供相对完整说明。
+
+补充：结合 `kubernetes/website#55151` 当前最新 release announcement 草稿，v1.36 的高层信号可补充为：
+
+- 增强总量 70；其中 Stable 18、Beta 25、Alpha 25。
+- 官方 Spotlight 当前聚焦：细粒度 Kubelet API 鉴权（KEP-2862）、Resource Health Status（KEP-4680）、WAS 系列能力（含 KEP-5732）。
 
 ## 一、升级必读（来自 prerelease，精简版）
 
@@ -76,6 +81,12 @@ HPA 在 object/external metrics 场景支持从 0 到非 0 的伸缩能力，为
 ### 8) Workload Aware Scheduling（WAS）相关方向（SIG Scheduling）
 
 SIG Scheduling 在 #2958 中将 WAS 作为当前重点方向，关联 KEP 包括 5832、5732、5729、5710、5547、4671。该方向的核心目标是让调度器更理解“工作负载级”约束（如 PodGroup、拓扑与抢占协同），对 AI/批处理集群的价值尤其明显。
+
+### 8.1) 拓扑感知 Workload 调度（KEP-5732）专项说明
+
+`KEP-5732` 在 v1.36 处于 Alpha 推进阶段，核心不是“再加一个普通打分插件”，而是把拓扑约束（如机架/可用区/网络拓扑域）与 Workload/PodGroup 级调度语义联动起来，让调度决策从“单 Pod 可落点”升级为“整组工作负载跨拓扑放置成本”优化。结合 v1.35 已引入的 gang scheduling，v1.36 的重点是把“成组调度”进一步推进到“成组且拓扑感知调度”，以减少分布式训练与高通信负载任务中的跨拓扑通信放大和资源碎片化。
+
+从落地节奏看，这项能力仍是 Alpha，更适合在有明显拓扑瓶颈的场景做分层试点：先验证调度可行性与回退路径，再观察任务完成时延、网络热点与资源利用率变化，最后再扩大到更广泛工作负载。
 
 ### 9) Declarative Validation（KEP-5073，GA 方向）
 
