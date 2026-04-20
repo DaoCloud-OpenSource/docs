@@ -84,9 +84,11 @@ SIG Scheduling 在 #2958 中将 WAS 作为当前重点方向，关联 KEP 包括
 
 ### 8.1) 拓扑感知 Workload 调度（KEP-5732）专项说明
 
-`KEP-5732` 在 v1.36 处于 Alpha 推进阶段，核心不是“再加一个普通打分插件”，而是把拓扑约束（如机架/可用区/网络拓扑域）与 Workload/PodGroup 级调度语义联动起来，让调度决策从“单 Pod 可落点”升级为“整组工作负载跨拓扑放置成本”优化。结合 v1.35 已引入的 gang scheduling，v1.36 的重点是把“成组调度”进一步推进到“成组且拓扑感知调度”，以减少分布式训练与高通信负载任务中的跨拓扑通信放大和资源碎片化。
+结合 `kubernetes/website#54673` 已合并文档，`KEP-5732` 在 v1.36 的定义更清晰：它是面向 PodGroup 的 *placement scheduling algorithm*，目标是在同一拓扑域内协同放置整组 Pod（而不是逐个 Pod 独立最优），从而减少跨机架/跨可用区通信放大与工作负载碎片化。该特性受 `TopologyAwareWorkloadScheduling` 特性门控控制，当前为 Alpha（默认关闭）。
 
-从落地节奏看，这项能力仍是 Alpha，更适合在有明显拓扑瓶颈的场景做分层试点：先验证调度可行性与回退路径，再观察任务完成时延、网络热点与资源利用率变化，最后再扩大到更广泛工作负载。
+从调度框架角度，v1.36 为 PodGroup 调度新增了 `placementGenerate` 与 `placementScore` 两个扩展点，并对应引入/扩展了关键插件：`TopologyPlacement`（生成候选拓扑域）、`NodeResourcesFit`（对候选 placement 做资源利用评分，placement 场景使用 `MostAllocated` 逻辑）以及 `PodGroupPodsCount`（按可成功放置 Pod 数量评分）。这意味着 TAS 不是单插件开关，而是一组“候选生成 + 可行性验证 + placement 评分”的组合机制。
+
+在 API 使用上，PodGroup 可通过 `schedulingConstraints.topology[].key` 声明拓扑约束（v1.36 仅支持单个 topology constraint）。与 `gang` 策略配合时，调度器会先验证至少 `minCount` Pod 能否在同一拓扑域放下，再执行绑定；若无可行 placement，则整组不可调度。文档同时明确当前限制：v1.36 的 TAS 不会触发 workload/pod preemption。生产建议是先在拓扑敏感（如分布式训练）场景灰度启用，重点观测跨域流量、任务完成时延和 pending 行为，再逐步扩面。
 
 ### 9) Declarative Validation（KEP-5073，GA 方向）
 
