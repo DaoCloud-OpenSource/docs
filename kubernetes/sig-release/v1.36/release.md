@@ -46,7 +46,16 @@
 
 ### WAS 一系列更新
 
-WAS 是 Workload Aware Scheduling，也是 SIG Scheduling 当前重点方向。在 v1.36 release highlights 讨论中，WAS 关联了多个 KEP，包括 5832、5732、5729、5710、5547、4671。该方向的核心目标是让调度器更理解“工作负载级”约束，例如 PodGroup、拓扑放置与抢占协同。
+WAS 是 Workload Aware Scheduling，也是 SIG Scheduling 当前重点方向。在 v1.36 release highlights 讨论 `kubernetes/sig-release#2958` 中，WAS 关联了多个 KEP，包括 5832、5732、5729、5710、5547、4671。该方向的核心目标是让调度器更理解“工作负载级”约束，例如 PodGroup、拓扑放置与抢占协同。注意：`#2958` 是 v1.36 release highlights discussion，不是 WAS 的 KEP 编号。
+
+| KEP | 标题 | 一句话介绍 | 1.36 更新 |
+| --- | --- | --- | --- |
+| 4671 | Gang Scheduling Support in Kubernetes | 提供 PodGroup / Gang Scheduling 基础语义，在满足 `minCount` 等组级条件前不绑定部分 Pod，避免分布式任务半启动造成资源浪费。 | Alpha 持续演进 |
+| 5547 | WAS: Integrate Workload APIs with Job controller | 让 Job controller 能显式关联 Workload API，使 Job、Workload、PodGroup 的生命周期可以协同支持 gang scheduling。 | Alpha |
+| 5832 | WAS: Decouple PodGroup API | 将 PodGroup 从 Workload 静态模板中解耦为独立运行时对象，为调度器和控制器共享组级调度状态打基础。 | Alpha |
+| 5732 | Topology-aware workload scheduling | 为 PodGroup 生成并评分拓扑 placement，让一组 Pod 能按同一拓扑域协同放置，而不是逐个 Pod 独立最优。 | Alpha |
+| 5710 | Workload-aware preemption | 把抢占决策从单个 Pod 扩展到 Workload / PodGroup 级别，减少“抢占了资源但整组任务仍放不下”的情况。 | Alpha |
+| 5729 | DRA: ResourceClaim Support for Workloads | 让 Workload / PodGroup 级对象引用 DRA ResourceClaim 或 ResourceClaimTemplate，使整组 Pod 能共享或生成资源声明。 | Alpha |
 
 > 图：Workload Aware Scheduling / PodGroup 调度流程，待补充。
 
