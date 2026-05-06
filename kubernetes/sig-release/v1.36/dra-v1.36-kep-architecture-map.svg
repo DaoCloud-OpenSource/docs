@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1180" viewBox="0 0 1600 1180" role="img" aria-labelledby="title desc">
+  <title id="title">DRA v1.36 KEP Architecture Map</title>
+  <desc id="desc">Architecture map of Kubernetes v1.36-related Dynamic Resource Allocation enhancements, arranged as request surface, API state, scheduling, node preparation, device pools, and operations observability.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-muted" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#64748b"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 16px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+      .box { stroke-width: 2; rx: 8; }
+      .request { fill: #eff6ff; stroke: #60a5fa; }
+      .api { fill: #f0fdf4; stroke: #4ade80; }
+      .sched { fill: #fefce8; stroke: #facc15; }
+      .node { fill: #fff7ed; stroke: #fb923c; }
+      .device { fill: #eff6ff; stroke: #60a5fa; }
+      .model { fill: #f5f3ff; stroke: #a78bfa; }
+      .ops { fill: #fdf2f8; stroke: #f472b6; }
+      .state-note { fill: #ffffff; stroke: #2563eb; stroke-width: 2; rx: 8; }
+      .section { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+      .item { font: 15px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1e293b; }
+      .muted { font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+      .note { font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #92400e; }
+      .arrow { fill: none; stroke: #2563eb; stroke-width: 2.5; marker-end: url(#arrow); }
+      .arrow-muted { fill: none; stroke: #64748b; stroke-width: 2.2; marker-end: url(#arrow-muted); }
+      .arrow-dashed { fill: none; stroke: #64748b; stroke-width: 2.2; stroke-dasharray: 8 7; marker-end: url(#arrow-muted); }
+      .tag { font: 700 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1d4ed8; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1600" height="1180"/>
+
+  <text class="title" x="44" y="54">DRA v1.36 KEP Architecture Map</text>
+  <text class="subtitle" x="44" y="84">v1.36-related DRA enhancements, not the full DRA architecture</text>
+
+  <!-- Layer 1: request surface plus the side observability view. -->
+  <rect class="box request" x="70" y="125" width="460" height="230"/>
+  <text class="section" x="96" y="162">Request Surface</text>
+  <text class="item" x="96" y="202">
+    <tspan x="96" dy="0">5729 Workload / PodGroup references</tspan>
+    <tspan x="96" dy="21">ResourceClaim or ResourceClaimTemplate</tspan>
+  </text>
+  <text class="item" x="96" y="255">
+    <tspan x="96" dy="0">5004 Extended resource requests</tspan>
+    <tspan x="96" dy="21">handled by a DRA driver</tspan>
+  </text>
+  <text class="item" x="96" y="308">
+    <tspan x="96" dy="0">5018 AdminAccess for diagnostic claims</tspan>
+    <tspan class="note" x="96" dy="21">RBAC-gated admin / diagnostic access</tspan>
+  </text>
+
+  <rect class="box ops" x="1020" y="125" width="500" height="260"/>
+  <text class="section" x="1046" y="162">Operations / Observability</text>
+  <text class="item" x="1046" y="200">
+    <tspan x="1046" dy="0">5677 ResourcePoolStatusRequest:</tspan>
+    <tspan x="1046" dy="21">on-demand availability view</tspan>
+  </text>
+  <text class="item" x="1046" y="252">
+    <tspan x="1046" dy="0">Inputs: ResourceSlices plus</tspan>
+    <tspan x="1046" dy="21">ResourceClaim consumption</tspan>
+  </text>
+  <text class="item" x="1046" y="306">
+    <tspan x="1046" dy="0">3695 PodResources: node-local kubelet gRPC</tspan>
+    <tspan x="1046" dy="21">4680 Pod.status resource health</tspan>
+    <tspan x="1046" dy="21">4817 ResourceClaim.status device / network data</tspan>
+  </text>
+  <text class="note" x="1046" y="370">Side query path for kubectl, autoscalers, and platform SREs.</text>
+
+  <!-- Layer 2: API state centered, scheduling at the same level on the right. -->
+  <rect class="box model" x="70" y="450" width="370" height="250"/>
+  <text class="section" x="96" y="487">Resource Model and Fit</text>
+  <text class="item" x="96" y="526">
+    <tspan x="96" dy="0">4815 Partitionable devices</tspan>
+    <tspan x="96" dy="21">5075 Consumable capacity</tspan>
+    <tspan x="96" dy="21">5491 List-type attributes</tspan>
+  </text>
+  <text class="item" x="96" y="610">
+    <tspan x="96" dy="0">5517 DRA Node Allocatable Resources</tspan>
+    <tspan x="96" dy="21">unified scheduler / kubelet accounting</tspan>
+    <tspan class="muted" x="96" dy="19">CPU, memory, ephemeral storage, hugepages</tspan>
+  </text>
+
+  <rect class="box api" x="500" y="450" width="430" height="250"/>
+  <text class="section" x="526" y="487">Kubernetes API State</text>
+  <text class="item" x="526" y="526">
+    <tspan x="526" dy="0">ResourceSlices and ResourceClaims</tspan>
+  </text>
+  <text class="item" x="526" y="566">
+    <tspan x="526" dy="0">4817 ResourceClaim status:</tspan>
+    <tspan x="526" dy="21">device state and network data</tspan>
+  </text>
+  <text class="item" x="526" y="620">4680 Pod status resource health</text>
+  <text class="muted" x="526" y="660">
+    <tspan x="526" dy="0">ResourceClaim.status.reservedFor ties</tspan>
+    <tspan x="526" dy="19">allocated claims back to workloads</tspan>
+  </text>
+
+  <rect class="box sched" x="1020" y="450" width="500" height="250"/>
+  <text class="section" x="1046" y="487">Scheduling and Binding</text>
+  <text class="item" x="1046" y="526">
+    <tspan x="1046" dy="0">4816 Prioritized alternatives for scarce requests</tspan>
+  </text>
+  <text class="item" x="1046" y="566">
+    <tspan x="1046" dy="0">5007 Binding conditions delay Pod binding</tspan>
+    <tspan x="1046" dy="21">until external attach is ready</tspan>
+  </text>
+  <text class="item" x="1046" y="620">
+    <tspan x="1046" dy="0">5055 Device taints and tolerations</tspan>
+    <tspan class="note" x="1046" dy="21">stage alpha in KEP metadata; beta target for v1.36</tspan>
+  </text>
+
+  <rect class="state-note" x="720" y="745" width="470" height="62"/>
+  <text class="tag" x="744" y="771">scheduler / DynamicResources plugin writes</text>
+  <text class="item" x="744" y="796">ResourceClaim.status.allocation / reservedFor</text>
+
+  <!-- Layer 3: node preparation. -->
+  <rect class="box node" x="520" y="840" width="560" height="220"/>
+  <text class="section" x="546" y="877">Node / Kubelet / DRA Driver</text>
+  <text class="item" x="546" y="918">
+    <tspan x="546" dy="0">NodePrepareResources / NodeUnprepareResources</tspan>
+  </text>
+  <text class="item" x="546" y="960">
+    <tspan x="546" dy="0">3695 PodResources API includes DRA allocations</tspan>
+    <tspan class="muted" x="546" dy="19">node-local kubelet gRPC</tspan>
+  </text>
+  <text class="item" x="546" y="1014">
+    <tspan x="546" dy="0">5304 Device attributes exposed to workloads</tspan>
+    <tspan x="546" dy="21">via CDI metadata files</tspan>
+  </text>
+
+  <!-- Layer 4: physical and vendor-managed device pools. -->
+  <rect class="box device" x="395" y="1100" width="810" height="60"/>
+  <text class="section" x="426" y="1137">Heterogeneous Device Pools</text>
+  <text class="item" x="765" y="1137">GPU, MIG, TPU, NIC, FPGA, and other vendor-managed devices</text>
+
+  <!-- Primary top-down control flow. -->
+  <path class="arrow" d="M 300 355 C 300 410 650 405 680 450"/>
+  <path class="arrow" d="M 930 575 L 1020 575"/>
+  <path class="arrow" d="M 440 575 L 500 575"/>
+  <path class="arrow" d="M 1270 700 C 1270 730 1155 732 1140 745"/>
+  <path class="arrow" d="M 955 807 L 860 840"/>
+  <path class="arrow" d="M 800 1060 L 800 1100"/>
+
+  <!-- Device information feeding API and fit semantics. -->
+  <path class="arrow-muted" d="M 630 1100 C 250 1035 235 760 255 700"/>
+  <path class="arrow-muted" d="M 905 1100 C 905 1075 470 1080 470 760 C 470 720 490 700 520 690"/>
+
+  <!-- Observability is a side path, not the main scheduler pipeline. -->
+  <path class="arrow-muted" d="M 930 505 C 980 505 970 255 1020 255"/>
+  <path class="arrow-muted" d="M 1080 930 C 1550 930 1550 430 1440 385"/>
+  <path class="arrow-muted" d="M 1205 1128 C 1560 1040 1560 480 1450 385"/>
+
+  <!-- Feedback and future-placement influence stay on the right side. -->
+  <path class="arrow-dashed" d="M 1430 385 C 1545 445 1545 565 1520 600"/>
+  <path class="arrow-dashed" d="M 1080 985 C 1545 920 1545 675 1520 620"/>
+</svg>
