@@ -143,9 +143,45 @@ scheduler 会从根节点递归检查整棵树。只有父子各层的策略都�
 
 ### 控制器接入不再各自重复造轮子
 
-[KEP-6089](https://kep.k8s.io/6089) Controller Integration APIs 为上层控制器提供统一的调度积木，包括 gang/basic policy、拓扑约束、`Single`/`All` disruption mode 和工作负载级 ResourceClaim。控制器仍可以按自己的领域模型命名字段，再通过 [`workloadbuilder`](https://github.com/kubernetes/component-helpers/tree/master/scheduling/schedulingv1/workloadbuilder) 库校验并生成 Workload、PodGroup 或 CompositePodGroup 对象。
+[KEP-6089](https://kep.k8s.io/6089) Controller Integration APIs 在 v1.37 以 Alpha 引入一组位于 `scheduling.k8s.io/v1alpha3` 的可复用调度积木，包括 basic/gang policy、拓扑约束、`Single`/`All` disruption mode 和工作负载级 ResourceClaim。单层 PodGroup 使用 `WorkloadPodGroup*` 类型，分层工作负载则使用对应的 `WorkloadCompositePodGroup*` 类型；控制器可以复用相同的结构和语义，同时按自己的领域模型决定字段名称与嵌套方式。
 
-原生 Job controller 是第一批采用者。[KEP-5547](https://kep.k8s.io/5547) 为 Job 增加实验性的 `.spec.scheduling`，用户可以显式选择 gang scheduling、拓扑、disruption mode 和整组共享的 ResourceClaim；不填写时仍保持现有逐 Pod 调度行为。除 gang 的 `minCount` 可调整外，该配置创建后保持不可变。该集成仍为 Alpha，需要开启 `WorkloadWithJob`，不能因为 Workload API 进入 Beta 就把 Job 集成也视为 Beta。
+这些 API building blocks 和 [`workloadbuilder`](https://github.com/kubernetes/kubernetes/tree/release-1.37/staging/src/k8s.io/component-helpers/scheduling/schedulingv1/workloadbuilder) Go 库本身没有独立 feature gate。`workloadbuilder` 负责合并控制器默认值与用户配置、按 allow-list 拒绝控制器尚未支持的 policy 或 disruption mode，并构造 Workload、PodGroup 或 CompositePodGroup；对象的创建、更新和回收仍由接入它的控制器负责，而不是由该库管理。
+
+对于 JobSet、LeaderWorkerSet、RayJob 等分层控制器，最上层的根控制器应作为整棵工作负载树的唯一编译器，生成并管理唯一的 Workload；子控制器可以按集成设计创建对应的运行时 PodGroup，但不应重复生成 Workload。KEP-6089 在 v1.37 提供的是 building blocks、库和接入规范，并不意味着这些 out-of-tree 控制器已经自动完成集成。
+
+### Job controller 首次使用新的调度积木
+
+原生 Job controller 是第一批采用者。[KEP-5547](https://kep.k8s.io/5547) 在 v1.37 进入 Alpha2，为 Job 增加实验性的 `.spec.scheduling`。用户可以显式选择 gang scheduling、拓扑和 disruption mode；不填写 `.spec.scheduling` 时采用 Basic policy，保持现有逐 Pod 调度行为。选择 gang 但省略 `minCount` 时，Job controller 默认使用 `parallelism`。
+
+下面的精简示例要求 4 个 Pod 以 gang 方式调度、落入同一个可用区，并在抢占时作为整体处理：
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: distributed-training
+spec:
+  parallelism: 4
+  completions: 4
+  scheduling:
+    schedulingPolicy:
+      gang: {}
+    schedulingConstraints:
+      topology:
+        - key: topology.kubernetes.io/zone
+    disruptionMode:
+      all: {}
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: worker
+          image: example.com/training-worker:v1
+```
+
+这里需要使用最终合入的 `schedulingPolicy`、`schedulingConstraints.topology[].key` 和 `disruptionMode` 字段。当前 Alpha API 中，一个 group 最多配置一个 topology constraint，Job 最多配置 4 个共享 ResourceClaim；除了 `schedulingPolicy.gang.minCount` 可以调整，`.spec.scheduling` 是否存在、policy 类型、拓扑、disruption mode 和 ResourceClaim 列表在创建后都不可变。使用工作负载级共享 ResourceClaim 还需要额外启用 `DRAWorkloadResourceClaims`。
+
+`WorkloadWithJob` 只控制 Job API 与 Job controller 的这项集成，不控制 KEP-6089 的 building blocks 或 `workloadbuilder`。因此不能因为 Workload API 已进入 Beta，就把 Job 集成或 Controller Integration APIs 也视为 Beta。
 
 ### 如何启用和验证
 
@@ -154,6 +190,7 @@ WAS 在 v1.37 同时包含 Beta 核心和 Alpha 扩展，不能只开启一个 g
 | feature gate | 阶段 / 默认值 | 需要启用的组件 | 能力 |
 | --- | --- | --- | --- |
 | `GenericWorkload` | Beta / 默认关闭 | kube-apiserver、kube-controller-manager、kube-scheduler | Workload、PodGroup、Gang Scheduling 与工作负载感知抢占 |
+| `PodGroupPreemptionPolicy` | Alpha / 默认关闭 | kube-apiserver、kube-scheduler | 在 PodGroup 层声明是否允许主动抢占其他工作负载 |
 | `DRAWorkloadResourceClaims` | Beta / 默认关闭 | kube-apiserver、kube-controller-manager、kube-scheduler、kubelet | Workload / PodGroup 共享 ResourceClaim |
 | `TopologyAwareWorkloadScheduling` | Alpha / 默认关闭 | kube-apiserver、kube-scheduler | 单层和多层拓扑感知放置 |
 | `CompositePodGroup` | Alpha / 默认关闭 | kube-apiserver、kube-controller-manager、kube-scheduler | 分层工作负载与组级策略 |
