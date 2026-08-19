@@ -10,12 +10,12 @@ Kubernetes v1.37 计划于 2026 年 8 月 26 日（周三）发布。截至 2026
 
 v1.37.0-rc.0 已于 2026 年 8 月 5 日发布，正式版本计划于 8 月 26 日发布。
 
-截至本文整理时间，v1.37 的正式主题、Logo 和发布统计尚未公布。按照 Kubernetes 社区发布流程，这些内容会随正式发布博客公开，本文暂不提前补图或猜测主题。
+截至 2026 年 8 月 19 日，v1.37 的正式主题和 Logo 仍未公布，官方发布公告 PR 中也仍是占位内容，本文暂不提前补图或猜测主题。当前发布公告草稿暂列 67 项 enhancement，其中 16 项进入 Stable、23 项进入 Beta、27 项进入 Alpha，另有 1 项 deprecation/removal；这些数字仍可能在正式发布前调整，不能当作最终统计。
 
 正式发布前需要回填：
 
 - v1.37 主题、Logo、设计者和主题故事；
-- Stable、Beta、Alpha、Deprecated 的最终数量；
+- Stable、Beta、Alpha、Deprecated 数量的最终确认；
 - v1.37.0 已知问题与最后一轮 release notes；
 - DaoCloud 和国内社区在本周期的贡献与活动更新。
 
@@ -96,6 +96,20 @@ v1.37 中几项已经成熟的能力把 DRA 从“分配接口”推进成“设
 
 v1.37 还收紧了关闭 gate 时的行为：如果 Pod 引用的 ResourceClaimTemplate 与 PodGroup 中的声明匹配，但 `DRAWorkloadResourceClaims` 没有启用，系统不会退化成“为每个 Pod 各建一份 claim”。这避免了原本面向整组共享的设备声明被批量复制，进而耗尽 DRA 资源。
 
+### 其他 Beta 能力补齐设备使用链路
+
+除了工作负载级 ResourceClaim，v1.37 的 DRA 还有一组 Beta 能力覆盖设备信息注入、共享容量、动态分区、健康状态和绑定时序：
+
+| KEP | v1.37 阶段 | 解决的问题 |
+| --- | --- | --- |
+| [5304](https://kep.k8s.io/5304) Device Attributes Downward API | Beta | 将 driver 在 claim preparation 阶段生成的设备 metadata 通过 CDI JSON 文件注入容器，工作负载无需额外 controller 即可读取 PCI 地址、MAC 等设备信息；该能力没有独立 feature gate |
+| [5075](https://kep.k8s.io/5075) Consumable Capacity | Beta | 允许多个独立 ResourceClaim 从同一设备的可消费容量中分配份额，例如共享网络带宽或虚拟 GPU 内存 |
+| [4815](https://kep.k8s.io/4815) Partitionable Devices | Beta | 描述 GPU、TPU 等设备的可切分结构和多主机拓扑，让工作负载请求具体分区而不是无关设备的组合 |
+| [5007](https://kep.k8s.io/5007) Device Binding Conditions | Beta | 在外部设备真正准备完成前延迟 Pod 与节点的绑定，并在准备失败或超时时重新调度 |
+| [4680](https://kep.k8s.io/4680) Resource Health Status | 待最终确认 | 把 Device Plugin 和 DRA 设备健康暴露到 Pod/容器状态；当前 `release-1.37` 代码仍为 Beta、默认启用，但正式发布公告草稿将其列入 Stable |
+
+KEP-4680 与已经 GA 的 KEP-4817 容易混淆：前者关注 Pod 和容器看到的设备健康，后者提供的是 `ResourceClaim.status.devices` 中由 driver 报告的设备状态和标准化网络接口数据。由于官方发布公告、DRA 专题草稿、KEP 元数据与当前 release 分支尚未完全一致，本文暂不把 KEP-4680 明确写成 GA，正式发布时需要再次核对 CHANGELOG 和 feature gate 定义。
+
 ### Alpha 探索转向复杂设备模型
 
 v1.37 的 DRA Alpha 工作大多围绕“属性、容量和兼容性”展开：
@@ -105,7 +119,8 @@ v1.37 的 DRA Alpha 工作大多围绕“属性、容量和兼容性”展开：
 - [KEP-5677](https://kep.k8s.io/5677) Resource Availability Visibility 继续 Alpha，目标是在 `kubectl describe resourceslice` 和 `kubectl describe node` 中展示设备池的实际剩余容量，而不只是总容量；
 - [KEP-5945](https://kep.k8s.io/5945) Optional Node Preparation 允许对无需节点本地初始化的分配跳过 kubelet prepare/unprepare 调用，减少不必要的 driver 依赖；
 - [KEP-6080](https://kep.k8s.io/6080) Derived Attributes 允许用 CEL 归一化不同 driver 的属性，既能把 `numa` 与 `numaNode` 之类的命名差异映射起来，也能从复杂拓扑字符串中提取标识或生成性能分层；
-- [KEP-5963](https://kep.k8s.io/5963) Device Compatibility Groups 为共享同一容量计数器的可分区设备补充兼容约束，让 scheduler 在调度阶段拒绝互斥的设备模式，而不是等到节点 prepare 时才失败。
+- [KEP-5963](https://kep.k8s.io/5963) Device Compatibility Groups 为共享同一容量计数器的可分区设备补充兼容约束，让 scheduler 在调度阶段拒绝互斥的设备模式，而不是等到节点 prepare 时才失败；
+- [KEP-6132](https://kep.k8s.io/6132) Scheduler PreQueueingHints 为 scheduler 事件处理增加新的 Alpha extension point，使 ResourceClaim 变化只重新排队真正受影响的 Pod。它是 scheduler 性能能力，不是新的 DRA API。
 
 这些 Alpha 能力仍默认关闭，也可能继续调整 API。对 AI 平台来说，v1.37 更适合按“兼容迁移—状态观测—故障隔离—复杂拓扑”四条路径验证 DRA，而不是只测试首次分配 GPU 是否成功。故障演练至少应覆盖：设备变为不健康、driver 重启、ResourceSlice 重建、PodGroup 共享 claim、节点维护和 DRA 调度回退。
 
@@ -152,6 +167,8 @@ scheduler 会从根节点递归检查整棵树。只有父子各层的策略都�
 ### Job controller 首次使用新的调度积木
 
 原生 Job controller 是第一批采用者。[KEP-5547](https://kep.k8s.io/5547) 在 v1.37 进入 Alpha2，为 Job 增加实验性的 `.spec.scheduling`。用户可以显式选择 gang scheduling、拓扑和 disruption mode；不填写 `.spec.scheduling` 时采用 Basic policy，保持现有逐 Pod 调度行为。选择 gang 但省略 `minCount` 时，Job controller 默认使用 `parallelism`。
+
+启用 `WorkloadWithJob` 后，即使 Job 没有填写 `.spec.scheduling`，Job controller 仍会为它创建 Basic Workload 和 PodGroup，并为生成的 Pod 设置 `.spec.schedulingGroup.podGroupName`。Basic policy 表示不施加 `minCount` gang 门槛，并不表示不会创建 WAS 对象。
 
 下面的精简示例要求 4 个 Pod 以 gang 方式调度、落入同一个可用区，并在抢占时作为整体处理：
 
@@ -230,6 +247,8 @@ v1.37 还为迁移状态增加进度信息。大型集群应关注迁移对 API 
 
 Watch cache 初始化不再在 API Server 启动或恢复时向 etcd 形成明显的惊群压力，请求也能在 cache 预热期间更平稳地处理。它与 v1.37 的 Concurrent Watch Object Decode、Etcd RangeStream 一起构成控制面启动和恢复优化主线。
 
+cache 预热期间，API Server 可能对超出安全处理范围的请求返回 HTTP `429 Too Many Requests`。自研 controller 和 operator 应尊重 `Retry-After`，并使用指数退避，避免恢复阶段再次形成请求洪峰。
+
 ### Node Declared Features 进入 GA（KEP-5328）
 
 节点可以在 Node status 中声明实际支持的能力，调度器据此过滤不具备所需功能的节点。这解决了 feature gate 已在控制面开启，但混合版本节点、运行时或操作系统实际能力不同的问题，为更快、更安全地推广节点特性提供基础。
@@ -239,6 +258,12 @@ Watch cache 初始化不再在 API Server 启动或恢复时向 etcd 形成明�
 支持 `--output` 的 kubectl 命令可以使用 `-o kyaml`。KYAML 通过更明确的字符串和数字表示减少 YAML 1.1 中常见的隐式类型陷阱，例如把 `NO` 解析成布尔值的“Norway problem”。
 
 它是新的输出格式，不会替换现有 `-o yaml`。对配置生成、代码评审和 GitOps 流程来说，更适合先比较 diff 和下游解析器兼容性，再决定是否作为默认导出格式。
+
+### 其他进入 GA 的 API 与行为
+
+- [KEP-4762](https://kep.k8s.io/4762) 允许把任意合法 FQDN 设置为 Pod hostname，解除此前 hostname 必须是单个 DNS label 的限制；
+- [KEP-5311](https://kep.k8s.io/5311) 放宽 Service 名称校验，使 Service 名称可以从数字开始，同时仍遵循对应的 DNS 名称规则；
+- [KEP-3085](https://kep.k8s.io/3085) 将 Pod sandbox 创建和网络就绪状态通过 `PodReadyToStartContainers` condition 暴露给用户与 controller，便于区分 sandbox 尚未准备和容器自身启动失败。
 
 ## 进入 Beta 阶段的功能
 
@@ -270,6 +295,10 @@ HPA 从 Alpha 进入 Beta，可以在 Object 或 External metrics 场景将工�
 
 kubelet 从 CRI 获取 Pod 和容器统计信息的能力进入 Beta，继续减少对内嵌 cAdvisor 采集路径的依赖。运行时必须正确实现对应 CRI stats 接口，平台也需要比较切换前后的指标完整性、标签、采样延迟和资源开销。
 
+### Route controller 改用 Watch 驱动（KEP-5237）
+
+cloud-controller-manager 的 route controller 从固定周期轮询改为由 Node 的新增、删除、地址和 Pod CIDR 变化触发 reconciliation，同时保留低频周期检查作为兜底。这可以减少无变化时对云厂商 API 的请求，并让新节点路由更快进入一致状态；私有云 provider 需要确认自身 route 实现和事件突发时的限流行为。
+
 ### 存储侧 Beta 更新
 
 - [KEP-4049](https://kep.k8s.io/4049) Storage Capacity Scoring：调度器在动态制备卷时可按可用存储容量为节点打分；
@@ -279,7 +308,7 @@ kubelet 从 CRI 获取 Pod 和容器统计信息的能力进入 Beta，继续减
 ### API Server、控制器与可观测性 Beta 更新
 
 - Concurrent Watch Object Decode（KEP-6178）默认启用，通过有界 worker pool 并行解码和转换 etcd watch event，同时保持事件顺序；使用 CRD conversion webhook 的集群要关注初始化期间并发调用上升；
-- Etcd RangeStream（KEP-5966）使用单个流式 RPC 初始化 watch cache，减少分页 Range 请求和内存峰值，要求 etcd 3.7+；
+- Etcd RangeStream（KEP-5966）使用单个流式 RPC 初始化 watch cache，减少分页 Range 请求和内存峰值；使用该新路径需要 etcd 3.7+，连接旧版 etcd 时 API Server 会在收到 `Unimplemented` 后自动回退到 unary `Range`，并不构成 v1.37 升级的硬性 etcd 版本要求；
 - Stale Controller Mitigation（KEP-5647）继续提供 controller cache 陈旧度指标与 read-your-own-writes 保护；
 - Manifest-Based Admission Control Config（KEP-5793）允许 API Server 从本地 manifest 加载 webhook 和 admission policy，使关键准入控制在首个请求前生效，且不能通过 Kubernetes API 删除；HA 集群必须保证所有 API Server 文件一致；
 - Handling Undecryptable Resources（KEP-3926）让管理员通过 API 识别和清理因 KMS key 丢失等原因无法解密的对象，减少直接操作 etcd 的需要；
@@ -314,6 +343,7 @@ CompositePodGroup、Controller Integration APIs、Job 集成，以及 DRA Derive
 ### 节点、网络与安全探索
 
 - Dynamic Resize of Memory-backed Volumes：通过 Pod `/resize` 子资源原地调整 `medium: Memory` 的 emptyDir `sizeLimit`；
+- Specialized Lifecycle Management for Nodes（KEP-5683）：为 Node 定义 Kubernetes 已知的生命周期 conditions，让核心 controller、云平台和运维工具共享统一的节点生命周期状态；
 - Default Pod Sysctls：由 kubelet 为节点或节点池上的 Pod 设置默认 sysctl，Pod 显式配置仍可覆盖；
 - gRPC Probe TLS 与 HTTP/2 cleartext probe：扩展 kubelet 原生探针协议能力；
 - Volume Bind Mount Options：为容器的 volumeMount 增加 `noexec`、`nodev`、`nosuid` 等限制；
@@ -322,7 +352,21 @@ CompositePodGroup、Controller Integration APIs、Job 集成，以及 DRA Derive
 
 这些能力涉及节点内核、运行时、网络和安全边界，建议只在专用节点池逐项开启，不要一次性批量启用。
 
+## 其他值得关注的行为变化
+
+### StatefulSet `maxUnavailable` 重新默认启用
+
+StatefulSet 的 `maxUnavailable` 在 v1.36 因初始 revision Pod 可能永久卡在 CrashLoopBackOff 的问题被临时关闭；修复后，相关能力在 v1.37 重新默认启用。使用 `maxUnavailable` 的平台应复测错误初始 revision、滚动更新和故障恢复场景，确认不会因为提高并行度破坏有序启动或仲裁要求。
+
+### nftables 大集群性能改进
+
+kube-proxy 的 nftables 后端改用内核 netlink 接口执行规则 list 操作，不再为读取规则调用 `nft` 命令行工具；写入和更新规则仍使用 `nft`。这主要改善 Service 和 endpoint 数量较多时的规则读取开销，不改变现有 Service 语义。
+
 ## 删除和废弃功能
+
+### `kube-dns`
+
+CoreDNS 自 Kubernetes v1.13 起已经是默认集群 DNS，`kube-dns` 也不支持 EndpointSlice、双栈 Service 等较新的能力。`kube-dns` 子项目已经退出维护，社区预计 v1.40 之后不再构建新包；仍在使用它的集群应开始迁移到 CoreDNS。NodeLocal DNSCache 已迁移到独立的 `kubernetes-sigs/node-local-dns` 仓库，不受这项退出计划影响。
 
 ### `kubectl run --filename/-f`
 
@@ -359,8 +403,7 @@ Release Highlights 讨论还列出了若干已到期的 Alpha/Beta API 版本候
 
 ## DaoCloud 社区贡献与活动
 
-- DaoCloud 与国内贡献者在 Kubernetes v1.37 周期合入的重点 PR、KEP、文档和本地化贡献；
-- KubeCon + CloudNativeCon China 2026 将于 9月7-8日在上海举行，本次活动还包括了 PyTorchCon 和 OpenInfraCon，DaoCloud 届时会有多个分享如下
+- KubeCon + CloudNativeCon China 2026 将于 9 月 7–9 日在上海举行，本次活动还包括 PyTorch Conference 和 OpenInfra Summit，DaoCloud 届时会有多个分享如下：
   - Beyond Model Sharding: Atomic Scheduling and Disaggregated LLM Serving with LeaderWorkerSet 颜开 + 陈子聪（华为）
   - Cybertwin-based Cloud Native Network (CCNN): Network Architecture Innovation and Practice  蓝维洲 + 梁丹丹（鹏城）
   - ⚡ Fast Restarts, Not Just Fast Starts: Accelerating Pod Recovery 范宝发
@@ -369,17 +412,16 @@ Release Highlights 讨论还列出了若干已到期的 Alpha/Beta API 版本候
   - Why Your TTFT Lies: Diagnosing PD-Disaggregated LLM Inference with Minimal Cross-Layer Metrics  Kebe & 李辉
   - Kubernetes DRA Architecture: Scheduling, Status, and Topology at Scale 徐俊杰+张康（NVIDIA）
   - Project Lightning Talk: KubeEdge Everywhere: Latest Project Update with industrial cases  张红兵
-- KCD 杭州正在议题征集中，截止日期为 2026 年 8 月 todo 日，DaoCloud 开源工程师蔡威是此次活动的组织者之一。
-- Kueue、vLLM、DRA、WAS 和 AI Infra 方向的国内社区进展。
-- KubeCon 北美主题预告？
+- KubeCon + CloudNativeCon North America 2026 将于 11 月 9–12 日在美国盐湖城举行，相关分享包括：
   - 11/9 09:38–09:43 — Ubiquitous Edge Computing: KubeEdge Industrial Cases Sharing
-Hongbing Zhang，KubeEdge 工业落地案例，5 分钟 Project Lightning Talk。
+    Hongbing Zhang，KubeEdge 工业落地案例，5 分钟 Project Lightning Talk。
   - 11/10 11:30–12:00 — Steering the Ship: Ask the Kubernetes Steering Committee
-Paco Xu，与 Kat Cosgrove、Maciej Szulik；Kubernetes Steering Committee 问答。
+    Paco Xu，与 Kat Cosgrove、Maciej Szulik；Kubernetes Steering Committee 问答。
   - 11/12 13:45–14:15 — Explore TAG Workloads Foundation: Core Runtime, Batch Scheduling, and Moar
-Paco Xu，与 NVIDIA、Broadcom 等共同介绍 TAG Workloads Foundation。
+    Paco Xu，与 NVIDIA、Broadcom 等共同介绍 TAG Workloads Foundation。
+- Kubernetes v1.37 Release Team 计划于 2026 年 9 月 23 日 16:00 UTC 举办线上 release webinar，介绍本次版本亮点。
 
-TODO：增加一个预告图？
+官方发布公告草稿给出的 project velocity 数据显示，v1.37 发布周期持续 15 周，期间单个统计窗口最多有 212 家公司和 1,709 名贡献者参与。该数据仍需在正式发布博客合入时做最终确认。
 
 ## 发行说明
 
@@ -417,3 +459,6 @@ TODO：增加一个预告图？
 6. Kubernetes 1.37: Deep dive into new alpha features（作为 Alpha 选题清单参考，技术阶段以官方 KEP 和 release 分支为准）<https://palark.com/blog/kubernetes-1-37-release-features/>
 7. Kubernetes Enhancement Proposals <https://kep.k8s.io/>
 8. SELinux Volume Label Changes goes GA（含 v1.36 到 v1.37 升级路径）<https://kubernetes.io/blog/2026/04/22/breaking-changes-in-selinux-volume-labeling/>
+9. Kubernetes v1.37 Release Announcement Blog PR <https://github.com/kubernetes/website/pull/56990>
+10. Kubernetes v1.37 Workload-Aware Scheduling Blog PR <https://github.com/kubernetes/website/pull/56215>
+11. Kubernetes v1.37 DRA Feature Blog PR <https://github.com/kubernetes/website/pull/56351>
