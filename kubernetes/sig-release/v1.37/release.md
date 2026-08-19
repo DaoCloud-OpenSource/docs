@@ -412,6 +412,7 @@ Release Highlights 讨论还列出了若干已到期的 Alpha/Beta API 版本候
   - Why Your TTFT Lies: Diagnosing PD-Disaggregated LLM Inference with Minimal Cross-Layer Metrics  Kebe & 李辉
   - Kubernetes DRA Architecture: Scheduling, Status, and Topology at Scale 徐俊杰+张康（NVIDIA）
   - Project Lightning Talk: KubeEdge Everywhere: Latest Project Update with industrial cases  张红兵
+- KCD 杭州正在议题征集中，截止日期为 2026 年 8 月 todo 日，DaoCloud 开源工程师蔡威是此次活动的组织者之一。
 - KubeCon + CloudNativeCon North America 2026 将于 11 月 9–12 日在美国盐湖城举行，相关分享包括：
   - 11/9 09:38–09:43 — Ubiquitous Edge Computing: KubeEdge Industrial Cases Sharing
     Hongbing Zhang，KubeEdge 工业落地案例，5 分钟 Project Lightning Talk。
