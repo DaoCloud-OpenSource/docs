@@ -4,7 +4,7 @@ Kubernetes v1.37 计划于 2026 年 8 月 26 日（周三）发布。截至 2026
 
 本文结合 Kubernetes v1.36 及更早版本发布文章的结构，基于 v1.37 Sneak Peek、SIG Release Highlights 讨论、`release-1.37` 分支 feature gates 和 release notes draft 整理。由于当前仍是 RC 阶段，特性数量、阶段、发布主题和已知问题都可能在正式发布前变化；最终请以 v1.37.0 CHANGELOG 与正式 release notes 为准。
 
-如果用一句话概括 v1.37：Kubernetes 正在把过去几个版本铺开的能力变成更完整的生产路径——Workload Aware Scheduling（WAS）进入 Beta，DRA 多项设备能力进入 GA，节点侧的 Memory QoS、Rootless Kubelet 和 Pod 级资源管理继续成熟，API Server 与 etcd 则进一步优化大规模集群的启动、Watch 和恢复效率。
+如果用一句话概括 v1.37：过去几年铺开的几块能力，在这个版本里开始连成更完整的生产路径——WAS（Workload Aware Scheduling）进入 Beta，DRA 侧多项设备能力 GA，节点上的 Memory QoS、Rootless Kubelet、Pod 级资源管理继续打磨，控制面则在启动、Watch 和恢复上做了新一轮优化，大规模集群会受益更多。
 
 ## 发布状态、主题和 Logo
 
@@ -35,25 +35,20 @@ v1.37.0-rc.0 已于 2026 年 8 月 5 日发布，正式版本计划于 8 月 26 
 
 Workload Aware Scheduling 在 v1.37 进入 Beta，但 Alpha 使用者需要执行迁移动作：
 
-- `scheduling.k8s.io/v1alpha2` 被移除；升级前必须删除对应对象；
-- 核心 Beta API 进入 `v1beta1`，仍处于试验的扩展能力使用新的 `v1alpha3`；
-- `GangScheduling` 和 `WorkloadAwarePreemption` feature gate 合并到 `GenericWorkload`；升级配置中应移除旧 gate；
-- 如果需要回退到 v1.36，则要重新配置旧 gate，并注意 `v1alpha3` 无法向 `v1alpha2` 做兼容转换。
+- `scheduling.k8s.io/v1alpha2` 已被移除；从 v1.36 升级前，必须删除 API Server 中所有该版本的 Workload 和 PodGroup 对象；  
+- 核心 Workload 和 PodGroup API 已进入 v1beta1；v1alpha3 同时提供这些资源，并承载 CompositePodGroup 等仍处于 Alpha 的扩展能力；  
+- GangScheduling 和 WorkloadAwarePreemption feature gate 已合并到 GenericWorkload；升级时应删除旧 gate，并显式启用 GenericWorkload；  
+- 回退到 v1.36 时需要恢复旧 feature gate 配置，并提前处理 v1.37 创建的对象；由于 API 版本和 disruptionMode 结构均不兼容，无法依赖 v1alpha3/v1beta1 到 v1alpha2 的自动转换。
 
-这也是 Alpha API 不承诺跨版本兼容的典型案例。已经试用 v1.36 WAS 的集群，应把对象清理和 feature gate 迁移纳入升级闸门。
+这也是 Alpha API 不承诺跨版本兼容的典型例子。已经在 v1.36 试过 WAS 的集群，升级前记得把对象清理和 feature gate 迁移纳入升级检查项。
 
-### kubelet 行为和监控变化
+### kubelet 静态 Pod 无法再引用 Secret 或 ConfigMap
 
-- `eventRecordQPS: 0` 现在严格表示“不限流”。如果现有环境依赖此前的实际限流行为，应显式设置非零值，例如 `50`。
-- kubelet 启动时会记录生效配置。由于日志可能暴露配置细节，应把 `nodes/logs` ClusterRole 仅授予可信管理员和运维组件。
-- kubelet 内嵌 cAdvisor 切换到更轻量的库模块，一批长期弃用的 cAdvisor flags 会导致 kubelet 启动失败；`userDefinedMetrics`、`container_application_*` 以及少量旧 `/metrics/cadvisor` 指标也不再提供。升级前应扫描 kubelet 参数、Prometheus rules 和 dashboard。
-- Static Pod 不能再引用 Secret、ConfigMap 等 API 资源，且 `PreventStaticPodAPIReferences` gate 已移除，无法恢复旧行为。
+Static Pod（静态 Pod） 原本就不应该直接读取 API 资源，因为它们并非通过 API 服务器创建——但之前的一个漏洞允许它们通过诸如 configMapRef 或 secretRef 之类的字段引用 Secrets 或 ConfigMap。该漏洞现已修复：从 v1.37 版本开始，这些引用已被严格禁止，之前允许用户选择退出此限制的 PreventStaticPodAPIReferences 功能门也已被移除。
 
-### kubeadm 配置 API
+### kubeadm 配置 API v1beta3 被移除
 
 已经从 v1.31 开始弃用的 kubeadm `v1beta3` 配置 API 在 v1.37 被移除。仍保存 `v1beta3` 配置的集群，应在升级前使用兼容版本的 `kubeadm config migrate` 转换到 `v1beta4`。
-
-v1.37 中出现的 kubeadm `v1` 只是实验占位，当前不能作为正式配置 API 使用。
 
 ### kube-proxy：IPVS 进入明确退出周期
 
@@ -67,15 +62,19 @@ v1.37 对 cgroup v1 没有新增移除动作，但自 v1.35 起 `failCgroupV1` �
 
 In-Place Pod Resize、Memory QoS 等新能力依赖 cgroup v2，cgroup v1 代码也不再作为主要测试路径。继续使用 override 只适合作为短期过渡，应尽快完成操作系统、容器运行时和节点池迁移。
 
+后续会有一篇博客（[website PR #56945](https://github.com/kubernetes/website/pull/56945)）专门讲 cgroup v1 的退出计划和迁移指南。
+
 ## 专题一：DRA 从“能分配设备”走向平滑迁移和精细管理
 
-DRA 核心框架已在 v1.34 GA，v1.35 和 v1.36 又陆续补齐设备健康、容量、分区、污点和工作负载级声明。到了 v1.37，主线不再只是“用 ResourceClaim 申请一块 GPU”，而是同时解决三个更接近生产的问题：如何让旧工作负载无感迁移到 DRA、如何把设备故障与状态纳入运维闭环，以及如何描述跨厂商、可切分、具备复杂拓扑关系的设备。
+![](dra-update.png)
+
+DRA 核心框架在 v1.34 已经 GA，v1.35、v1.36 又陆续补上了设备健康、容量、分区、污点和工作负载级声明。到了 v1.37，讨论 DRA 不再只是“能不能用 ResourceClaim 申请一块 GPU”——更实际的问题是：老工作负载怎么平滑迁过来、设备坏了怎么管、不同厂商、可切分、拓扑复杂的设备怎么描述清楚。
 
 ### Extended Resource 兼容路径进入 GA
 
 [KEP-5004](https://kep.k8s.io/5004) Extended Resources via DRA 在 v1.37 进入 GA。DRA driver 可以通过 DeviceClass 承接 `nvidia.com/gpu: 2`、`example.com/accelerator: 1` 这类传统 extended resource 请求；工作负载不需要先改写成 ResourceClaim，也不需要为同一种设备同时部署 Device Plugin 和 DRA 两套分配路径。
 
-这项能力从 v1.35 Alpha、v1.36 Beta 走到 v1.37 Stable，真正价值并不是新增一种请求语法，而是提供迁移层：应用清单保持不变，平台可以逐个节点池或逐类设备把后端分配逻辑迁移到 DRA。等 driver、监控和故障处置链路稳定后，再让需要高级能力的新工作负载直接使用 ResourceClaim。
+这项能力从 v1.35 Alpha、v1.36 Beta 一路走到 v1.37 Stable。对还在用 Device Plugin 的平台，它是一条很实用的迁移路径：应用 YAML 不用改，平台可以按节点池或设备类型，逐步把后端分配切到 DRA。等 driver、监控和故障处置都稳了，需要高级能力的新工作负载再直接上 ResourceClaim。
 
 ### 设备状态、故障隔离与拓扑表达继续稳定
 
@@ -120,55 +119,63 @@ v1.37 的 DRA Alpha 工作大多围绕“属性、容量和兼容性”展开：
 - [KEP-5945](https://kep.k8s.io/5945) Optional Node Preparation 允许对无需节点本地初始化的分配跳过 kubelet prepare/unprepare 调用，减少不必要的 driver 依赖；
 - [KEP-6080](https://kep.k8s.io/6080) Derived Attributes 允许用 CEL 归一化不同 driver 的属性，既能把 `numa` 与 `numaNode` 之类的命名差异映射起来，也能从复杂拓扑字符串中提取标识或生成性能分层；
 - [KEP-5963](https://kep.k8s.io/5963) Device Compatibility Groups 为共享同一容量计数器的可分区设备补充兼容约束，让 scheduler 在调度阶段拒绝互斥的设备模式，而不是等到节点 prepare 时才失败；
-- [KEP-6132](https://kep.k8s.io/6132) Scheduler PreQueueingHints 为 scheduler 事件处理增加新的 Alpha extension point，使 ResourceClaim 变化只重新排队真正受影响的 Pod。它是 scheduler 性能能力，不是新的 DRA API。
+- [KEP-6132](https://kep.k8s.io/6132) Scheduler PreQueueingHints 为 scheduler 事件处理增加新的 Alpha extension point，使 ResourceClaim 变化只重新排队真正受影响的 Pod。它是 scheduler 性能能力，不是新的 DRA API。注意该功能本来是直接进入 Beta 阶段，因为发现存在一些 Bug 还未修复，所以又退回了 Alpha。
 
-这些 Alpha 能力仍默认关闭，也可能继续调整 API。对 AI 平台来说，v1.37 更适合按“兼容迁移—状态观测—故障隔离—复杂拓扑”四条路径验证 DRA，而不是只测试首次分配 GPU 是否成功。故障演练至少应覆盖：设备变为不健康、driver 重启、ResourceSlice 重建、PodGroup 共享 claim、节点维护和 DRA 调度回退。
+这些 Alpha 能力仍默认关闭，API 也可能继续调整。如果要在 AI 平台上试 DRA，v1.37 更值得验证的是迁移、观测、故障隔离和复杂拓扑这几条链路，而不只是看第一次 GPU 能不能分配成功。故障演练建议至少覆盖：设备不健康、driver 重启、ResourceSlice 重建、PodGroup 共享 claim、节点维护，以及 DRA 调度回退。
 
-## 专题二：Workload-Aware Scheduling 从 Pod 调度走向工作负载调度
+另外，9月9日的上海 KubeCon 中，我会和 NVIDIA 的 Kang Zhang一起做 DRA 相关分享，总体介绍目前的 DRA 和 WAS 如何配合来调度 AI 工作负载以及实战经验，欢迎大家前来参加。
+https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/program/schedule/?id=1223308
 
-传统 kube-scheduler 逐个处理 Pod。对于分布式训练、MPI 和大规模批处理，常见问题是部分 Pod 已经占住 GPU、CPU 和内存，其余成员却长期 Pending，整项任务既无法开始，也无法释放资源。v1.36 为 Workload、PodGroup、Gang Scheduling、拓扑感知调度和工作负载感知抢占搭起 Alpha 框架；v1.37 则把核心 API、Gang Scheduling 和 Workload-aware Preemption 一起推进到 Beta。
+![](kubecon-china.png)
+
+
+## 专题二：Workload-Aware Scheduling——从单个 Pod 到整组工作负载
+
+kube-scheduler 默认是一个 Pod 一个 Pod 地调度。分布式训练、MPI、大规模批处理这类任务，往往需要一批 Pod 一起跑起来。实际集群里却经常出现：几个 Pod 已经占上了 GPU，剩下的 Member 长期 Pending，任务既开不了，也撤不掉。
+
+v1.36 用 WAS 把 Workload、PodGroup、Gang Scheduling、拓扑感知调度、工作负载感知抢占这些能力搭成了 Alpha 框架。v1.37 继续往前推：核心 API、Gang Scheduling 和工作负载感知抢占都到了 Beta。
 
 ### Workload 与 PodGroup 核心 API 进入 Beta
 
-[KEP-4671](https://kep.k8s.io/4671) 将 Workload 与 PodGroup 核心 API 提升到 `scheduling.k8s.io/v1beta1`。Workload 描述相对静态的模板和调度意图，PodGroup 表示一组 Pod 的运行时状态；对于 Gang policy，scheduler 要先确认至少 `minCount` 个成员能够形成可行放置，再统一进入调度和绑定流程。
+[KEP-4671](https://kep.k8s.io/4671) 把 Workload 和 PodGroup 核心 API 提升到 `scheduling.k8s.io/v1beta1`。简单说，Workload 管模板和调度意图，PodGroup 管一组 Pod 的运行时状态。开了 Gang policy 之后，scheduler 会先确认至少 `minCount` 个成员能一起放下，再统一调度、统一绑定。
 
-核心能力使用 `v1beta1`，CompositePodGroup 等仍处于试验阶段的扩展则使用 `scheduling.k8s.io/v1alpha3`；旧的 `v1alpha2` 已被移除。已经在 v1.36 试用 WAS 的集群不能只修改 feature gate，还必须先完成对象和 API 版本迁移。
+核心能力走 `v1beta1`；CompositePodGroup 等还在试验阶段的扩展走 `scheduling.k8s.io/v1alpha3`。旧的 `v1alpha2` 已经移除——如果你在 v1.36 试过 WAS，升级前不能只改 feature gate，还得清理旧对象、迁 API 版本。
 
-v1.37 不只是更改 API 版本，还调整了内部调度模型：PodGroup 成为调度队列中的一等对象，成员 Pod 不再各自独立排队。这样整组 Pod 共享队列等待、退避与调度周期，也为后续更复杂的组级排队策略打下基础。与此同时，过去不可变的 `minCount` 现在允许更新，控制器可以在不打断已运行 Pod 的前提下缩小或扩大弹性 gang 的最小规模。
+v1.37 内部调度模型也有变化：PodGroup 成了调度队列里的一等公民，成员 Pod 不再各自排队。整组共享等待、退避和调度周期，后面做更复杂的组级策略也更顺手。另外，`minCount` 现在可以改了，弹性 gang 可以在不打断已运行 Pod 的前提下缩小或扩大最小规模。
 
-核心能力统一由 Beta gate `GenericWorkload` 控制，原来的 `GangScheduling` 和 `WorkloadAwarePreemption` gate 已被合并。需要注意，`GenericWorkload` 在 v1.37 仍默认关闭；Beta 表示 API 和实现更加成熟，不等于升级后自动改变所有集群的调度方式。
+这些能力统一由 Beta gate `GenericWorkload` 控制，`GangScheduling` 和 `WorkloadAwarePreemption` 两个旧 gate 已合并进来。注意：`GenericWorkload` 在 v1.37 仍默认关闭。Beta 说的是 API 和实现更成熟了，不是升级后所有集群的调度方式都会自动变。
 
-### 抢占开始理解“整组是否放得下、整组是否能拆”
+### 抢占也要算整组工作负载
 
-[KEP-5710](https://kep.k8s.io/5710) Workload-aware Preemption 同样进入 Beta。普通 Pod 抢占只回答“为一个高优先级 Pod 腾出哪些资源”，而工作负载感知抢占必须回答“清理哪些低优先级工作负载后，整个高优先级 PodGroup 才能满足 `minCount` 和放置约束”。
+[KEP-5710](https://kep.k8s.io/5710) 把工作负载感知抢占也带到了 Beta。平时 kube-scheduler 抢占低优先级 Pod，为的是给某一个高优先级 Pod 让出资源。WAS 场景下，调度器要腾出的不是单个 Pod 的份额，而是要让一整个 PodGroup 凑齐 `minCount` 个成员，还要满足拓扑等放置要求——该牺牲哪些低优先级工作负载，得按整组来算。
 
-v1.37 对这条路径做了三项关键完善：
+v1.37 在这条路上又补强了几个方面：
 
-- scheduler 先模拟移除候选 victims，并只运行一次高成本的工作负载放置算法；后续 reprieve 阶段复用该结果判断哪些 victim 可以留下，降低多次重复求解的开销；
-- 默认 Pod 抢占也会识别 PodGroup，并尊重其 `disruptionMode`，避免一个要求整组中断的工作负载只被拆掉单个 Pod；
-- Beta API 将原来的 `PodGroup` / `Pod` disruption mode 重命名为更通用的 `All` / `Single`，为 PodGroup 与 CompositePodGroup 共享语义做准备。启用 `PodGroupPreemptionPolicy` 后，还可以在 PodGroup 层明确声明是否允许它主动抢占其他工作负载。
+- scheduler 会先模拟移除候选 victim，只跑一遍开销较大的放置算法；后面 reprieve 阶段直接复用结果，少做重复求解；
+- 普通 Pod 抢占也会识别 PodGroup，尊重 `disruptionMode`，避免“要求整组一起停”的工作负载只被拆掉其中一个 Pod；
+- Beta API 把原来的 `PodGroup` / `Pod` disruption mode 改成了更通用的 `All` / `Single`，方便 PodGroup 和 CompositePodGroup 共用同一套语义。开了 `PodGroupPreemptionPolicy` 之后，还可以在 PodGroup 层声明是否允许主动抢占别人。
 
-### CompositePodGroup 表达分层 AI 工作负载
+### 用 CompositePodGroup 描述多层结构
 
-单层 PodGroup 适合“8 个 worker 一起启动”，却难以表达 JobSet、LeaderWorkerSet 或分离式推理中的多层关系。[KEP-6012](https://kep.k8s.io/6012) 在 v1.37 以 Alpha 引入 `CompositePodGroup`：它把 PodGroup 和其他 CompositePodGroup 组织成树，每个父组可以用 `minGroupCount` 约束至少需要多少个子组，每个叶子 PodGroup 再用 `minCount` 约束成员 Pod 数量。
+单层 PodGroup 能表达“8 个 worker 一起启动”，但 JobSet、LeaderWorkerSet、分离式推理这类场景往往是多层结构。[KEP-6012](https://kep.k8s.io/6012) 在 v1.37 以 Alpha 引入 `CompositePodGroup`：把 PodGroup 和 CompositePodGroup 组织成一棵树，父组用 `minGroupCount` 约束至少要几个子组，叶子 PodGroup 再用 `minCount` 约束成员数量。
 
-scheduler 会从根节点递归检查整棵树。只有父子各层的策略都满足时，整棵层级中的 Pod 才会原子绑定；否则全部保持未调度，避免出现“driver 已运行但 worker 不足”或“prefill 已占设备但 decode 子组无法启动”的半成品部署。抢占时也可以选择 `Single`，允许独立中断某个子组；或者选择 `All`，一旦层级中任一成员需要被抢占，就按整个子树处理。
+scheduler 从根往下检查整棵树。各层策略都满足，整棵层级里的 Pod 才会一起绑定；否则全部继续 Pending，避免出现“driver 已经跑了、worker 却不够”或者“prefill 占了设备、decode 子组起不来”的半成品。抢占时可以选 `Single`，只动某一个子组；也可以选 `All`，层级里任一成员要被抢占，就按整棵子树处理。
 
-与它配套的 [KEP-5732](https://kep.k8s.io/5732) 多层拓扑感知调度也处于 Alpha。父组可以先要求整个工作负载落在同一个可用区，子组再要求各自落在该可用区内的同一机架。scheduler 按“可用区 → 机架”的顺序自上而下收窄候选拓扑域，比把所有约束平铺在单个 Pod 上更贴近大规模训练和推理系统的实际结构。
+配套的 [KEP-5732](https://kep.k8s.io/5732) 多层拓扑感知调度也在 Alpha。比如父组要求整个工作负载落在同一可用区，子组再要求落在该可用区内的同一机架。scheduler 按“可用区 → 机架”自上而下收窄候选域，比把约束全摊到单个 Pod 上，更接近训练和推理系统的真实结构。
 
-### 控制器接入不再各自重复造轮子
+### 控制器接入：共用一套积木，别各自造轮子
 
-[KEP-6089](https://kep.k8s.io/6089) Controller Integration APIs 在 v1.37 以 Alpha 引入一组位于 `scheduling.k8s.io/v1alpha3` 的可复用调度积木，包括 basic/gang policy、拓扑约束、`Single`/`All` disruption mode 和工作负载级 ResourceClaim。单层 PodGroup 使用 `WorkloadPodGroup*` 类型，分层工作负载则使用对应的 `WorkloadCompositePodGroup*` 类型；控制器可以复用相同的结构和语义，同时按自己的领域模型决定字段名称与嵌套方式。
+[KEP-6089](https://kep.k8s.io/6089) 在 v1.37 以 Alpha 提供了一组可复用的调度 builder，放在 `scheduling.k8s.io/v1alpha3` 里：basic/gang policy、拓扑约束、`Single`/`All` disruption mode、工作负载级 ResourceClaim 等。单层 PodGroup 用 `WorkloadPodGroup*` 类型，分层工作负载用 `WorkloadCompositePodGroup*`；控制器复用同一套结构和语义，字段怎么命名、怎么嵌套，按自己的领域模型来定。
 
-这些 API building blocks 和 [`workloadbuilder`](https://github.com/kubernetes/kubernetes/tree/release-1.37/staging/src/k8s.io/component-helpers/scheduling/schedulingv1/workloadbuilder) Go 库本身没有独立 feature gate。`workloadbuilder` 负责合并控制器默认值与用户配置、按 allow-list 拒绝控制器尚未支持的 policy 或 disruption mode，并构造 Workload、PodGroup 或 CompositePodGroup；对象的创建、更新和回收仍由接入它的控制器负责，而不是由该库管理。
+这些 building blocks 和 [`workloadbuilder`](https://github.com/kubernetes/kubernetes/tree/release-1.37/staging/src/k8s.io/component-helpers/scheduling/schedulingv1/workloadbuilder) Go 库没有独立 feature gate。`workloadbuilder` 负责合并默认值和用户配置、按 allow-list 拒绝尚未支持的 policy 或 disruption mode，并构造 Workload、PodGroup 或 CompositePodGroup；对象的生命周期仍由接入的控制器自己管。
 
-对于 JobSet、LeaderWorkerSet、RayJob 等分层控制器，最上层的根控制器应作为整棵工作负载树的唯一编译器，生成并管理唯一的 Workload；子控制器可以按集成设计创建对应的运行时 PodGroup，但不应重复生成 Workload。KEP-6089 在 v1.37 提供的是 building blocks、库和接入规范，并不意味着这些 out-of-tree 控制器已经自动完成集成。
+对 JobSet、LeaderWorkerSet、RayJob 这类分层控制器，建议最上层的根控制器作为整棵工作负载树的唯一“编译器”，只生成一份 Workload；子控制器可以创建对应的运行时 PodGroup，但不要重复生成 Workload。KEP-6089 在 v1.37 提供的是积木、库和接入规范——不等于这些 out-of-tree 控制器已经自动接好了。
 
-### Job controller 首次使用新的调度积木
+### Job 控制器首次使用新的调度 builder
 
-原生 Job controller 是第一批采用者。[KEP-5547](https://kep.k8s.io/5547) 在 v1.37 进入 Alpha2，为 Job 增加实验性的 `.spec.scheduling`。用户可以显式选择 gang scheduling、拓扑和 disruption mode；不填写 `.spec.scheduling` 时采用 Basic policy，保持现有逐 Pod 调度行为。选择 gang 但省略 `minCount` 时，Job controller 默认使用 `parallelism`。
+原生 Job 控制器是第一批吃螃蟹的。[KEP-5547](https://kep.k8s.io/5547) 在 v1.37 进入 Alpha2，给 Job 加了实验性的 `.spec.scheduling`：可以显式选 gang scheduling、拓扑和 disruption mode。不填 `.spec.scheduling` 时走 Basic policy，行为和现在一样，还是逐 Pod 调度。选了 gang 但没写 `minCount`，Job controller 默认用 `parallelism`。
 
-启用 `WorkloadWithJob` 后，即使 Job 没有填写 `.spec.scheduling`，Job controller 仍会为它创建 Basic Workload 和 PodGroup，并为生成的 Pod 设置 `.spec.schedulingGroup.podGroupName`。Basic policy 表示不施加 `minCount` gang 门槛，并不表示不会创建 WAS 对象。
+开了 `WorkloadWithJob` 之后，就算 Job 没填 `.spec.scheduling`，controller 也会创建 Basic Workload 和 PodGroup，并给 Pod 写上 `.spec.schedulingGroup.podGroupName`。Basic 不代表“没有 gang 门槛就不创建 WAS 对象”——对象还是会建，只是不强制 `minCount`。
 
 下面的精简示例要求 4 个 Pod 以 gang 方式调度、落入同一个可用区，并在抢占时作为整体处理：
 
@@ -198,11 +205,11 @@ spec:
 
 这里需要使用最终合入的 `schedulingPolicy`、`schedulingConstraints.topology[].key` 和 `disruptionMode` 字段。当前 Alpha API 中，一个 group 最多配置一个 topology constraint，Job 最多配置 4 个共享 ResourceClaim；除了 `schedulingPolicy.gang.minCount` 可以调整，`.spec.scheduling` 是否存在、policy 类型、拓扑、disruption mode 和 ResourceClaim 列表在创建后都不可变。使用工作负载级共享 ResourceClaim 还需要额外启用 `DRAWorkloadResourceClaims`。
 
-`WorkloadWithJob` 只控制 Job API 与 Job controller 的这项集成，不控制 KEP-6089 的 building blocks 或 `workloadbuilder`。因此不能因为 Workload API 已进入 Beta，就把 Job 集成或 Controller Integration APIs 也视为 Beta。
+`WorkloadWithJob` 只管 Job API 和 Job controller 这条集成线，不管 KEP-6089 的 building blocks 或 `workloadbuilder`。所以 Workload API 进了 Beta，不等于 Job 集成或 Controller Integration APIs 也是 Beta。
 
 ### 如何启用和验证
 
-WAS 在 v1.37 同时包含 Beta 核心和 Alpha 扩展，不能只开启一个 gate 就默认获得全部能力：
+WAS 在 v1.37 里既有 Beta 核心，也有 Alpha 扩展。只开一个 gate，并不会自动拿到全部能力：
 
 | feature gate | 阶段 / 默认值 | 需要启用的组件 | 能力 |
 | --- | --- | --- | --- |
@@ -213,7 +220,7 @@ WAS 在 v1.37 同时包含 Beta 核心和 Alpha 扩展，不能只开启一个 g
 | `CompositePodGroup` | Alpha / 默认关闭 | kube-apiserver、kube-controller-manager、kube-scheduler | 分层工作负载与组级策略 |
 | `WorkloadWithJob` | Alpha / 默认关闭 | kube-apiserver、kube-controller-manager | Job `.spec.scheduling` 集成 |
 
-建议先在专用 AI 或批处理集群验证队列等待时间、PodGroup 调度成功率、抢占后的任务完成时间、拓扑求解开销和 ResourceClaim 生命周期。已经使用 Kueue、Volcano 或自研调度器的平台，还需要先划清准入排队、配额、Gang Scheduling 与节点放置分别由谁负责，避免两个系统同时管理同一层决策。
+建议先在专用的 AI 或批处理测试集群里看队列等待、PodGroup 调度成功率、抢占后的任务完成时间、拓扑求解开销和 ResourceClaim 生命周期。如果已经在用 Kueue、Volcano 或自研调度器，最好先想清楚：准入排队、配额、Gang Scheduling、节点放置，分别由谁负责，避免两套系统管同一层决策。
 
 ## GA 和稳定的功能
 
@@ -259,11 +266,13 @@ cache 预热期间，API Server 可能对超出安全处理范围的请求返回
 
 它是新的输出格式，不会替换现有 `-o yaml`。对配置生成、代码评审和 GitOps 流程来说，更适合先比较 diff 和下游解析器兼容性，再决定是否作为默认导出格式。
 
+更多内容可以阅读 [How to Pretty-Print Your Kubernetes YAML as KYAML and Why You'd Want To](https://kubernetes.io/blog/2026/08/11/how-to-pretty-print-kubernetes-yaml-as-kyaml/) 这篇博客。
+
 ### 其他进入 GA 的 API 与行为
 
+- [KEP-3085](https://kep.k8s.io/3085) 将 Pod sandbox 创建和网络就绪状态通过 `PodReadyToStartContainers` condition 暴露给用户与 controller，便于区分 sandbox 尚未准备和容器自身启动失败。
 - [KEP-4762](https://kep.k8s.io/4762) 允许把任意合法 FQDN 设置为 Pod hostname，解除此前 hostname 必须是单个 DNS label 的限制；
 - [KEP-5311](https://kep.k8s.io/5311) 放宽 Service 名称校验，使 Service 名称可以从数字开始，同时仍遵循对应的 DNS 名称规则；
-- [KEP-3085](https://kep.k8s.io/3085) 将 Pod sandbox 创建和网络就绪状态通过 `PodReadyToStartContainers` condition 暴露给用户与 controller，便于区分 sandbox 尚未准备和容器自身启动失败。
 
 ## 进入 Beta 阶段的功能
 
@@ -364,6 +373,8 @@ kube-proxy 的 nftables 后端改用内核 netlink 接口执行规则 list 操�
 
 ## 删除和废弃功能
 
+这部分在 Kuberentes 1.37 抢先看的博客中有重点介绍，可以参考 [Kubernetes v1.37 Sneak Peek](https://kubernetes.io/zh-cn/blog/2026/07/31/kubernetes-v1-37-sneak-peek/)。
+
 ### `kube-dns`
 
 CoreDNS 自 Kubernetes v1.13 起已经是默认集群 DNS，`kube-dns` 也不支持 EndpointSlice、双栈 Service 等较新的能力。`kube-dns` 子项目已经退出维护，社区预计 v1.40 之后不再构建新包；仍在使用它的集群应开始迁移到 CoreDNS。NodeLocal DNSCache 已迁移到独立的 `kubernetes-sigs/node-local-dns` 仓库，不受这项退出计划影响。
@@ -387,20 +398,6 @@ IPVS 在 v1.37 进入明确的弃用告警阶段。升级本身不会立即关�
 - 一批已经锁定为 GA 的 feature gates 被清理；不要长期把已经锁定或删除的 gate 写死在组件参数中；
 - `gitRepo` volume plugin 在 v1.36 已永久禁用，v1.37 完成对应稳定化清理；仍需使用 `initContainer`、构建时打包或 `git-sync` 替代。
 
-Release Highlights 讨论还列出了若干已到期的 Alpha/Beta API 版本候选。由于当前 RC release notes 尚未完整列出这些条目，正式发布前需要再用最终 API deprecation guide 和 CHANGELOG 复核，不建议仅依据前瞻稿执行删除。
-
-## 建议的升级动作
-
-1. 在 v1.36 集群提前审计 SELinux volume conflict，并为需要旧行为的 Pod 设置 `seLinuxChangePolicy: Recursive`。
-2. 扫描 kubelet flags、`eventRecordQPS`、cAdvisor 指标和 `nodes/logs` RBAC，确保升级后 kubelet 能启动且监控不出现大面积缺口。
-3. 把 kubeadm `v1beta3` 配置迁移到 `v1beta4`，不要尝试使用尚未可用的实验 `v1` 配置。
-4. 如果试用过 WAS，删除 `scheduling.k8s.io/v1alpha2` 对象并迁移 feature gates；没有试用过则保持 `GenericWorkload` 关闭，先在测试集群评估。
-5. 明确记录每个集群的 kube-proxy mode；IPVS 集群建立 nftables/iptables 对照测试，空 mode 配置改为显式值。
-6. cgroup v1 节点制定迁移期限。Memory QoS、Rootless Kubelet 等节点能力应在 cgroup v2 专用节点池灰度。
-7. DRA 用户重点演练设备 taint、driver 重启、ResourceClaim status 和 PodGroup 共享 claim，不只验证首次调度成功。
-8. 大规模集群在预生产环境对比 API Server 启动时间、watch cache 初始化、etcd 内存、CRD conversion webhook 并发和 controller staleness 指标。
-9. 正式发布日再次核对 v1.37.0 CHANGELOG、release notes、known issues、容器运行时兼容矩阵和发行版支持状态。
-
 ## DaoCloud 社区贡献与活动
 
 - KubeCon + CloudNativeCon China 2026 将于 9 月 7–9 日在上海举行，本次活动还包括 PyTorch Conference 和 OpenInfra Summit，DaoCloud 届时会有多个分享如下：
@@ -412,29 +409,23 @@ Release Highlights 讨论还列出了若干已到期的 Alpha/Beta API 版本候
   - Why Your TTFT Lies: Diagnosing PD-Disaggregated LLM Inference with Minimal Cross-Layer Metrics  Kebe & 李辉
   - Kubernetes DRA Architecture: Scheduling, Status, and Topology at Scale 徐俊杰+张康（NVIDIA）
   - Project Lightning Talk: KubeEdge Everywhere: Latest Project Update with industrial cases  张红兵
-- KCD 杭州正在议题征集中，截止日期为 2026 年 8 月 todo 日，DaoCloud 开源工程师蔡威是此次活动的组织者之一。
+- KCD 杭州正在议题征集中，截止日期为 2026 年 9 月 30 日，DaoCloud 开源工程师蔡威是此次活动的组织者之一。议题提交链接：https://sessionize.com/kcd-hangzhou-2026/。
 - KubeCon + CloudNativeCon North America 2026 将于 11 月 9–12 日在美国盐湖城举行，相关分享包括：
-  - 11/9 09:38–09:43 — Ubiquitous Edge Computing: KubeEdge Industrial Cases Sharing
-    Hongbing Zhang，KubeEdge 工业落地案例，5 分钟 Project Lightning Talk。
-  - 11/10 11:30–12:00 — Steering the Ship: Ask the Kubernetes Steering Committee
-    Paco Xu，与 Kat Cosgrove、Maciej Szulik；Kubernetes Steering Committee 问答。
-  - 11/12 13:45–14:15 — Explore TAG Workloads Foundation: Core Runtime, Batch Scheduling, and Moar
-    Paco Xu，与 NVIDIA、Broadcom 等共同介绍 TAG Workloads Foundation。
-- Kubernetes v1.37 Release Team 计划于 2026 年 9 月 23 日 16:00 UTC 举办线上 release webinar，介绍本次版本亮点。
+  - 11/9 09:38–09:43 — Ubiquitous Edge Computing: KubeEdge Industrial Cases Sharing, Hongbing Zhang(KubeEdge 维护者）
+  - 11/10 11:30–12:00 — Steering the Ship: Ask the Kubernetes Steering Committee, Paco Xu(Kubernetes Steering Committee 成员) 与 Kat Cosgrove、Maciej Szulik 共同主持，Kubernetes Steering Committee 问答。
+  - 11/12 13:45–14:15 — Explore TAG Workloads Foundation: Core Runtime, Batch Scheduling, and Moar, Paco Xu(CNCF TAG Workloads Foundation Chair) 与 NVIDIA、Broadcom 等共同介绍 TAG Workloads Foundation。
 
-官方发布公告草稿给出的 project velocity 数据显示，v1.37 发布周期持续 15 周，期间单个统计窗口最多有 212 家公司和 1,709 名贡献者参与。该数据仍需在正式发布博客合入时做最终确认。
+v1.37 发布周期持续 15 周，有 212 家公司和 1,709 名贡献者参与。这也说明 Kubernetes 社区的活力和贡献者们的辛勤工作。
 
 ## 发行说明
 
 截至本文整理时间，建议持续跟踪以下官方页面：
 
 - Kubernetes v1.37 CHANGELOG：<https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.37.md>
-- Kubernetes v1.37 release notes draft：<https://github.com/kubernetes/sig-release/blob/master/releases/release-1.37/release-notes/release-notes-draft.md>
 - Kubernetes v1.37 发布日程：<https://www.kubernetes.dev/resources/release/>
+- Kubernetes 博客：<https://kubernetes.io/blog>
 
-正式发布后，需要把文中的“计划”“预计”“进入 RC”等表述改为最终时态，并补充官方发布博客、主题 Logo、最终统计与 known issues。
-
-## 历史文档
+## 历史文章
 
 - Kubernetes v1.36 正式发布：DRA 加速成熟，WAS 迈向原生工作负载调度
 - K8s 1.35 发布！安装/升级变化巨大，新特性 Gang Scheduling 重磅来袭！
