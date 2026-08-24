@@ -1,68 +1,28 @@
-# Kubernetes v1.37 前瞻：DRA 继续成熟，Workload-Aware Scheduling 进入 Beta
+# Kubernetes v1.37 正式发布：DRA 持续成熟，Workload-Aware Scheduling 进入 Beta
 
-Kubernetes v1.37 计划于 2026 年 8 月 26 日（周三）发布。截至 2026 年 8 月 7 日，`release-1.37` 分支和 v1.37.0-rc.0 已经创建，正式 release notes 与发布博客仍在收尾。
+Kubernetes v1.37 于 2026 年 8 月 26 日（北美时间周三）正式发布。
 
-本文结合 Kubernetes v1.36 及更早版本发布文章的结构，基于 v1.37 Sneak Peek、SIG Release Highlights 讨论、`release-1.37` 分支 feature gates 和 release notes draft 整理。由于当前仍是 RC 阶段，特性数量、阶段、发布主题和已知问题都可能在正式发布前变化；最终请以 v1.37.0 CHANGELOG 与正式 release notes 为准。
+本次版本更新包含 67 项改进。其中，16 项已升级至稳定版，23 项已升级至 Beta 版，27 项即将进入 Alpha 版，1 项为弃用/移除。
 
-如果用一句话概括 v1.37：过去几年铺开的几块能力，在这个版本里开始连成更完整的生产路径——WAS（Workload Aware Scheduling）进入 Beta，DRA 侧多项设备能力 GA，节点上的 Memory QoS、Rootless Kubelet、Pod 级资源管理继续打磨，控制面则在启动、Watch 和恢复上做了新一轮优化，大规模集群会受益更多。
+在这个版本里，WAS（Workload Aware Scheduling）进入 Beta，DRA 侧多项设备能力 GA，节点上的 Memory QoS、Rootless Kubelet、Pod 级资源管理持续优化，控制面则在启动、Watch 和恢复上也做了新一轮优化，大规模集群会受益更多。
+
+## 目录
+
+- 发布状态、主题和 Logo
+- 专题一：DRA 从“能分配设备”走向平滑迁移和精细管理
+- 专题二：Workload-Aware Scheduling——从单个 Pod 到整组工作负载
+- GA 和稳定的功能
+- 进入 Beta 阶段的功能
+- 进入 Alpha 阶段的功能
+- 其他值得关注的行为变化
+- 删除和废弃功能
+- 升级风险评估
+- DaoCloud 社区贡献与活动
 
 ## 发布状态、主题和 Logo
 
-v1.37.0-rc.0 已于 2026 年 8 月 5 日发布，正式版本计划于 8 月 26 日发布。
+Kubernetes v1.37 <release theme> logo
 
-截至 2026 年 8 月 19 日，v1.37 的正式主题和 Logo 仍未公布，官方发布公告 PR 中也仍是占位内容，本文暂不提前补图或猜测主题。当前发布公告草稿暂列 67 项 enhancement，其中 16 项进入 Stable、23 项进入 Beta、27 项进入 Alpha，另有 1 项 deprecation/removal；这些数字仍可能在正式发布前调整，不能当作最终统计。
-
-正式发布前需要回填：
-
-- v1.37 主题、Logo、设计者和主题故事；
-- Stable、Beta、Alpha、Deprecated 数量的最终确认；
-- v1.37.0 已知问题与最后一轮 release notes；
-- DaoCloud 和国内社区在本周期的贡献与活动更新。
-
-## 先看升级风险
-
-与特性列表相比，下面几项更值得集群管理员先处理。
-
-### SELinux 卷挂载行为变化
-
-`SELinuxMount` 在 v1.37 进入 GA 并默认启用。对于 `.spec.seLinuxMount: true` 的 CSI Driver，kubelet 会优先使用 `-o context=<label>` 挂载卷，而不是递归修改卷内文件标签。这能显著减少大卷挂载时的递归 relabel 开销，但也改变了共享卷的兼容边界。
-
-同一节点上，如果多个 Pod 使用不同 SELinux 标签共享同一个卷，过去递归 relabel 下可能可以共存，v1.37 中则可能因为一个挂载只能使用一个 SELinux context 而启动失败。需要保留旧行为的工作负载，可在 Pod 中显式设置 `seLinuxChangePolicy: Recursive`。
-
-未启用 SELinux 的集群不受影响。启用了 SELinux 的集群应在 v1.36 上先启用可选的 `selinux-warning-controller`，再检查 `selinux_warning_controller_selinux_volume_conflict`、`volume_manager_selinux_volume_context_mismatch_warnings_total` 指标和相关事件，然后安排升级。
-
-### WAS Alpha API 和 feature gate 迁移
-
-Workload Aware Scheduling 在 v1.37 进入 Beta，但 Alpha 使用者需要执行迁移动作：
-
-- `scheduling.k8s.io/v1alpha2` 已被移除；从 v1.36 升级前，必须删除 API Server 中所有该版本的 Workload 和 PodGroup 对象；  
-- 核心 Workload 和 PodGroup API 已进入 v1beta1；v1alpha3 同时提供这些资源，并承载 CompositePodGroup 等仍处于 Alpha 的扩展能力；  
-- GangScheduling 和 WorkloadAwarePreemption feature gate 已合并到 GenericWorkload；升级时应删除旧 gate，并显式启用 GenericWorkload；  
-- 回退到 v1.36 时需要恢复旧 feature gate 配置，并提前处理 v1.37 创建的对象；由于 API 版本和 disruptionMode 结构均不兼容，无法依赖 v1alpha3/v1beta1 到 v1alpha2 的自动转换。
-
-这也是 Alpha API 不承诺跨版本兼容的典型例子。已经在 v1.36 试过 WAS 的集群，升级前记得把对象清理和 feature gate 迁移纳入升级检查项。
-
-### kubelet 静态 Pod 无法再引用 Secret 或 ConfigMap
-
-Static Pod（静态 Pod） 原本就不应该直接读取 API 资源，因为它们并非通过 API 服务器创建——但之前的一个漏洞允许它们通过诸如 configMapRef 或 secretRef 之类的字段引用 Secrets 或 ConfigMap。该漏洞现已修复：从 v1.37 版本开始，这些引用已被严格禁止，之前允许用户选择退出此限制的 PreventStaticPodAPIReferences 功能门也已被移除。
-
-### kubeadm 配置 API v1beta3 被移除
-
-已经从 v1.31 开始弃用的 kubeadm `v1beta3` 配置 API 在 v1.37 被移除。仍保存 `v1beta3` 配置的集群，应在升级前使用兼容版本的 `kubeadm config migrate` 转换到 `v1beta4`。
-
-### kube-proxy：IPVS 进入明确退出周期
-
-v1.37 会对 kube-proxy 的 IPVS 模式输出弃用告警。社区当前计划在 v1.40 默认禁用 IPVS，并在 v1.43 完全移除。对于较新的 Linux 内核，建议开始验证 nftables；不满足 nftables 条件的环境仍可使用 iptables。
-
-同时，未显式设置 kube-proxy mode 的配置会收到告警。v1.37 中 kubeadm 仍会把空值明确写为 `iptables`，但这是为未来把默认后端切换到 nftables 做准备。平台团队应避免继续依赖隐式默认值。
-
-### cgroup v1 仍可临时绕过，但不再是长期方案
-
-v1.37 对 cgroup v1 没有新增移除动作，但自 v1.35 起 `failCgroupV1` 已默认设为 `true`。仍使用 cgroup v1 的节点必须显式设置 `failCgroupV1: false` 才能启动 kubelet。
-
-In-Place Pod Resize、Memory QoS 等新能力依赖 cgroup v2，cgroup v1 代码也不再作为主要测试路径。继续使用 override 只适合作为短期过渡，应尽快完成操作系统、容器运行时和节点池迁移。
-
-后续会有一篇博客（[website PR #56945](https://github.com/kubernetes/website/pull/56945)）专门讲 cgroup v1 的退出计划和迁移指南。
 
 ## 专题一：DRA 从“能分配设备”走向平滑迁移和精细管理
 
@@ -87,7 +47,7 @@ v1.37 中几项已经成熟的能力把 DRA 从“分配接口”推进成“设
 | [4817](https://kep.k8s.io/4817) ResourceClaim Device Status | GA | 由 driver 在 claim status 中报告设备状态和标准化网络接口数据，支撑 RDMA、多网卡与网络设备集成 |
 | [6072](https://kep.k8s.io/6072) Standard `numaNode` Device Attribute | Stable | 统一使用 `resource.kubernetes.io/numaNode` 表达 NUMA 位置，让不同 driver 的设备能够比较拓扑关系 |
 
-其中 `numaNode` 直接以 Stable 落地，因为它标准化的是设备属性名称，没有独立 feature gate，也不改变内置分配行为。它看似只是命名约定，却为 GPU、NIC、TPU 等来自不同 driver 的设备做同 NUMA 节点放置提供了共同语言。
+其中 `numaNode` 直接以 Stable 落地，因为它标准化的是设备属性名称，没有独立特性门控，也不改变内置分配行为。它看似只是命名约定，却为 GPU、NIC、TPU 等来自不同 driver 的设备做同 NUMA 节点放置提供了共同语言。
 
 ### Workload 级 ResourceClaim 连接 DRA 与 WAS
 
@@ -101,13 +61,13 @@ v1.37 还收紧了关闭 gate 时的行为：如果 Pod 引用的 ResourceClaimT
 
 | KEP | v1.37 阶段 | 解决的问题 |
 | --- | --- | --- |
-| [5304](https://kep.k8s.io/5304) Device Attributes Downward API | Beta | 将 driver 在 claim preparation 阶段生成的设备 metadata 通过 CDI JSON 文件注入容器，工作负载无需额外 controller 即可读取 PCI 地址、MAC 等设备信息；该能力没有独立 feature gate |
+| [5304](https://kep.k8s.io/5304) Device Attributes Downward API | Beta | 将 driver 在 claim preparation 阶段生成的设备 metadata 通过 CDI JSON 文件注入容器，工作负载无需额外 controller 即可读取 PCI 地址、MAC 等设备信息；该能力没有独立特性门控 |
 | [5075](https://kep.k8s.io/5075) Consumable Capacity | Beta | 允许多个独立 ResourceClaim 从同一设备的可消费容量中分配份额，例如共享网络带宽或虚拟 GPU 内存 |
 | [4815](https://kep.k8s.io/4815) Partitionable Devices | Beta | 描述 GPU、TPU 等设备的可切分结构和多主机拓扑，让工作负载请求具体分区而不是无关设备的组合 |
 | [5007](https://kep.k8s.io/5007) Device Binding Conditions | Beta | 在外部设备真正准备完成前延迟 Pod 与节点的绑定，并在准备失败或超时时重新调度 |
 | [4680](https://kep.k8s.io/4680) Resource Health Status | 待最终确认 | 把 Device Plugin 和 DRA 设备健康暴露到 Pod/容器状态；当前 `release-1.37` 代码仍为 Beta、默认启用，但正式发布公告草稿将其列入 Stable |
 
-KEP-4680 与已经 GA 的 KEP-4817 容易混淆：前者关注 Pod 和容器看到的设备健康，后者提供的是 `ResourceClaim.status.devices` 中由 driver 报告的设备状态和标准化网络接口数据。由于官方发布公告、DRA 专题草稿、KEP 元数据与当前 release 分支尚未完全一致，本文暂不把 KEP-4680 明确写成 GA，正式发布时需要再次核对 CHANGELOG 和 feature gate 定义。
+KEP-4680 与已经 GA 的 KEP-4817 容易混淆：前者关注 Pod 和容器看到的设备健康，后者提供的是 `ResourceClaim.status.devices` 中由 driver 报告的设备状态和标准化网络接口数据。由于官方发布公告、DRA 专题草稿、KEP 元数据与当前 release 分支尚未完全一致，本文暂不把 KEP-4680 明确写成 GA，正式发布时需要再次核对 CHANGELOG 和特性门控定义。
 
 ### Alpha 探索转向复杂设备模型
 
@@ -139,7 +99,7 @@ v1.36 用 WAS 把 Workload、PodGroup、Gang Scheduling、拓扑感知调度、�
 
 [KEP-4671](https://kep.k8s.io/4671) 把 Workload 和 PodGroup 核心 API 提升到 `scheduling.k8s.io/v1beta1`。简单说，Workload 管模板和调度意图，PodGroup 管一组 Pod 的运行时状态。开了 Gang policy 之后，scheduler 会先确认至少 `minCount` 个成员能一起放下，再统一调度、统一绑定。
 
-核心能力走 `v1beta1`；CompositePodGroup 等还在试验阶段的扩展走 `scheduling.k8s.io/v1alpha3`。旧的 `v1alpha2` 已经移除——如果你在 v1.36 试过 WAS，升级前不能只改 feature gate，还得清理旧对象、迁 API 版本。
+核心能力走 `v1beta1`；CompositePodGroup 等还在试验阶段的扩展走 `scheduling.k8s.io/v1alpha3`。旧的 `v1alpha2` 已经移除——如果你在 v1.36 试过 WAS，升级前不能只改特性门控，还得清理旧对象、迁 API 版本。
 
 v1.37 内部调度模型也有变化：PodGroup 成了调度队列里的一等公民，成员 Pod 不再各自排队。整组共享等待、退避和调度周期，后面做更复杂的组级策略也更顺手。另外，`minCount` 现在可以改了，弹性 gang 可以在不打断已运行 Pod 的前提下缩小或扩大最小规模。
 
@@ -167,7 +127,7 @@ scheduler 从根往下检查整棵树。各层策略都满足，整棵层级里�
 
 [KEP-6089](https://kep.k8s.io/6089) 在 v1.37 以 Alpha 提供了一组可复用的调度 builder，放在 `scheduling.k8s.io/v1alpha3` 里：basic/gang policy、拓扑约束、`Single`/`All` disruption mode、工作负载级 ResourceClaim 等。单层 PodGroup 用 `WorkloadPodGroup*` 类型，分层工作负载用 `WorkloadCompositePodGroup*`；控制器复用同一套结构和语义，字段怎么命名、怎么嵌套，按自己的领域模型来定。
 
-这些 building blocks 和 [`workloadbuilder`](https://github.com/kubernetes/kubernetes/tree/release-1.37/staging/src/k8s.io/component-helpers/scheduling/schedulingv1/workloadbuilder) Go 库没有独立 feature gate。`workloadbuilder` 负责合并默认值和用户配置、按 allow-list 拒绝尚未支持的 policy 或 disruption mode，并构造 Workload、PodGroup 或 CompositePodGroup；对象的生命周期仍由接入的控制器自己管。
+这些 building blocks 和 [`workloadbuilder`](https://github.com/kubernetes/kubernetes/tree/release-1.37/staging/src/k8s.io/component-helpers/scheduling/schedulingv1/workloadbuilder) Go 库没有独立特性门控。`workloadbuilder` 负责合并默认值和用户配置、按 allow-list 拒绝尚未支持的 policy 或 disruption mode，并构造 Workload、PodGroup 或 CompositePodGroup；对象的生命周期仍由接入的控制器自己管。
 
 对 JobSet、LeaderWorkerSet、RayJob 这类分层控制器，建议最上层的根控制器作为整棵工作负载树的唯一“编译器”，只生成一份 Workload；子控制器可以创建对应的运行时 PodGroup，但不要重复生成 Workload。KEP-6089 在 v1.37 提供的是积木、库和接入规范——不等于这些 out-of-tree 控制器已经自动接好了。
 
@@ -211,7 +171,7 @@ spec:
 
 WAS 在 v1.37 里既有 Beta 核心，也有 Alpha 扩展。只开一个 gate，并不会自动拿到全部能力：
 
-| feature gate | 阶段 / 默认值 | 需要启用的组件 | 能力 |
+| 特性门控 | 阶段 / 默认值 | 需要启用的组件 | 能力 |
 | --- | --- | --- | --- |
 | `GenericWorkload` | Beta / 默认关闭 | kube-apiserver、kube-controller-manager、kube-scheduler | Workload、PodGroup、Gang Scheduling 与工作负载感知抢占 |
 | `PodGroupPreemptionPolicy` | Alpha / 默认关闭 | kube-apiserver、kube-scheduler | 在 PodGroup 层声明是否允许主动抢占其他工作负载 |
@@ -258,7 +218,7 @@ cache 预热期间，API Server 可能对超出安全处理范围的请求返回
 
 ### Node Declared Features 进入 GA（KEP-5328）
 
-节点可以在 Node status 中声明实际支持的能力，调度器据此过滤不具备所需功能的节点。这解决了 feature gate 已在控制面开启，但混合版本节点、运行时或操作系统实际能力不同的问题，为更快、更安全地推广节点特性提供基础。
+节点可以在 Node status 中声明实际支持的能力，调度器据此过滤不具备所需功能的节点。这解决了特性门控已在控制面开启，但混合版本节点、运行时或操作系统实际能力不同的问题，为更快、更安全地推广节点特性提供基础。
 
 ### KYAML 输出进入 Stable（KEP-5295）
 
@@ -286,7 +246,7 @@ v1.37 中相关 gate 进入 Beta 并默认启用，但这只表示支持能力�
 
 Memory QoS 在经历多轮 Alpha 设计和回滚安全改进后进入 Beta，基于 cgroup v2 的 `memory.min`、`memory.low` 和 `memory.high` 提供分层内存保护与节流。
 
-v1.37 默认启用该能力的支持，但关键保护和节流行为仍由 kubelet 配置控制。建议使用 Linux 5.9+ 内核和支持 cgroup v2 的运行时，在内存压力测试中关注延迟、reclaim、OOM、`memory.events` 以及关闭 feature gate 后旧 cgroup 值能否正确清理。
+v1.37 默认启用该能力的支持，但关键保护和节流行为仍由 kubelet 配置控制。建议使用 Linux 5.9+ 内核和支持 cgroup v2 的运行时，在内存压力测试中关注延迟、reclaim、OOM、`memory.events` 以及关闭特性门控后旧 cgroup 值能否正确清理。
 
 ### HPA Scale to Zero（KEP-2021）
 
@@ -385,7 +345,7 @@ CoreDNS 自 Kubernetes v1.13 起已经是默认集群 DNS，`kube-dns` 也不支
 
 ### Static Pod API 引用
 
-Static Pod 不再允许通过 `secretRef`、`configMapRef` 等字段引用 API Server 资源，相关 feature gate 已删除。Static Pod 配置应改用节点本地文件、静态挂载或由节点配置管理系统分发。
+Static Pod 不再允许通过 `secretRef`、`configMapRef` 等字段引用 API Server 资源，相关特性门控已删除。Static Pod 配置应改用节点本地文件、静态挂载或由节点配置管理系统分发。
 
 ### kube-proxy IPVS
 
@@ -395,8 +355,53 @@ IPVS 在 v1.37 进入明确的弃用告警阶段。升级本身不会立即关�
 
 - kubeadm `v1beta3` 配置 API 被移除；
 - WAS 的 `scheduling.k8s.io/v1alpha2` 被 `v1beta1` / `v1alpha3` 路径替代；
-- 一批已经锁定为 GA 的 feature gates 被清理；不要长期把已经锁定或删除的 gate 写死在组件参数中；
+- 一批已经锁定为 GA 的特性门控被清理；不要长期把已经锁定或删除的 gate 写死在组件参数中；
 - `gitRepo` volume plugin 在 v1.36 已永久禁用，v1.37 完成对应稳定化清理；仍需使用 `initContainer`、构建时打包或 `git-sync` 替代。
+
+## 升级风险评估
+
+与特性列表相比，下面几项更值得集群管理员先处理。
+
+### SELinux 卷挂载行为变化
+
+`SELinuxMount` 在 v1.37 进入 GA 并默认启用。对于 `.spec.seLinuxMount: true` 的 CSI Driver，kubelet 会优先使用 `-o context=<label>` 挂载卷，而不是递归修改卷内文件标签。这能显著减少大卷挂载时的递归 relabel 开销，但也改变了共享卷的兼容边界。
+
+同一节点上，如果多个 Pod 使用不同 SELinux 标签共享同一个卷，过去递归 relabel 下可能可以共存，v1.37 中则可能因为一个挂载只能使用一个 SELinux context 而启动失败。需要保留旧行为的工作负载，可在 Pod 中显式设置 `seLinuxChangePolicy: Recursive`。
+
+未启用 SELinux 的集群不受影响。启用了 SELinux 的集群应在 v1.36 上先启用可选的 `selinux-warning-controller`，再检查 `selinux_warning_controller_selinux_volume_conflict`、`volume_manager_selinux_volume_context_mismatch_warnings_total` 指标和相关事件，然后安排升级。
+
+### WAS Alpha API 和特性门控迁移
+
+Workload Aware Scheduling 在 v1.37 进入 Beta，但 Alpha 使用者需要执行迁移动作：
+
+- `scheduling.k8s.io/v1alpha2` 已被移除；从 v1.36 升级前，必须删除 API Server 中所有该版本的 Workload 和 PodGroup 对象；  
+- 核心 Workload 和 PodGroup API 已进入 v1beta1；v1alpha3 同时提供这些资源，并承载 CompositePodGroup 等仍处于 Alpha 的扩展能力；  
+- GangScheduling 和 WorkloadAwarePreemption 特性门控已合并到 GenericWorkload；升级时应删除旧 gate，并显式启用 GenericWorkload；  
+- 回退到 v1.36 时需要恢复旧特性门控配置，并提前处理 v1.37 创建的对象；由于 API 版本和 disruptionMode 结构均不兼容，无法依赖 v1alpha3/v1beta1 到 v1alpha2 的自动转换。
+
+这也是 Alpha API 不承诺跨版本兼容的典型例子。已经在 v1.36 试过 WAS 的集群，升级前记得把对象清理和特性门控迁移纳入升级检查项。
+
+### kubelet 静态 Pod 无法再引用 Secret 或 ConfigMap
+
+静态 Pod 原本就不应该直接读取 API 资源，因为这些 Pod 并非通过 API 服务器创建——但之前的一个漏洞允许它们通过诸如 configMapRef 或 secretRef 之类的字段引用 Secret 或 ConfigMap。该漏洞现已修复：从 v1.37 版本开始，这些引用已被严格禁止，之前允许用户选择退出此限制的 PreventStaticPodAPIReferences 特性门控也已被移除。
+
+### kubeadm 配置 API v1beta3 被移除
+
+已经从 v1.31 开始弃用的 kubeadm `v1beta3` 配置 API 在 v1.37 被移除。仍保存 `v1beta3` 配置的集群，应在升级前使用兼容版本的 `kubeadm config migrate` 转换到 `v1beta4`。
+
+### kube-proxy：IPVS 进入明确退出周期
+
+v1.37 会对 kube-proxy 的 IPVS 模式输出弃用告警。社区当前计划在 v1.40 默认禁用 IPVS，并在 v1.43 完全移除。对于较新的 Linux 内核，建议开始验证 nftables；不满足 nftables 条件的环境仍可使用 iptables。
+
+同时，未显式设置 kube-proxy mode 的配置会收到告警。v1.37 中 kubeadm 仍会把空值明确写为 `iptables`，但这是为未来把默认后端切换到 nftables 做准备。平台团队应避免继续依赖隐式默认值。
+
+### cgroup v1 仍可临时绕过，但不再是长期方案
+
+v1.37 对 cgroup v1 没有新增移除动作，但自 v1.35 起 `failCgroupV1` 已默认设为 `true`。仍使用 cgroup v1 的节点必须显式设置 `failCgroupV1: false` 才能启动 kubelet。
+
+In-Place Pod Resize、Memory QoS 等新能力依赖 cgroup v2，cgroup v1 代码也不再作为主要测试路径。继续使用 override 只适合作为短期过渡，应尽快完成操作系统、容器运行时和节点池迁移。
+
+后续会有一篇博客（[website PR #56945](https://github.com/kubernetes/website/pull/56945)）专门讲 cgroup v1 的退出计划和迁移指南。
 
 ## DaoCloud 社区贡献与活动
 
