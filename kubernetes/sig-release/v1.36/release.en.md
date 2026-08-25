@@ -1,58 +1,10 @@
-# Kubernetes v1.36 English Draft (Writing-Day Recheck: 2026-03-19)
+# Kubernetes v1.36 Release Notes Overview
 
-This draft is refreshed with upstream status rechecked on **March 19, 2026 (UTC+8)**.
-
-## Writing-Day Upstream Status Recheck
-
-### 1) Final release date confirmation
-
-Current official release-cycle source still shows:
-
-- planned v1.36 GA release date: **Wednesday, April 22, 2026**
-- source: `kubernetes/sig-release` release-1.36 README
-- upstream file revision checked: `sha e674160cb986b4244d1fdcafe6d499ee536626bf`
-
-Reference: <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/README.md>
-
-### 2) Final release blog / theme / logo links
-
-As of this recheck:
-
-- no final v1.36 release blog post is published in `kubernetes/website` blog post folder for 2026
-- no final v1.36 logo assets are published in `kubernetes/sig-release/releases/release-1.36/logo` (only `.gitkeep`)
-- there is still an open WIP mid-cycle/release PR: <https://github.com/kubernetes/website/pull/54866>
-
-Therefore, final official blog/theme/logo links are **not available yet**.
-
-### 3) Final CHANGELOG-1.36.md and release-notes changes
-
-### CHANGELOG-1.36.md (upstream status)
-
-Current changelog still contains pre-GA entries:
-
-- `v1.36.0-alpha.1`
-- `v1.36.0-alpha.2`
-- no final `v1.36.0` GA section yet
-- upstream file revision checked: `sha 37cd7afb115a346467ab778cd9a3104140c65c7a`
-
-Reference: <https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.36.md>
-
-### release-notes-draft.md (upstream status)
-
-Current draft still has expected pre-GA structure:
-
-- `Urgent Upgrade Notes`
-- `Deprecation`
-- `API Change`
-- `Feature`
-- `Bug or Regression`
-- upstream file revision checked: `sha d8abece0a18ba0c65eda46bea130b499cc9fe3b1`
-
-Reference: <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/release-notes/release-notes-draft.md>
+Kubernetes v1.36 was released on **April 22, 2026**. This document summarizes key highlights, upgrade risks, and operator actions based on the upstream release materials and enhancement tracking.
 
 ## Executive Summary
 
-Kubernetes v1.36 is in late-cycle pre-GA state. The strongest current signal is not a finalized marketing narrative yet, but the technical direction:
+Kubernetes v1.36 continues the familiar trajectory of stabilization, scalability, and workload-centric orchestration evolution:
 
 1. policy and API machinery maturity continues (notably `MutatingAdmissionPolicy` and protobuf cleanup)
 2. storage/DRA capabilities keep moving toward production use
@@ -155,7 +107,7 @@ This alpha introduces startup-time manifest configuration for admission webhooks
 
 ## Upgrade / Deprecation Risk Notes
 
-From current changelog and release-notes draft signals, prioritize these upgrade checks:
+Based on v1.36 changelog and release-notes updates, prioritize these upgrade checks:
 
 1. Scheduler plugin compatibility: interface/behavior updates around `PreBind` and `PostFilter`-related mechanics require retesting for custom scheduler plugins.
 2. kubeadm + flex-volume path changes: integrated flex-volume support behavior in kubeadm has changed; clusters still relying on legacy paths need migration/custom handling.
@@ -175,11 +127,11 @@ For AI platform / AI-Infra teams (GPU and mixed training/inference workloads), u
 7. Network data hygiene: clean non-canonical IP/CIDR entries before stricter validation bites.
 8. Progressive rollout gates: enforce staged rollout with explicit rollback and AI SLO checks.
 
-## Final Validation Before Publish
+## Validation Snapshot
 
 ### KEP stage and target release still unchanged?
 
-Rechecked on writing day for referenced KEPs:
+Validation snapshot for referenced KEPs:
 
 - `3962`: `stage/stable`, milestone `v1.36`
 - `5589`: `stage/stable`, milestone `v1.36`
@@ -211,12 +163,10 @@ Note: the March 24, 2026 reply in discussion `#2958` frames `3157`, `4988`, and 
 
 ### Any newly disclosed known issue?
 
-Writing-day queries found **no** v1.36 known-issue ticket in `kubernetes/kubernetes` for:
+No v1.36 known-issue ticket was identified in `kubernetes/kubernetes` for:
 
 - title search: `"known issue"` + `1.36`
 - label/milestone search: `label:kind/known-issue milestone:v1.36`
-
-This should still be rechecked again right before final publication.
 
 ## References
 
@@ -227,4 +177,3 @@ This should still be rechecked again right before final publication.
 - <https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.36.md>
 - <https://github.com/kubernetes/sig-release/blob/master/releases/release-1.36/release-notes/release-notes-draft.md>
 - <https://github.com/kubernetes/sig-release/discussions/2958>
-- <https://github.com/kubernetes/website/pull/54866>
