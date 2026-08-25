@@ -1,14 +1,13 @@
-# Kubernetes v1.37 正式发布：DRA 持续成熟，Workload-Aware Scheduling 进入 Beta
+# Kubernetes v1.37 今晚发布：DRA 持续成熟，Workload-Aware Scheduling 进入 Beta
 
-Kubernetes v1.37 于 2026 年 8 月 26 日（北美时间周三）正式发布。
+Kubernetes v1.37 计划于今晚也就是 2026 年 8 月 26 日（北美时间周三）凌晨正式发布。
 
 本次版本更新包含 67 项改进。其中，16 项已升级至稳定版，23 项已升级至 Beta 版，27 项即将进入 Alpha 版，1 项为弃用/移除。
 
-在这个版本里，WAS（Workload Aware Scheduling）进入 Beta，DRA 侧多项设备能力 GA，节点上的 Memory QoS、Rootless Kubelet、Pod 级资源管理持续优化，控制面则在启动、Watch 和恢复上也做了新一轮优化，大规模集群会受益更多。
+在这个版本里，WAS（Workload Aware Scheduling）核心能力进入 Beta，DRA 侧多项设备能力 GA，节点上的 Memory QoS、Rootless Kubelet、Pod 级资源管理持续优化，控制面则在启动、Watch 和恢复上也做了新一轮优化，大规模集群也会受益很多。
 
 ## 目录
 
-- 发布状态、主题和 Logo
 - 专题一：DRA 从“能分配设备”走向平滑迁移和精细管理
 - 专题二：Workload-Aware Scheduling——从单个 Pod 到整组工作负载
 - GA 和稳定的功能
@@ -17,12 +16,7 @@ Kubernetes v1.37 于 2026 年 8 月 26 日（北美时间周三）正式发布�
 - 其他值得关注的行为变化
 - 删除和废弃功能
 - 升级风险评估
-- DaoCloud 社区贡献与活动
-
-## 发布状态、主题和 Logo
-
-Kubernetes v1.37 <release theme> logo
-
+- DaoCloud 开源与社区活动近期动态
 
 ## 专题一：DRA 从“能分配设备”走向平滑迁移和精细管理
 
@@ -94,6 +88,8 @@ https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conf
 kube-scheduler 默认是一个 Pod 一个 Pod 地调度。分布式训练、MPI、大规模批处理这类任务，往往需要一批 Pod 一起跑起来。实际集群里却经常出现：几个 Pod 已经占上了 GPU，剩下的 Member 长期 Pending，任务既开不了，也撤不掉。
 
 v1.36 用 WAS 把 Workload、PodGroup、Gang Scheduling、拓扑感知调度、工作负载感知抢占这些能力搭成了 Alpha 框架。v1.37 继续往前推：核心 API、Gang Scheduling 和工作负载感知抢占都到了 Beta。
+
+![WAS](was-update.png)
 
 ### Workload 与 PodGroup 核心 API 进入 Beta
 
@@ -403,8 +399,9 @@ In-Place Pod Resize、Memory QoS 等新能力依赖 cgroup v2，cgroup v1 代码
 
 后续会有一篇博客（[website PR #56945](https://github.com/kubernetes/website/pull/56945)）专门讲 cgroup v1 的退出计划和迁移指南。
 
-## DaoCloud 社区贡献与活动
+## DaoCloud 开源与社区活动近期动态
 
+- 颜开成为了 LWS（LeaderWorkerSet）的 Approver。
 - KubeCon + CloudNativeCon China 2026 将于 9 月 7–9 日在上海举行，本次活动还包括 PyTorch Conference 和 OpenInfra Summit，DaoCloud 届时会有多个分享如下：
   - Beyond Model Sharding: Atomic Scheduling and Disaggregated LLM Serving with LeaderWorkerSet 颜开 + 陈子聪（华为）
   - Cybertwin-based Cloud Native Network (CCNN): Network Architecture Innovation and Practice  蓝维洲 + 梁丹丹（鹏城）
@@ -414,11 +411,12 @@ In-Place Pod Resize、Memory QoS 等新能力依赖 cgroup v2，cgroup v1 代码
   - Why Your TTFT Lies: Diagnosing PD-Disaggregated LLM Inference with Minimal Cross-Layer Metrics  Kebe & 李辉
   - Kubernetes DRA Architecture: Scheduling, Status, and Topology at Scale 徐俊杰+张康（NVIDIA）
   - Project Lightning Talk: KubeEdge Everywhere: Latest Project Update with industrial cases  张红兵
-- KCD 杭州正在议题征集中，截止日期为 2026 年 9 月 30 日，DaoCloud 开源工程师蔡威是此次活动的组织者之一。议题提交链接：https://sessionize.com/kcd-hangzhou-2026/。
+- KCD 杭州正在议题征集中，截止日期为 2026 年 9 月 30 日，DaoCloud 开源工程师蔡威是此次活动的组织者之一。议题提交链接：https://sessionize.com/kcd-hangzhou-2026/，欢迎大家踊跃提交议题。
 - KubeCon + CloudNativeCon North America 2026 将于 11 月 9–12 日在美国盐湖城举行，相关分享包括：
   - 11/9 09:38–09:43 — Ubiquitous Edge Computing: KubeEdge Industrial Cases Sharing, Hongbing Zhang(KubeEdge 维护者）
   - 11/10 11:30–12:00 — Steering the Ship: Ask the Kubernetes Steering Committee, Paco Xu(Kubernetes Steering Committee 成员) 与 Kat Cosgrove、Maciej Szulik 共同主持，Kubernetes Steering Committee 问答。
   - 11/12 13:45–14:15 — Explore TAG Workloads Foundation: Core Runtime, Batch Scheduling, and Moar, Paco Xu(CNCF TAG Workloads Foundation Chair) 与 NVIDIA、Broadcom 等共同介绍 TAG Workloads Foundation。
+- 此外，KCD 北京 2027 定档 3月，欢迎大家到时参加。
 
 v1.37 发布周期持续 15 周，有 212 家公司和 1,709 名贡献者参与。这也说明 Kubernetes 社区的活力和贡献者们的辛勤工作。
 
@@ -430,21 +428,26 @@ v1.37 发布周期持续 15 周，有 212 家公司和 1,709 名贡献者参与�
 - Kubernetes v1.37 发布日程：<https://www.kubernetes.dev/resources/release/>
 - Kubernetes 博客：<https://kubernetes.io/blog>
 
+等不及的小伙伴可以先尝试 `v1.37.0-rc.1` 版本，或者等明天凌晨正式发布后下载 `v1.37.0` 版本。
+
 ## 历史文章
 
-- Kubernetes v1.36 正式发布：DRA 加速成熟，WAS 迈向原生工作负载调度
-- K8s 1.35 发布！安装/升级变化巨大，新特性 Gang Scheduling 重磅来袭！
-- 迎风破浪的三只熊——Kubernetes v1.34 发布，看点全解析
-- 重磅！K8s 正式支持 Sidecar 容器，v1.33 版本这些改动将影响你的集群
-- Kubernetes 1.32 还在写 Webhook? 你已经 OUT 了！
-- Kubernetes 1.31 发布！十年 OCI 镜像借着 AI 的风终于加入 Volume 的大家庭
-- 最可爱的版本 UwU - Kubernetes v1.30 发布！
-- Kubernetes 1.29 全新特性：抛弃 iptables 还在等什么...
-- Kubernetes 1.28 震撼发布，Sidecar Containers 迎面而来
-- 近两年功能增加最多！Kubernetes 1.27 正式发布
-- Kubernetes 正式发布 v1.26，稳定性显著提升
-- Kubernetes 1.25 正式发布，多方面重大突破
-- Kubernetes 1.24 走向成熟的 Kubernetes
+- Kubernetes v1.36 正式发布：DRA 加速成熟，WAS 迈向原生工作负载调度 [🔗](https://mp.weixin.qq.com/s/U4uBpXIWG9AzwwqDzjEc7A)
+- K8s 1.35 发布！安装/升级变化巨大，新特性 Gang Scheduling 重磅来袭！ [🔗](https://mp.weixin.qq.com/s/faJ7SktLuaONbeFl9oYK1g)
+- [迎风破浪的三只熊——Kubernetes v1.34 发布，看点全解析](https://mp.weixin.qq.com/s/adEqoMmWXWpqck6ZbCvLLg)
+- [重磅！K8s正式支持Sidecar容器，v1.33版本这些改动将影响你的集群](https://mp.weixin.qq.com/s/a7ZLS59ibSbr-7m1TJpehw)
+- [Kubernetes 1.32 还在写 Webhook? 你已经 OUT 了！](https://mp.weixin.qq.com/s?__biz=MzI5ODQ2MzI3NQ==&mid=2247513735&idx=1&sn=e5f844df272b5bb691382fb5f324cbbd&chksm=ed0baa783029653a0e13882cd76ef2dc29eb75ada3a7d213c07a3bff3829abd230cad5d8f340&scene=126&sessionid=1734429261#rd)
+- [Kubernetes 1.31 发布！十年 OCI 镜像借着 AI 的风终于加入 Volume 的大家庭 ~](https://mp.weixin.qq.com/s/bl5ozc90PhWMO3l-deiJbw)
+- [最可爱的版本 UwU - Kubernetes v1.30 发布！](https://mp.weixin.qq.com/s?__biz=MzA5NTUxNzE4MQ==&mid=2659286459&idx=1&sn=bcb8d232b7b611caf89b7dbf17ce0299&chksm=8bcbfd29bcbc743f88806920a1f5200450deac6575db3d20371f76c54d33140d5f4ce39f19f7)
+- [Kubernetes 1.29 全新特性： 抛弃 iptables 还在等什么...](https://mp.weixin.qq.com/s/ZZJBRWauVo-VwNFHkNQ_2w)
+- [Kubernetes 1.28 震撼发布，Sidecar Containers 迎面而来](https://mp.weixin.qq.com/s/Dr_JpSD9tzfahslZO2bX5A)
+- [近两年功能增加最多！Kubernetes 1.27 正式发布](https://mp.weixin.qq.com/s/maDEiCGzOPSDkH9dUxIxdA)
+- [Kubernetes 正式发布 v1.26，稳定性显著提升](https://mp.weixin.qq.com/s/qwzmeIM4INz-_BK_gbwOxw)
+- [Kubernetes 1.25 正式发布，多方面重大突破](https://mp.weixin.qq.com/s/aRmLBYpk0MhLJAwY85DyuA)
+- [Kubernetes 1.24 走向成熟的 Kubernetes](https://mp.weixin.qq.com/s/vqH8ueaZeEeZbx_axNVSjg)
+- [Kubernetes 1.23 正式发布，有哪些增强？](https://mp.weixin.qq.com/s/A5GBv5Yn6tQK_r6_FSyp9A)
+- [Kubernetes 1.22 颠覆你的想象：可启用 Swap，推出 PSP 替换方案，还有……](https://mp.weixin.qq.com/s/9nH2UagDm6TkGhEyoYPgpQ)
+- [Kubernetes 1.21 震撼发布 | PSP 将被废除，BareMetal 得到增强](https://mp.weixin.qq.com/s/amGjvytJatO-5a7Nz4BYPw)
 
 ## 参考
 
