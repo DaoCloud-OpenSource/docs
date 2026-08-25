@@ -74,7 +74,7 @@ WAS 也就是 Workload Aware Scheduling，是 SIG Scheduling 当前重点方向�
 | 5710 | Workload-aware preemption | 把抢占决策从单个 Pod 扩展到 Workload / PodGroup 级别，减少“抢占了资源但整组任务仍放不下”的情况。 | Alpha |
 | 5729 | DRA: ResourceClaim Support for Workloads | 让 Workload / PodGroup 级对象引用 DRA ResourceClaim 或 ResourceClaimTemplate，使整组 Pod 能共享或生成资源声明。 | Alpha |
 
-> 图：Workload Aware Scheduling / PodGroup 调度流程，待补充。
+> WAS / PodGroup 调度流程可结合上表 KEP 演进脉络与下文调度框架说明理解。
 
 Kubernetes v1.35 已经引入 Gang Scheduling 基础能力：调度器会先确认至少 `minCount` 个 Pod 可调度，再执行绑定。v1.36 在此基础上进一步推进：通过将 Workload 重构为静态模板、引入独立的 PodGroup 运行时 API，并在 kube-scheduler 中新增 PodGroup 调度周期，调度器开始具备以“整组工作负载”为单位进行原子调度的能力。
 
@@ -227,12 +227,11 @@ DaoCloud 在 Kubernetes 社区有很多参与，新增 Kueue 文档 Approver 李
 
 DaoCloud 近期还在孵化另一个云原生项目 MatrixHub：<https://github.com/matrixhub-ai/matrixhub>。该项目填补了企业级私有化大模型资产（模型、数据与版本）统一管理与分发基础设施的空白，敬请期待。
 
-## 活动预告
+## 社区活动信息
 
 - 6 月 18-19 日：KubeCon + CloudNativeCon India 2026，印度孟买
 - 7 月 29-30 日：KubeCon + CloudNativeCon Japan 2026，日本横滨
 - 9 月 8-9 日：KubeCon + CloudNativeCon China 2026，中国上海
-- KubeCon + CloudNativeCon China 2026 CFP 截止日期为 5 月 3 日。此次大会还将同时同地举办 PyTorch Conference（目前 PyTorch 基金会项目包括 PyTorch、vLLM、SGLang 等）、OpenInfra Summit（前 OpenStack）、MCP Dev Summit。
 - 11 月 9-12 日：KubeCon + CloudNativeCon North America 2026，美国盐湖城
 - 11 月：KCD 2026 杭州
 - 2027-2028 年已确定的 KubeCon 场次包括西班牙巴塞罗那（2027 欧洲）、美国新奥尔良（2027 北美）和德国柏林（2028 欧洲）。
@@ -246,21 +245,21 @@ DaoCloud 近期还在孵化另一个云原生项目 MatrixHub：<https://github.
 
 ## 历史文档
 
-- K8s 1.35 发布！安装/升级变化巨大，新特性 Gang Scheduling 重磅来袭！
-- 迎风破浪的三只熊——Kubernetes v1.34 发布，看点全解析
-- 重磅！K8s 正式支持 Sidecar 容器，v1.33 版本这些改动将影响你的集群
-- Kubernetes 1.32 还在写 Webhook? 你已经 OUT 了！
-- Kubernetes 1.31 发布！十年 OCI 镜像借着 AI 的风终于加入 Volume 的大家庭
-- 最可爱的版本 UwU - Kubernetes v1.30 发布！
-- Kubernetes 1.29 全新特性：抛弃 iptables 还在等什么...
-- Kubernetes 1.28 震撼发布，Sidecar Containers 迎面而来
-- 近两年功能增加最多！Kubernetes 1.27 正式发布
-- Kubernetes 正式发布 v1.26，稳定性显著提升
-- Kubernetes 1.25 正式发布，多方面重大突破
-- Kubernetes 1.24 走向成熟的 Kubernetes
-- Kubernetes 1.23 正式发布，有哪些增强？
-- Kubernetes 1.22 颠覆你的想象：可启用 Swap，推出 PSP 替换方案，还有……
-- Kubernetes 1.21 震撼发布 | PSP 将被废除，BareMetal 得到增强
+- [K8s 1.35 发布！安装/升级变化巨大，新特性 Gang Scheduling 重磅来袭！](https://mp.weixin.qq.com/s/faJ7SktLuaONbeFl9oYK1g)
+- [迎风破浪的三只熊——Kubernetes v1.34 发布，看点全解析](https://mp.weixin.qq.com/s/adEqoMmWXWpqck6ZbCvLLg)
+- [重磅！K8s 正式支持 Sidecar 容器，v1.33 版本这些改动将影响你的集群](https://mp.weixin.qq.com/s/a7ZLS59ibSbr-7m1TJpehw)
+- [Kubernetes 1.32 还在写 Webhook? 你已经 OUT 了！](https://mp.weixin.qq.com/s?__biz=MzI5ODQ2MzI3NQ==&mid=2247513735&idx=1&sn=e5f844df272b5bb691382fb5f324cbbd&chksm=ed0baa783029653a0e13882cd76ef2dc29eb75ada3a7d213c07a3bff3829abd230cad5d8f340&scene=126&sessionid=1734429261#rd)
+- [Kubernetes 1.31 发布！十年 OCI 镜像借着 AI 的风终于加入 Volume 的大家庭](https://mp.weixin.qq.com/s/bl5ozc90PhWMO3l-deiJbw)
+- [最可爱的版本 UwU - Kubernetes v1.30 发布！](https://mp.weixin.qq.com/s?__biz=MzA5NTUxNzE4MQ==&mid=2659286459&idx=1&sn=bcb8d232b7b611caf89b7dbf17ce0299&chksm=8bcbfd29bcbc743f88806920a1f5200450deac6575db3d20371f76c54d33140d5f4ce39f19f7)
+- [Kubernetes 1.29 全新特性：抛弃 iptables 还在等什么...](https://mp.weixin.qq.com/s/ZZJBRWauVo-VwNFHkNQ_2w)
+- [Kubernetes 1.28 震撼发布，Sidecar Containers 迎面而来](https://mp.weixin.qq.com/s/Dr_JpSD9tzfahslZO2bX5A)
+- [近两年功能增加最多！Kubernetes 1.27 正式发布](https://mp.weixin.qq.com/s/maDEiCGzOPSDkH9dUxIxdA)
+- [Kubernetes 正式发布 v1.26，稳定性显著提升](https://mp.weixin.qq.com/s/qwzmeIM4INz-_BK_gbwOxw)
+- [Kubernetes 1.25 正式发布，多方面重大突破](https://mp.weixin.qq.com/s/aRmLBYpk0MhLJAwY85DyuA)
+- [Kubernetes 1.24 走向成熟的 Kubernetes](https://mp.weixin.qq.com/s/vqH8ueaZeEeZbx_axNVSjg)
+- [Kubernetes 1.23 正式发布，有哪些增强？](https://mp.weixin.qq.com/s/A5GBv5Yn6tQK_r6_FSyp9A)
+- [Kubernetes 1.22 颠覆你的想象：可启用 Swap，推出 PSP 替换方案，还有……](https://mp.weixin.qq.com/s/9nH2UagDm6TkGhEyoYPgpQ)
+- [Kubernetes 1.21 震撼发布 | PSP 将被废除，BareMetal 得到增强](https://mp.weixin.qq.com/s/amGjvytJatO-5a7Nz4BYPw)
 
 ## 参考
 

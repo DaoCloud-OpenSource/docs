@@ -1,48 +1,23 @@
-# TODO For Next Steps (Not Executed In This PR)
+# v1.36 Cleanup Status
 
-This file is only for planning step 2 and step 3 after step 1 research.
+This planning file is now aligned with the current repository state.
 
-## Step 2: English Blog Draft
+## Step 2: English Release Document
 
-1. Re-check upstream status on writing day:
-- final release date confirmation
-- final release blog/theme/logo links
-- final `CHANGELOG-1.36.md` and release-notes changes
+Status: completed.
 
-2. Draft EN blog based on `research.md`:
-- executive summary
-- major GA/Beta/Alpha highlights
-- upgrade/deprecation risks
-- references
+Output:
 
-3. Validate facts one more time before publish:
-- KEP stage and target release still unchanged
-- any newly disclosed known issue
+- `kubernetes/sig-release/v1.36/release.en.md`
 
-## Step 3: Chinese Blog Draft
+## Step 3: Chinese Release Document
 
-Status: completed in this branch.
+Status: completed.
 
 Output:
 
 - `kubernetes/sig-release/v1.36/release.md`
 
-Also added:
+## Additional Status
 
-- `AI-Infra` action-list sections in both drafts:
-- `kubernetes/sig-release/v1.36/release.en.md`
-- `kubernetes/sig-release/v1.36/release.md`
-
-1. Translate with localization (not literal conversion):
-- keep technical meaning exact
-- adapt wording to domestic/private-cloud reader focus
-
-2. Keep structure aligned with historical local posts:
-- title + theme
-- key highlights by stage
-- upgrade notes and deprecations
-- historical links and references
-
-3. Final consistency checks:
-- terminology consistency (EN/CN names)
-- KEP links and release date consistency with EN version
+- `kubernetes/sig-release/v1.36/Readme.md` is not tracked in the repository, avoiding duplicated source of truth.
