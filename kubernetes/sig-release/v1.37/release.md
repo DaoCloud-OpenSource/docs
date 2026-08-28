@@ -22,6 +22,8 @@ Kubernetes v1.37 计划于今晚也就是 2026 年 8 月 26 日（北美时间�
 
 ![](dra-update.png)
 
+> 本专题已扩展为独立文章：[Kubernetes v1.37 DRA 更新：从平滑迁移到精细化设备管理](dra.md)。独立版本补充了正式发布后的功能阶段核对、落地验证建议，以及 9 月 9 日上海 KubeCon DRA 分享预告。
+
 DRA 核心框架在 v1.34 已经 GA，v1.35、v1.36 又陆续补上了设备健康、容量、分区、污点和工作负载级声明。到了 v1.37，讨论 DRA 不再只是“能不能用 ResourceClaim 申请一块 GPU”——更实际的问题是：老工作负载怎么平滑迁过来、设备坏了怎么管、不同厂商、可切分、拓扑复杂的设备怎么描述清楚。
 
 ### Extended Resource 兼容路径进入 GA
@@ -90,6 +92,8 @@ kube-scheduler 默认是一个 Pod 一个 Pod 地调度。分布式训练、MPI�
 v1.36 用 WAS 把 Workload、PodGroup、Gang Scheduling、拓扑感知调度、工作负载感知抢占这些能力搭成了 Alpha 框架。v1.37 继续往前推：核心 API、Gang Scheduling 和工作负载感知抢占都到了 Beta。
 
 ![WAS](was-update.png)
+
+> 本专题已扩展为独立文章：[Kubernetes v1.37 WAS 更新：Gang Scheduling 进入 Beta，调度开始理解“整组工作负载”](was.md)。独立版本补充了 v1.36 升级迁移、功能启用顺序，以及 WAS 与队列准入和配额系统的职责边界。
 
 ### Workload 与 PodGroup 核心 API 进入 Beta
 
