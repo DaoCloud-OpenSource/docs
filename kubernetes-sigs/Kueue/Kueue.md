@@ -13,6 +13,11 @@ Kueue 是一个 kubernetes 原生系统，用于管理 quotas 以及 jobs 如何
 
 ## APIs
 
+以下 YAML 示例以 Kueue v0.19.7 为准，使用其仍提供的 `kueue.x-k8s.io/v1beta1` API。
+部署示例前，请先按 [v0.19 安装文档](https://kueue.sigs.k8s.io/v0.19/docs/installation/)安装 Kueue。
+[Kueue v0.20.0](https://github.com/kubernetes-sigs/kueue/releases/tag/v0.20.0) 已停止提供此版本；
+使用 v0.20.0 及更新版本时，请参考[当前官方文档](https://kueue.sigs.k8s.io/docs/)。
+
 ![Scenario 1](images/20230714105043.png)
 
 ### Resource Flavor
@@ -39,7 +44,7 @@ Resource Flavor 可以表示多个资源（异构或同构），并且允许你�
     apiVersion: kueue.x-k8s.io/v1beta1
     kind: ResourceFlavor
     metadata:
-    name: default-flavor
+        name: default-flavor
     ```
 
 ### Cluster Queue
@@ -52,17 +57,17 @@ Cluster Queue 用于管理资源（Resource Flavor），定义使用限制和公
     metadata:
         name: "cluster-queue"
     spec:
-    namespaceSelector: {} # match all.
+        namespaceSelector: {} # match all.
         resourceGroups:
           - coveredResources: ["cpu", "memory", "pods"]
             flavors:
               - name: "default-flavor"
                 resources:
-                    - name: "cpu"
-                    nominalQuota: 1  
-                    - name: "memory"
+                  - name: "cpu"
+                    nominalQuota: 1
+                  - name: "memory"
                     nominalQuota: 1Gi
-                    - name: "pods"
+                  - name: "pods"
                     nominalQuota: 3
     ```
 
@@ -88,7 +93,7 @@ Cluster Queue 用于管理资源（Resource Flavor），定义使用限制和公
                   - name: "spot"
                     resources:
                       - name: "cpu"
-                        nominalQuota: 0.5
+                        nominalQuota: "0.5"
                       - name: "memory"
                         nominalQuota: 0.5Gi
                       - name: "pods"
@@ -107,7 +112,7 @@ Cluster Queue 用于管理资源（Resource Flavor），定义使用限制和公
                     resources:
                       - name: "gpu"
                         nominalQuota: 1
-                    - name: "vendor2"
+                  - name: "vendor2"
                     resources:
                       - name: "gpu"
                         nominalQuota: 1
@@ -281,7 +286,7 @@ Workload 是一个应用，它会运行到完成。它是 Kueue 中 admission �
 
 ### 2. 部署 ResourceFlavor
   ```
-  # default-flavor.yaml
+  # test-flavor.yaml
   apiVersion: kueue.x-k8s.io/v1beta1
   kind: ResourceFlavor
   metadata:
