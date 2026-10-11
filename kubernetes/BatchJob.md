@@ -97,13 +97,13 @@ metadata:
   name: batch-job-example
 spec:
   template:
-    terminationGracePeriodSeconds: 0
-    spec:      
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 0
       containers:
       - name: my-job
         image: alpine
         imagePullPolicy: IfNotPresent
-        restartPolicy: Never
         command: ['sh', '-c', 'echo First Batch Job; sleep 10']
 ```
 
@@ -121,9 +121,9 @@ metadata:
 spec:
   completions: 4
   template:
-    restartPolicy: Never
-    terminationGracePeriodSeconds: 0
-    spec:      
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 0
       containers:
       - name: my-job
         image: alpine
@@ -144,17 +144,17 @@ kind: Job
 metadata:
   name: my-job
 spec:
+  completions: 4
+  parallelism: 2
   template:
-    restartPolicy: Never
-    terminationGracePeriodSeconds: 0
-    spec:      
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 0
       containers:
       - name: my-job
         image: alpine
         imagePullPolicy: IfNotPresent
         command: ['sh', '-c', 'echo Job Pod is Running ; sleep 10']
-   completions: 4
-   parallelism: 2
 ```
 
 ### 完成模式
@@ -182,36 +182,39 @@ spec:
 
 - Pod 失效策略使用 `.spec.podFailurePolicy` 字段来定义， 它能让你的集群根据容器的退出码和 Pod 状况来处理 Pod 失效事件。
     
-    ```
+    ```yaml
     apiVersion: batch/v1
     kind: Job
     metadata:
-    name: job-pod-failure-policy-example
+      name: job-pod-failure-policy-example
     spec:
-    completions: 12
-    parallelism: 3
-    template:
-    spec:
-    restartPolicy: Never
-    containers:
-          -name: main
-    image: docker.io/library/bash:5
-    command: ["bash"]# 模拟一个触发 FailJob 动作的错误的示例命令args:
+      completions: 12
+      parallelism: 3
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: main
+            image: docker.io/library/bash:5
+            command: ["bash"]
+            args:
             - -c
             - echo "Hello world!" && sleep 5 && exit 42
-    backoffLimit: 6
-    podFailurePolicy:
-    rules:
-        -action: FailJob
-    onExitCodes:
-        operator: NotIn
-        values: [0]
-    containerName: main# 可选operator: In# In 和 NotIn 二选一values: [42]
-        -action: Ignore# Ignore、FailJob、Count 其中之一onPodConditions:
-          -type: DisruptionTarget# 表示 Pod 失效
+      backoffLimit: 6
+      podFailurePolicy:
+        rules:
+        - action: FailJob
+          onExitCodes:
+            containerName: main
+            operator: In
+            values: [42]
+        - action: Ignore
+          onPodConditions:
+          - type: DisruptionTarget
+            status: "True"
     ```
 
-    -  `spec.podFailurePolicy.rules[*].containerName ` 将规则限制到特定容器
+    -  `spec.podFailurePolicy.rules[*].onExitCodes.containerName` 将退出码规则限制到特定容器
     -  `spec.podFailurePolicy.rules[*].action ` 当 Pod 失效策略发生匹配时要采取的操作
         - FailJob：表示 Pod 的任务应标记为 Failed，并且所有正在运行的 Pod 应被终止。
         - Ignore：表示 .spec.backoffLimit 的计数器不应该增加，应该创建一个替换的 Pod。
